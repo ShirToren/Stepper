@@ -1,11 +1,11 @@
 package FXML.inputs;
 
+import FXML.execution.ExecutionController;
 import FXML.main.MainAppController;
 import dto.DataInFlowDTO;
 import dto.FlowExecutionDTO;
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 
@@ -13,15 +13,13 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import step.api.DataNecessity;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class CollectInputsController {
 
     private MainAppController mainAppController;
+    private ExecutionController executionController;
     @FXML
     private GridPane collectInputsGP;
     private final List<TextField> mandatoryTextFields;
@@ -41,10 +39,26 @@ public class CollectInputsController {
 
     }
 
-    public void initInputsComponents() {
+    private void clearAll(){
+        freeInputsTextFieldComponents.clear();
+        freeInputsSpinnerComponents.clear();
+        mandatoryTextFields.clear();
+
+        List<Integer> rowsToDelete = Arrays.asList(2, 3, 4, 5);
+        collectInputsGP.getChildren().removeIf(node -> rowsToDelete.contains(GridPane.getRowIndex(node)));/*        for (int i = collectInputsGP.getRowConstraints().size() - 1; i > 1; i--) {
+            collectInputsGP.getRowConstraints().remove(i);
+
+            // Remove child nodes in the row
+            int finalI = i;
+            collectInputsGP.getChildren().removeIf(node -> GridPane.getRowIndex(node) == finalI);
+        }*/
+    }
+
+    public void initInputsComponents(UUID id) {
+        clearAll();
         int mandatoryRowIndex = 2, optionalRowIndex = 2;
         int mandatoryColIndex = 1, optionalColIndex = 5;
-        List<DataInFlowDTO> currentFreeInputs = mainAppController.getModel().getCurrentFreeInputs();
+        List<DataInFlowDTO> currentFreeInputs = mainAppController.getModel().getExecutionDTOByUUID(id).getFlowDefinitionDTO().getFreeInputs();
         for (DataInFlowDTO input: currentFreeInputs) {
             //addRowConstraints();
             if(input.getDataNecessity().equals(DataNecessity.MANDATORY)) {
@@ -69,13 +83,10 @@ public class CollectInputsController {
                 optionalRowIndex++;
             }
         }
-
-        initExecuteButton(Math.max(optionalRowIndex, mandatoryRowIndex));
-
-
+        initExecuteButton(id, Math.max(optionalRowIndex, mandatoryRowIndex));
     }
 
-    private void initExecuteButton(int rowIndex) {
+    private void initExecuteButton(UUID id, int rowIndex) {
         executeButton = new Button();
         executeButton.setText("Start!");
         for (TextField textField: mandatoryTextFields) {
@@ -85,24 +96,34 @@ public class CollectInputsController {
         }
         collectInputsGP.add(executeButton, 7 ,rowIndex);
         executeButton.setOnAction(event -> {
-            for (Map.Entry<DataInFlowDTO, Spinner<Integer>> entry: freeInputsSpinnerComponents.entrySet()) {
-                mainAppController.getModel().addFreeInputToFlowExecution(entry.getKey().getFinalName() +
-                        "." + entry.getKey().getOwnerStep().getName(), entry.getValue().getValue());
-            }
-            for (Map.Entry<DataInFlowDTO, TextField> entry: freeInputsTextFieldComponents.entrySet()) {
-                if(!entry.getValue().getText().isEmpty()) {
-                    mainAppController.getModel().addFreeInputToFlowExecution(entry.getKey().getFinalName() +
-                            "." + entry.getKey().getOwnerStep().getName(), entry.getValue().getText());
-                }
-            }
-            FlowExecutionDTO flowExecutionDTO = mainAppController.getModel().executeFlow();
-            mainAppController.setCurrentExecutionDTO(flowExecutionDTO);
-            mainAppController.showFlowExecutionDetails();
+            executeButtonActionListener(id);
+            mainAppController.executeListener(id);
+            Runnable task = () -> {
+                mainAppController.getModel().executeFlow(id);
+            };
+            mainAppController.getModel().getExecutor().execute(task);
+            //mainAppController.setCurrentExecutionDTO(flowExecutionDTO);
+            //mainAppController.showFlowExecutionDetails();
         });
     }
 
-    public void setMainAppController(MainAppController mainAppController) {
+    private void executeButtonActionListener(UUID id){
+        for (Map.Entry<DataInFlowDTO, Spinner<Integer>> entry: freeInputsSpinnerComponents.entrySet()) {
+            mainAppController.getModel().addFreeInputToFlowExecution(id, entry.getKey().getFinalName() +
+                    "." + entry.getKey().getOwnerStep().getName(), entry.getValue().getValue());
+        }
+        for (Map.Entry<DataInFlowDTO, TextField> entry: freeInputsTextFieldComponents.entrySet()) {
+            if(!entry.getValue().getText().isEmpty()) {
+                mainAppController.getModel().addFreeInputToFlowExecution(id, entry.getKey().getFinalName() +
+                        "." + entry.getKey().getOwnerStep().getName(), entry.getValue().getText());
+            }
+        }
+        mainAppController.showFlowExecutionDetails(id);
+    }
+
+    public void setMainAppController(MainAppController mainAppController, ExecutionController executionController) {
         this.mainAppController = mainAppController;
+        this.executionController = executionController;
     }
 
     private void addRowConstraints() {

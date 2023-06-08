@@ -2,6 +2,8 @@ package FXML.main;
 
 import FXML.definition.DefinitionController;
 import FXML.execution.ExecutionController;
+import FXML.execution.UIAdapter;
+import dto.FlowDefinitionDTO;
 import dto.FlowExecutionDTO;
 import dto.XMLDTO;
 import javafx.beans.property.SimpleStringProperty;
@@ -16,8 +18,10 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import stepper.management.StepperEngineManager;
+import tasks.UpdateExecutionDetailsTask;
 
 import java.io.File;
+import java.util.UUID;
 
 public class MainAppController {
     private StepperEngineManager model = new StepperEngineManager();
@@ -66,15 +70,32 @@ public class MainAppController {
 
     public void switchToExecutionTab() {
         tabPane.getSelectionModel().select(flowExecutionTab);
+        //currentExecutionDTO = new FlowExecutionDTO(model.getCurrentFlowExecution(), new FlowDefinitionDTO(model.getCurrentFlowExecution().getFlowDefinition()));
+    }
+
+    public UUID executeFlowButtonActionListener() {
+        clearFlowExecutionDetails();
+        switchToExecutionTab();
+        UUID id = model.createFlowExecution(flowsDefinitionComponentController.getSelectedFlowName());
+        flowsExecutionComponentController.initFreeInputsComponents(id);
+        return id;
+    }
+
+    public void clearFlowExecutionDetails(){
+        flowsExecutionComponentController.clearFlowExecutionDetails();
+    }
+
+    public void showFlowExecutionDetails(UUID id){
+        flowsExecutionComponentController.addFlowExecutionDetails(id);
+    }
+
+    public void executeListener(UUID id) {
+       flowsExecutionComponentController.executeListener(id);
+    }
+
+    public void createFlowExecution(){
         model.createFlowExecution(flowsDefinitionComponentController.getSelectedFlowName());
-        flowsExecutionComponentController.initFreeInputsComponents();
     }
-
-    public void showFlowExecutionDetails(){
-        flowsExecutionComponentController.addFlowExecutionDetails();
-    }
-
-
 
 
 

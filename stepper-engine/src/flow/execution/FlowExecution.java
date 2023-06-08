@@ -29,6 +29,7 @@ public class FlowExecution {
     private final List<StepUsageDeclaration> executedSteps;
     private LocalTime startExecutionTime;
     private LocalTime endExecutionTime;
+    private boolean isFinished;
 
     ///all outputs?
 
@@ -44,6 +45,8 @@ public class FlowExecution {
         this.executedSteps = new ArrayList<>();
         initTotalTimesAndResults();
         initAllExecutionOutputs();
+        this.summeryLines = new HashMap<>();
+        this.logLines = new HashMap<>();
     }
 
     private void initTotalTimesAndResults(){
@@ -140,5 +143,13 @@ public class FlowExecution {
 
     public Map<String, StepResult> getStepsResults() {
         return stepsResults;
+    }
+
+    public void setFinished(boolean finished) {
+        isFinished = finished;
+    }
+
+    public boolean isFinished() {
+        return isFinished;
     }
 }

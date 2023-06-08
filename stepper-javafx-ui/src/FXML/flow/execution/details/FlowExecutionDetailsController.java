@@ -11,9 +11,11 @@ import javafx.scene.control.ListView;
 import javafx.scene.input.MouseEvent;
 import step.api.DataNecessity;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class FlowExecutionDetailsController {
     private MainAppController mainAppController;
@@ -70,22 +72,37 @@ public class FlowExecutionDetailsController {
         outputsLV.setItems(outputsLVItems);
     }
 
-    public void addFlowExecutionDetails() {
-        FlowExecutionDTO currentExecutionDTO = mainAppController.getCurrentExecutionDTO();
+    public void addFlowExecutionDetails(UUID id) {
+        FlowExecutionDTO currentExecutionDTO = mainAppController.getModel().getExecutionDTOByUUID(id);
         flowNameLabel.setText(currentExecutionDTO.getFlowDefinitionDTO().getName());
         flowIDLabel.setText(currentExecutionDTO.getUuid().toString());
-        startTimeLabel.setText(currentExecutionDTO.getStartExecutionTime().toString());
-        endTimeLabel.setText(currentExecutionDTO.getEndExecutionTime().toString());
-        durationLabel.setText(Long.toString(currentExecutionDTO.getTotalTime().toMillis()));
-        resultLabel.setText(currentExecutionDTO.getExecutionResult().name());
-        showFreeInputsDetails();
-        showAllFlowOutputsDetails();
+        LocalTime startExecutionTime = currentExecutionDTO.getStartExecutionTime();
+        if(startExecutionTime != null) {
+            startTimeLabel.setText(startExecutionTime.toString());
+        }
+        //endTimeLabel.setText(currentExecutionDTO.getEndExecutionTime().toString());
+        //durationLabel.setText(Long.toString(currentExecutionDTO.getTotalTime().toMillis()));
+        //resultLabel.setText(currentExecutionDTO.getExecutionResult().name());
+        showFreeInputsDetails(id);
+        //showAllFlowOutputsDetails();
     }
 
-    private void showFreeInputsDetails() {
-        Map<String, Object> actualFreeInputs = mainAppController.getModel().getActualFreeInputsList();
+    public void updateEndTime(String endTime) { endTimeLabel.setText(endTime); }
+    public void updateStartTime(String startTime) { startTimeLabel.setText(startTime); }
+
+    public void updateDuration(String duration) { durationLabel.setText(duration); }
+    public void updateResult(String result) { resultLabel.setText(result); }
+    public void addOutput(String outputName) { outputsLVItems.add(outputName); }
+
+    public void clearAllOutputs(){
+        outputsLVItems.clear();
+    }
+
+
+    private void showFreeInputsDetails(UUID id) {
+        Map<String, Object> actualFreeInputs = mainAppController.getModel().getActualFreeInputsList(id);
         List<DataInFlowDTO> optionalInput = new ArrayList<>();
-        freeInputsList = mainAppController.getCurrentExecutionDTO().getFlowDefinitionDTO().getFreeInputs();
+        freeInputsList = mainAppController.getModel().getExecutionDTOByUUID(id).getFlowDefinitionDTO().getFreeInputs();
         for (DataInFlowDTO freeInput : freeInputsList) {
             if (freeInput.getDataNecessity().equals(DataNecessity.MANDATORY) &&
                     actualFreeInputs.containsKey(freeInput.getFinalName() + "." + freeInput.getOwnerStep().getName())) {
@@ -153,4 +170,20 @@ public class FlowExecutionDetailsController {
         this.mainAppController = mainAppController;
     }
 
+    public void clearAll(){
+        flowNameLabel.setText("");
+        flowIDLabel.setText("");
+        startTimeLabel.setText("");
+        endTimeLabel.setText("");
+        durationLabel.setText("");
+        resultLabel.setText("");
+        freeInputsLVItems.clear();
+        freeInputTypeLabel.setText("");
+        freeInputValueLabel.setText("");
+        freeInputNecessityLabel.setText("");
+        outputsLVItems.clear();
+        outputTypeLabel.setText("");
+        outputValueLabel.setText("");
+        outputStepOwnerLabel.setText("");
+    }
 }

@@ -7,7 +7,6 @@ import flow.definition.api.DataInFlow;
 import flow.definition.api.FlowDefinition;
 import flow.definition.api.StepUsageDeclaration;
 import flow.execution.FlowExecution;
-import flow.execution.FlowExecutionResult;
 import flow.execution.runner.FLowExecutor;
 import step.api.DataNecessity;
 import stepper.definition.Stepper;
@@ -18,34 +17,45 @@ import java.io.FileNotFoundException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class StepperEngineManager {
     private Stepper stepper;
     private final XMLLoader loader;
     private final FLowExecutor fLowExecutor;
-
     private FlowExecution currentFlowExecution;
-    private final List<FlowExecution> allFlowExecutions;
+    private final List<FlowExecution> allFlowExecutionsList;
+    private final Map<UUID, FlowExecution> allFlowExecutionsMap;
     private final List<FlowExecutionDTO> allExecutionsDTO;
     private final Map<String, Integer> flowExecutedTimes;
     private final Map<String, Long> flowExecutedTotalMillis;
     private final Map<String, Integer> stepExecutedTimes;
     private final  Map<String, Long> stepExecutedTotalMillis;
+    private final ExecutorService executor;
+
 
     public StepperEngineManager() {
         this.loader = new XMLLoader();
         this.fLowExecutor = new FLowExecutor();
-        this.allFlowExecutions = new ArrayList<>();
         this.allExecutionsDTO = new ArrayList<>();
         this.flowExecutedTimes = new HashMap<>();
         this.stepExecutedTimes = new HashMap<>();
         this.flowExecutedTotalMillis = new HashMap<>();
         this.stepExecutedTotalMillis = new HashMap<>();
+        this.allFlowExecutionsMap = new ConcurrentHashMap<>();
+        this.allFlowExecutionsList = Collections.synchronizedList(new ArrayList<>());
+        this.executor = Executors.newFixedThreadPool(5);
     }
 
     public FlowDefinitionDTO showFlowDefinition(String flowName) {
         FlowDefinition flow = stepper.findFlowDefinitionByName(flowName);
         return new FlowDefinitionDTO(flow);
+    }
+
+    public ExecutorService getExecutor() {
+        return executor;
     }
 
     public int countCurrentFreeInputs(){
@@ -61,13 +71,15 @@ public class StepperEngineManager {
     }
 
     private void cleanAllSystem(){
-        currentFlowExecution = null;
-        allFlowExecutions.clear();
-        allExecutionsDTO.clear();
-        flowExecutedTimes.clear();
-        flowExecutedTotalMillis.clear();
-        stepExecutedTimes.clear();
-        stepExecutedTotalMillis.clear();
+        synchronized (this) {
+            currentFlowExecution = null;
+            allFlowExecutionsList.clear();
+            allExecutionsDTO.clear();
+            flowExecutedTimes.clear();
+            flowExecutedTotalMillis.clear();
+            stepExecutedTimes.clear();
+            stepExecutedTotalMillis.clear();
+        }
     }
 
     public List<FlowExecutionDTO> getAllExecutionsDTO(){
@@ -77,7 +89,7 @@ public class StepperEngineManager {
     public List<String> getExecutedStepsDefinitionsNames(){
         Set<String> values = new HashSet<>();
         List<String> executedSteps = new ArrayList<>();
-        for (FlowExecution execution : allFlowExecutions) {
+        for (FlowExecution execution : allFlowExecutionsList) {
             for (StepUsageDeclaration step : execution.getFlowDefinition().getFlowSteps()) {
                 if(!values.contains(step.getStepDefinition().getName())) {
                     values.add(step.getStepDefinition().getName());
@@ -102,18 +114,9 @@ public class StepperEngineManager {
         allExecutionsDTO.add(0, dto);
     }
 
-    public String getCurrentFlowExecutionName() { return currentFlowExecution.getFlowDefinition().getName(); }
-
-    public String getCurrentFlowExecutionResult() { return currentFlowExecution.getFlowExecutionResult().name(); }
-
     public FlowExecution getCurrentFlowExecution() {
-        return currentFlowExecution;
+        return allFlowExecutionsList.get(0);
     }
-
-    public UUID getCurrentFlowExecutionID(){
-        return currentFlowExecution.getUuid();
-    }
-
     public boolean isStepperLoaded(){
         return stepper != null;
     }
@@ -132,6 +135,9 @@ public class StepperEngineManager {
     public Map<String, Object> getActualFreeInputsList() {
         return new HashMap<>(currentFlowExecution.getFreeInputs());
     }
+    public Map<String, Object> getActualFreeInputsList(UUID id) {
+        return new HashMap<>(allFlowExecutionsMap.get(id).getFreeInputs());
+    }
 
     public List<String> getAllFlowsNames() {
         List<String> names = new ArrayList<>();
@@ -141,27 +147,39 @@ public class StepperEngineManager {
         return  names;
     }
 
-    public void createFlowExecution(String flowName) {
-        currentFlowExecution = new FlowExecution(UUID.randomUUID(),
+    public UUID createFlowExecution(String flowName) {
+        UUID id = UUID.randomUUID();
+        FlowExecution flowExecution = new FlowExecution(id,
                 stepper.findFlowDefinitionByName(flowName));
+            this.allFlowExecutionsList.add(0, flowExecution);
+            this.allFlowExecutionsMap.put(id, flowExecution);
+        //currentFlowExecution = flowExecution;
+        return id;
     }
 
     public void setCurrentFlowExecution(FlowExecutionDTO currentFlowExecution){
-        for (FlowExecution execution: allFlowExecutions) {
-            if(currentFlowExecution.getUuid().equals(execution.getUuid())) {
-                this.currentFlowExecution = execution;
+        synchronized (this) {
+            for (FlowExecution execution: allFlowExecutionsList) {
+                if(currentFlowExecution.getUuid().equals(execution.getUuid())) {
+                    this.currentFlowExecution = execution;
+                }
             }
         }
     }
 
-    public void addFreeInputToFlowExecution(String inputName, Object value) {
-        currentFlowExecution.addFreeInput(inputName, value);
+    public void addFreeInputToFlowExecution(UUID id, String inputName, Object value) {
+        allFlowExecutionsMap.get(id).addFreeInput(inputName, value);
+        //currentFlowExecution.addFreeInput(inputName, value);
+    }
+
+    public List<FlowExecution> getAllFlowExecutionsList() {
+        return allFlowExecutionsList;
     }
 
     public FlowExecutionDTO executeFlow() {
-        allFlowExecutions.add(0, currentFlowExecution);
         Instant start = Instant.now();
-        fLowExecutor.executeFlow(currentFlowExecution);
+        fLowExecutor.executeFlow(allFlowExecutionsList.get(0));
+        currentFlowExecution.setFinished(true);
         Instant end = Instant.now();
         Duration duration = Duration.between(start, end);
         currentFlowExecution.setTotalTime(duration);
@@ -169,6 +187,17 @@ public class StepperEngineManager {
         addExecutionDTO(dto);
         addExecutionToStatistics(dto);
         return dto;
+    }
+
+    public void executeFlow(UUID id) {
+        Instant start = Instant.now();
+        FlowExecution flowExecution = allFlowExecutionsMap.get(id);
+        fLowExecutor.executeFlow(flowExecution);
+        flowExecution.setFinished(true);
+        Instant end = Instant.now();
+        Duration duration = Duration.between(start, end);
+        flowExecution.setTotalTime(duration);
+//        addExecutionToStatistics(dto);
     }
 
     public XMLDTO readSystemInformationFile(String fileName) {
@@ -242,9 +271,14 @@ public class StepperEngineManager {
     }
 
     public FlowExecutionDTO getExecutionDTOByUUID(UUID id) {
-        for (FlowExecutionDTO dto: allExecutionsDTO) {
-            if(dto.getUuid().equals(id)) {
-                return dto;
+        return new FlowExecutionDTO(allFlowExecutionsMap.get(id),
+                new FlowDefinitionDTO(allFlowExecutionsMap.get(id).getFlowDefinition()));
+    }
+
+    public FlowExecution getExecutionByUUID(UUID id) {
+        for (FlowExecution flowExecution: allFlowExecutionsList) {
+            if(flowExecution.getUuid().equals(id)) {
+                return flowExecution;
             }
         }
         return null;

@@ -37,6 +37,12 @@ public class FLowExecutor {
             context.setCurrentStep(stepUsageDeclaration);
             //System.out.println("Starting to execute step: " + stepUsageDeclaration.getFinalStepName());
             StepResult stepResult = stepUsageDeclaration.getStepDefinition().invoke(context);
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
             if(stepResult.equals(StepResult.FAILURE)) {
                 flowExecution.setFlowExecutionResult(FlowExecutionResult.FAILURE);
                 if(!stepUsageDeclaration.skipIfFail()) { break; }

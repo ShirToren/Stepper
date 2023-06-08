@@ -135,7 +135,7 @@ public class FlowDefinitionDetailsController {
 
     @FXML
     void executeButtonActionListener(ActionEvent event) {
-        mainAppController.switchToExecutionTab();
+        mainAppController.executeFlowButtonActionListener();
     }
 
 
