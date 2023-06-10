@@ -5,11 +5,11 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<GridPane fx:id="stepDetailsGP" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.171" fx:controller="FXML.step.execution.details.StepExecutionDetailsController">
+<GridPane fx:id="stepDetailsGP" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="FXML.step.execution.details.StepExecutionDetailsController">
   <columnConstraints>
       <ColumnConstraints hgrow="NEVER" maxWidth="10.0" minWidth="10.0" prefWidth="10.0" />
-      <ColumnConstraints hgrow="SOMETIMES" maxWidth="188.0" minWidth="10.0" prefWidth="141.33331298828125" />
-      <ColumnConstraints hgrow="SOMETIMES" maxWidth="417.0" minWidth="10.0" prefWidth="370.66668701171875" />
+      <ColumnConstraints hgrow="SOMETIMES" maxWidth="188.0" minWidth="10.0" prefWidth="154.0" />
+      <ColumnConstraints hgrow="SOMETIMES" maxWidth="417.0" minWidth="10.0" prefWidth="359.0" />
     <ColumnConstraints hgrow="NEVER" maxWidth="10.0" minWidth="10.0" prefWidth="10.0" />
   </columnConstraints>
   <rowConstraints>
@@ -18,17 +18,23 @@
       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
   </rowConstraints>
    <children>
       <Label text="Step name:" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-      <Label text="Duration:" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-      <Label text="Result:" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-      <Label text="Summary:" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-      <Label text="Inputs:" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+      <Label text="Duration:" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+      <Label text="Result:" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+      <Label text="Summary:" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+      <Label text="Inputs:" GridPane.columnIndex="1" GridPane.rowIndex="7" />
       <Label fx:id="stepNameLabel" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-      <Label fx:id="DurationLabel" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-      <Label fx:id="resultLabel" GridPane.columnIndex="2" GridPane.rowIndex="3" />
-      <Label fx:id="summaryLabel" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+      <Label fx:id="DurationLabel" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+      <Label fx:id="resultLabel" GridPane.columnIndex="2" GridPane.rowIndex="5" />
+      <Label fx:id="summaryLabel" GridPane.columnIndex="2" GridPane.rowIndex="6" />
+      <Label text="Start time:" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+      <Label text="End time:" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+      <Label fx:id="startTimeLabel" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+      <Label fx:id="endTimeLabel" GridPane.columnIndex="2" GridPane.rowIndex="3" />
    </children>
 </GridPane>
