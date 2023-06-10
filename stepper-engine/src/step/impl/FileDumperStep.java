@@ -27,6 +27,8 @@ public class FileDumperStep extends AbstractStepDefinition {
     public StepResult invoke(StepExecutionContext context) {
         context.storeExecutedStep();
         Instant start = Instant.now();
+        LocalTime startTime = LocalTime.now();
+        context.storeStartTime(startTime);
         String content = context.getDataValue("CONTENT", String.class);
         String filePath = context.getDataValue("FILE_NAME" , String.class);
         StepResult result;
@@ -53,6 +55,8 @@ public class FileDumperStep extends AbstractStepDefinition {
             context.addSummeryLine(String.format("Step result is Failure. Error: %s",
                     e.getMessage()));
             Instant end = Instant.now();
+            LocalTime endTime = LocalTime.now();
+            context.storeEndTime(endTime);
             Duration duration = Duration.between(start, end);
             context.storeDuration(duration);
             return StepResult.FAILURE;
@@ -60,6 +64,8 @@ public class FileDumperStep extends AbstractStepDefinition {
         context.storeDataValue("RESULT", "SUCCESS");
         context.storeResult(result);
         Instant end = Instant.now();
+        LocalTime endTime = LocalTime.now();
+        context.storeEndTime(endTime);
         Duration duration = Duration.between(start, end);
         context.storeDuration(duration);
         return result;

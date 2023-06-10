@@ -3,6 +3,7 @@ package FXML.definition;
 import FXML.flow.definition.details.FlowDefinitionDetailsController;
 import FXML.main.MainAppController;
 import dto.FlowDefinitionDTO;
+import javafx.beans.property.BooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -56,6 +57,11 @@ public class DefinitionController {
         continuationsColumn.setCellValueFactory(new PropertyValueFactory<>("numOfContinuations"));
     }
 
+    public void clearAll(){
+        data.clear();
+        flowDetailsComponentController.clearPrevDetails();
+    }
+
     @FXML
     void rowClickedActionListener(MouseEvent event) {
         if(event.getClickCount() == 1) {
@@ -64,6 +70,7 @@ public class DefinitionController {
             ObservableList<TargetTable> items = flowsTable.getItems();
 
             if (selectedIndex >= 0 && selectedIndex < items.size()) {
+                mainAppController.setSelectedFlow();
                 TargetTable item = items.get(selectedIndex);
                 flowDetailsComponentController.addFlowDetails(item.getName());
                 this.selectedFlowName = item.getName();
@@ -73,6 +80,10 @@ public class DefinitionController {
                 System.out.println("Invalid index.");
             }
         }
+    }
+
+    public BooleanProperty getExecuteButtonDisableProperty(){
+        return  flowDetailsComponentController.getExecuteButtonDisableProperty();
     }
 
     public void setMainAppController(MainAppController mainAppController) {
@@ -86,6 +97,7 @@ public class DefinitionController {
 
 
     public void addFlowsToTable() {
+        data.clear();
         List<FlowDefinitionDTO> flowDefinitions = mainAppController.getModel().getAllFlowDefinitionsInStepper();
         for (FlowDefinitionDTO flow : flowDefinitions) {
             TargetTable row = new TargetTable(flow.getName(),

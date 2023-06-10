@@ -16,6 +16,7 @@ public class FlowExecutionDTO implements DTO{
     private final FlowExecutionResult executionResult;
     private final Map<DataInFlowDTO, Object> executionFormalOutputs;
     private final Map<DataInFlowDTO, Object> allExecutionOutputs;
+    private final Map<DataInFlowDTO, Object> allExecutionInputs;
 
     private final Duration totalTime;
 
@@ -27,6 +28,10 @@ public class FlowExecutionDTO implements DTO{
     private final Map<String, StepResult> stepsResults;
     private Map<String, List<LogLine>> logLines;
     private Map<String, String> summeryLines;
+    private boolean isFinished;
+    private final Map<String, Object> freeInputs;
+    private final Map<String, LocalTime> stepsStartTimes;
+    private final Map<String, LocalTime> stepsEndTimes;
 
 
     public FlowExecutionDTO(FlowExecution flowExecution, FlowDefinitionDTO flowDefinitionDTO) {
@@ -38,11 +43,16 @@ public class FlowExecutionDTO implements DTO{
         this.endExecutionTime = flowExecution.getEndExecutionTime();
         this.executionFormalOutputs = new HashMap<>();
         this.allExecutionOutputs = new HashMap<>();
+        this.allExecutionInputs = new HashMap<>();
         this.stepsTotalTimes = new HashMap<>();
         this.stepsResults = new HashMap<>();
         this.logLines = new HashMap<>();
         this.summeryLines = new HashMap<>();
         this.executedSteps = new ArrayList<>();
+        this.freeInputs = new HashMap<>(flowExecution.getFreeInputs());
+        this.isFinished = flowExecution.isFinished();
+        this.stepsStartTimes = new HashMap<>();
+        this.stepsEndTimes = new HashMap<>();
         ///for (StepUsageDeclarationDTO step : flowDefinitionDTO.getSteps())
         for (StepUsageDeclaration step : flowExecution.getExecutedSteps()) {
             stepsTotalTimes.put(step.getFinalStepName(), flowExecution.getStepsTotalTimes().get(step.getFinalStepName()));
@@ -57,12 +67,19 @@ public class FlowExecutionDTO implements DTO{
                 allExecutionOutputs.put(dataInFlowDTO, flowExecution.getAllExecutionOutputs().get(dataInFlowDTO.getFinalName()));
             }
         }
+        for (DataInFlowDTO input: flowDefinitionDTO.getFlowsInputs()) {
+            if (flowExecution.getAllExecutionInputs().containsKey(input.getFinalName())) {
+                allExecutionInputs.put(input, flowExecution.getAllExecutionInputs().get(input.getFinalName()));
+            }
+        }
         for (Map.Entry<StepUsageDeclaration, List<LogLine>> entry : flowExecution.getLogLines().entrySet()) {
             logLines.put(entry.getKey().getFinalStepName(), entry.getValue());
         }
         for (Map.Entry<StepUsageDeclaration,String> entry : flowExecution.getSummeryLines().entrySet()) {
             summeryLines.put(entry.getKey().getFinalStepName(), entry.getValue());
         }
+        stepsStartTimes.putAll(flowExecution.getStepsStartTimes());
+        stepsEndTimes.putAll(flowExecution.getStepsEndTimes());
 
 /*        for (StepUsageDeclaration step: flowExecution.getExecutedSteps()) {
             executedSteps.add(new StepUsageDeclarationDTO(step));
@@ -80,6 +97,22 @@ public class FlowExecutionDTO implements DTO{
 
     public Map<String, Duration> getStepsTotalTimes() {
         return stepsTotalTimes;
+    }
+
+    public boolean isFinished() {
+        return isFinished;
+    }
+
+    public Map<String, Object> getFreeInputs() {
+        return freeInputs;
+    }
+
+    public Map<String, LocalTime> getStepsStartTimes() {
+        return stepsStartTimes;
+    }
+
+    public Map<String, LocalTime> getStepsEndTimes() {
+        return stepsEndTimes;
     }
 
     public Map<String, StepResult> getStepsResults() {
@@ -104,6 +137,10 @@ public class FlowExecutionDTO implements DTO{
 
     public Map<DataInFlowDTO, Object> getAllExecutionOutputs() {
         return allExecutionOutputs;
+    }
+
+    public Map<DataInFlowDTO, Object> getAllExecutionInputs() {
+        return allExecutionInputs;
     }
 
     public FlowExecutionResult getExecutionResult() {

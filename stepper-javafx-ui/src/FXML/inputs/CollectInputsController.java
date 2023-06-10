@@ -4,6 +4,7 @@ import FXML.execution.ExecutionController;
 import FXML.main.MainAppController;
 import dto.DataInFlowDTO;
 import dto.FlowExecutionDTO;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -34,40 +35,34 @@ public class CollectInputsController {
         this.freeInputsSpinnerComponents = new HashMap<>();
     }
 
-    @FXML
-    public void initialize() {
-
-    }
-
-    private void clearAll(){
+    public void clearAll(){
         freeInputsTextFieldComponents.clear();
         freeInputsSpinnerComponents.clear();
         mandatoryTextFields.clear();
-
-        List<Integer> rowsToDelete = Arrays.asList(2, 3, 4, 5);
-        collectInputsGP.getChildren().removeIf(node -> rowsToDelete.contains(GridPane.getRowIndex(node)));/*        for (int i = collectInputsGP.getRowConstraints().size() - 1; i > 1; i--) {
-            collectInputsGP.getRowConstraints().remove(i);
-
-            // Remove child nodes in the row
-            int finalI = i;
-            collectInputsGP.getChildren().removeIf(node -> GridPane.getRowIndex(node) == finalI);
-        }*/
+        collectInputsGP.getChildren().removeIf(node -> GridPane.getRowIndex(node) >= 2);
     }
 
     public void initInputsComponents(UUID id) {
         clearAll();
         int mandatoryRowIndex = 2, optionalRowIndex = 2;
         int mandatoryColIndex = 1, optionalColIndex = 5;
-        List<DataInFlowDTO> currentFreeInputs = mainAppController.getModel().getExecutionDTOByUUID(id).getFlowDefinitionDTO().getFreeInputs();
+        FlowExecutionDTO executionDTO = mainAppController.getModel().getExecutionDTOByUUID(id);
+        List<DataInFlowDTO> currentFreeInputs = executionDTO.getFlowDefinitionDTO().getFreeInputs();
         for (DataInFlowDTO input: currentFreeInputs) {
             //addRowConstraints();
             if(input.getDataNecessity().equals(DataNecessity.MANDATORY)) {
                 addLabel(input.getUserString() + ":", mandatoryRowIndex, mandatoryColIndex);
                 if(input.getDataDefinition().getType().equals(String.class)) {
                     TextField textField = addMandatoryTextField(mandatoryRowIndex, mandatoryColIndex + 1);
-                    freeInputsTextFieldComponents.put(input, textField);
+                    if(executionDTO.getFreeInputs().containsKey(input.getFinalName() + "." + input.getOwnerStep().getName())){
+                        textField.setText(executionDTO.getFreeInputs().get(input.getFinalName() + "." + input.getOwnerStep().getName()).toString());
+                    }
+                        freeInputsTextFieldComponents.put(input, textField);
                 } else {
                     Spinner<Integer> integerSpinner = addSpinner(mandatoryRowIndex, mandatoryColIndex + 1);
+                    if(executionDTO.getFreeInputs().containsKey(input.getFinalName() + "." + input.getOwnerStep().getName())){
+                        integerSpinner.getValueFactory().setValue((Integer) executionDTO.getFreeInputs().get(input.getFinalName() + "." + input.getOwnerStep().getName()));
+                    }
                     freeInputsSpinnerComponents.put(input, integerSpinner);
                 }
                 mandatoryRowIndex++;
@@ -75,9 +70,15 @@ public class CollectInputsController {
                 addLabel(input.getUserString() + ":", optionalRowIndex, optionalColIndex);
                 if(input.getDataDefinition().getType().equals(String.class)) {
                     TextField textField = addTextField(optionalRowIndex, optionalColIndex + 1);
+                    if(executionDTO.getFreeInputs().containsKey(input.getFinalName() + "." + input.getOwnerStep())){
+                        textField.setText(executionDTO.getFreeInputs().get(input.getFinalName() + "." + input.getOwnerStep()).toString());
+                    }
                     freeInputsTextFieldComponents.put(input, textField);
                 } else {
                     Spinner<Integer> integerSpinner = addSpinner(optionalRowIndex, optionalColIndex + 1);
+                    if(executionDTO.getFreeInputs().containsKey(input.getFinalName() + "." + input.getOwnerStep())){
+                        integerSpinner.getValueFactory().setValue((Integer) executionDTO.getFreeInputs().get(input.getFinalName() + "." + input.getOwnerStep()));
+                    }
                     freeInputsSpinnerComponents.put(input, integerSpinner);
                 }
                 optionalRowIndex++;
@@ -100,6 +101,9 @@ public class CollectInputsController {
             mainAppController.executeListener(id);
             Runnable task = () -> {
                 mainAppController.getModel().executeFlow(id);
+                Platform.runLater(() -> {
+                    mainAppController.addExecutionToTable();
+                });
             };
             mainAppController.getModel().getExecutor().execute(task);
             //mainAppController.setCurrentExecutionDTO(flowExecutionDTO);

@@ -8,6 +8,7 @@ import step.api.StepDefinition;
 import step.api.StepResult;
 
 import java.time.Duration;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 
@@ -19,6 +20,8 @@ public interface StepExecutionContext {
     boolean storeDataValue(String dataName, Object value);
 
     void storeDuration(Duration duration);
+    void storeStartTime(LocalTime startTime);
+    void storeEndTime(LocalTime endTime);
 
     void storeExecutedStep();
 

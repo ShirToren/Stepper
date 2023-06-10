@@ -16,13 +16,15 @@ import java.time.LocalTime;
 public class SpendSomeTimeStep extends AbstractStepDefinition {
     public SpendSomeTimeStep() {
         super("Spend Some Time", true);
-        addInput(new DataDefinitionDeclarationImpl("TIME_TO_SPEND" , DataNecessity.MANDATORY, "Total sleeping time (sec)" , DataDefinitionRegistry.NUMBER));
+        addInput(new DataDefinitionDeclarationImpl("TIME_TO_SPEND", DataNecessity.MANDATORY, "Total sleeping time (sec)", DataDefinitionRegistry.NUMBER));
     }
 
     @Override
     public StepResult invoke(StepExecutionContext context) {
         context.storeExecutedStep();
         Instant start = Instant.now();
+        LocalTime startTime = LocalTime.now();
+        context.storeStartTime(startTime);
         int numOfSec = context.getDataValue("TIME_TO_SPEND", Integer.class);
         StepResult result = StepResult.SUCCESS;
         if (numOfSec <= 0) {
@@ -41,6 +43,8 @@ public class SpendSomeTimeStep extends AbstractStepDefinition {
         }
         context.storeResult(result);
         Instant end = Instant.now();
+        LocalTime endTime = LocalTime.now();
+        context.storeEndTime(endTime);
         Duration duration = Duration.between(start, end);
         context.storeDuration(duration);
         return result;

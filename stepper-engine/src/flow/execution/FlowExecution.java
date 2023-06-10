@@ -20,8 +20,11 @@ public class FlowExecution {
     // lots more data that needed to be stored while flow is being executed...
     private final Map<String, Object> freeInputs;
     private final Map<String, Object> allExecutionOutputs;
+    private final Map<String, Object> allExecutionInputs;
 
     private final Map<String, Object> executionFormalOutputs;
+    private final Map<String, LocalTime> stepsStartTimes;
+    private final Map<String, LocalTime> stepsEndTimes;
     private final Map<String, Duration> stepsTotalTimes;
     private final Map<String, StepResult> stepsResults;
     private Map<StepUsageDeclaration, List<LogLine>> logLines;
@@ -42,11 +45,14 @@ public class FlowExecution {
         this.stepsTotalTimes = new HashMap<>();
         this.stepsResults = new HashMap<>();
         this.allExecutionOutputs = new HashMap<>();
+        this.allExecutionInputs = new HashMap<>();
         this.executedSteps = new ArrayList<>();
         initTotalTimesAndResults();
         initAllExecutionOutputs();
         this.summeryLines = new HashMap<>();
         this.logLines = new HashMap<>();
+        this.stepsStartTimes = new HashMap<>();
+        this.stepsEndTimes = new HashMap<>();
     }
 
     private void initTotalTimesAndResults(){
@@ -79,6 +85,10 @@ public class FlowExecution {
 
     public Map<String, Object> getAllExecutionOutputs() {
         return allExecutionOutputs;
+    }
+
+    public Map<String, Object> getAllExecutionInputs() {
+        return allExecutionInputs;
     }
 
     public void setStartExecutionTime(LocalTime startExecutionTime) {
@@ -139,6 +149,12 @@ public class FlowExecution {
 
     public Map<String, Duration> getStepsTotalTimes() {
         return stepsTotalTimes;
+    }
+    public Map<String, LocalTime> getStepsStartTimes() {
+        return stepsStartTimes;
+    }
+    public Map<String, LocalTime> getStepsEndTimes() {
+        return stepsEndTimes;
     }
 
     public Map<String, StepResult> getStepsResults() {

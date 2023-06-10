@@ -29,6 +29,8 @@ public class FilesRenamerStep extends AbstractStepDefinition {
     public StepResult invoke(StepExecutionContext context) {
         context.storeExecutedStep();
         Instant start = Instant.now();
+        LocalTime startTime = LocalTime.now();
+        context.storeStartTime(startTime);
         ListData<File> filesToRename = context.getDataValue("FILES_TO_RENAME", ListData.class);
         String prefix = context.getDataValue("PREFIX", String.class);
         String suffix = context.getDataValue("SUFFIX", String.class);
@@ -79,6 +81,8 @@ public class FilesRenamerStep extends AbstractStepDefinition {
         context.storeDataValue("RENAME_RESULT", relation);
         context.storeResult(result);
         Instant end = Instant.now();
+        LocalTime endTime = LocalTime.now();
+        context.storeEndTime(endTime);
         Duration duration = Duration.between(start, end);
         context.storeDuration(duration);
         return result;

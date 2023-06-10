@@ -25,6 +25,8 @@ public class PropertiesExporterStep extends AbstractStepDefinition {
     public StepResult invoke(StepExecutionContext context) {
         context.storeExecutedStep();
         Instant start = Instant.now();
+        LocalTime startTime = LocalTime.now();
+        context.storeStartTime(startTime);
         RelationData relationData = context.getDataValue("SOURCE" , RelationData.class);
         String propertiesData = new String();
         StepResult result = StepResult.SUCCESS;
@@ -52,6 +54,8 @@ public class PropertiesExporterStep extends AbstractStepDefinition {
         context.storeDataValue("RESULT" , propertiesData);
         context.storeResult(result);
         Instant end = Instant.now();
+        LocalTime endTime = LocalTime.now();
+        context.storeEndTime(endTime);
         Duration duration = Duration.between(start, end);
         context.storeDuration(duration);
         return result;

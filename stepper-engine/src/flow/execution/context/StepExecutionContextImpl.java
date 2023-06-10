@@ -11,6 +11,7 @@ import step.api.StepDefinition;
 import step.api.StepResult;
 
 import java.time.Duration;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,15 +49,20 @@ public class StepExecutionContextImpl implements StepExecutionContext {
 
     @Override
     public void addLogLine(LogLine logLine) {
-        if(!logLines.containsKey(currentStep)) {
+/*        if(!logLines.containsKey(currentStep)) {
             logLines.put(currentStep, new ArrayList<>());
         }
-        logLines.get(currentStep).add(logLine);
+        logLines.get(currentStep).add(logLine);*/
+        if(!flowExecution.getLogLines().containsKey(currentStep)) {
+            flowExecution.getLogLines().put(currentStep, new ArrayList<>());
+        }
+        flowExecution.getLogLines().get(currentStep).add(logLine);
     }
 
     @Override
     public void addSummeryLine(String summeryLine) {
-        summeryLines.put(currentStep, summeryLine);
+        //summeryLines.put(currentStep, summeryLine);
+        flowExecution.getSummeryLines().put(currentStep, summeryLine);
     }
 
     @Override
@@ -149,6 +155,16 @@ public class StepExecutionContextImpl implements StepExecutionContext {
     @Override
     public void storeDuration(Duration duration) {
         flowExecution.getStepsTotalTimes().put(currentStep.getFinalStepName(), duration);
+    }
+
+    @Override
+    public void storeStartTime(LocalTime startTime) {
+        flowExecution.getStepsStartTimes().put(currentStep.getFinalStepName(), startTime);
+    }
+
+    @Override
+    public void storeEndTime(LocalTime endTime) {
+        flowExecution.getStepsEndTimes().put(currentStep.getFinalStepName(), endTime);
     }
 
     @Override

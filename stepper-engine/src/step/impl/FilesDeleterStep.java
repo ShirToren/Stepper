@@ -31,6 +31,8 @@ public class FilesDeleterStep extends AbstractStepDefinition {
     public StepResult invoke(StepExecutionContext context) {
         context.storeExecutedStep();
         Instant start = Instant.now();
+        LocalTime startTime = LocalTime.now();
+        context.storeStartTime(startTime);
         ListData<String> failedToDelete = new StringList();
         Mapping<Integer, Integer> deletionState = new NumberMapping(0,0);
         StepResult result;
@@ -66,6 +68,8 @@ public class FilesDeleterStep extends AbstractStepDefinition {
         }
         context.storeResult(result);
         Instant end = Instant.now();
+        LocalTime endTime = LocalTime.now();
+        context.storeEndTime(endTime);
         Duration duration = Duration.between(start, end);
         context.storeDuration(duration);
         return result;

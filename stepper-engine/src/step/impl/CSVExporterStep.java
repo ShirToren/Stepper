@@ -25,6 +25,8 @@ public class CSVExporterStep extends AbstractStepDefinition {
     public StepResult invoke(StepExecutionContext context) {
         context.storeExecutedStep();
         Instant start = Instant.now();
+        LocalTime startTime = LocalTime.now();
+        context.storeStartTime(startTime);
         RelationData relationData = context.getDataValue("SOURCE" , RelationData.class);
         String CSVData = new String();
         StepResult result = StepResult.SUCCESS;
@@ -54,8 +56,10 @@ public class CSVExporterStep extends AbstractStepDefinition {
         context.storeDataValue("RESULT", CSVData);
         context.storeResult(result);
         Instant end = Instant.now();
+        LocalTime endTime = LocalTime.now();
         Duration duration = Duration.between(start, end);
         context.storeDuration(duration);
+        context.storeEndTime(endTime);
         return result;
     }
 }

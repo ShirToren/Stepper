@@ -65,15 +65,18 @@ public class FLowExecutor {
         }
 
         for(DataInFlow output : flowExecution.getFlowDefinition().getFlowOutputs()) {
-            if(context.getDataValueByFinalName(output.getDataInstanceName(),
-                    output.getDataDefinition().getType()) != null) {
-                flowExecution.getAllExecutionOutputs().put(output.getDataInstanceName(),
-                        context.getDataValueByFinalName(output.getDataInstanceName(),
-                                output.getDataDefinition().getType()));
+            Object dataValue = context.getDataValueByFinalName(output.getDataInstanceName(), output.getDataDefinition().getType());
+            if(dataValue != null) {
+                flowExecution.getAllExecutionOutputs().put(output.getDataInstanceName(), dataValue);
             }
         }
-        flowExecution.setLogLines(context.getLogLines());
-        flowExecution.setSummeryLines(context.getSummeryLines());
+        for (DataInFlow input: flowExecution.getFlowDefinition().getFlowInputs()) {
+            Object dataValue = context.getDataValueByFinalName(input.getDataInstanceName(), input.getDataDefinition().getType());
+            if(dataValue != null) {
+                flowExecution.getAllExecutionInputs().put(input.getDataInstanceName(), dataValue);
+            }
+        }
+
         //System.out.println("End execution of flow " + flowExecution.getFlowDefinition().getName() + " [ID: " + flowExecution.getUuid() + "]. Status: " + flowExecution.getFlowExecutionResult());
         LocalTime endExecutionTime = LocalTime.now();
         flowExecution.setEndExecutionTime(endExecutionTime);

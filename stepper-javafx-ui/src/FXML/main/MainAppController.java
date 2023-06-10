@@ -2,23 +2,21 @@ package FXML.main;
 
 import FXML.definition.DefinitionController;
 import FXML.execution.ExecutionController;
-import FXML.execution.UIAdapter;
-import dto.FlowDefinitionDTO;
+import FXML.execution.history.ExecutionHistoryController;
+import FXML.statistics.StatisticsController;
 import dto.FlowExecutionDTO;
 import dto.XMLDTO;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import stepper.management.StepperEngineManager;
-import tasks.UpdateExecutionDetailsTask;
 
 import java.io.File;
 import java.util.UUID;
@@ -31,9 +29,13 @@ public class MainAppController {
 
     @FXML private BorderPane flowsDefinitionComponent;
     @FXML private DefinitionController flowsDefinitionComponentController;
+    @FXML private GridPane statisticsComponent;
+    @FXML private StatisticsController statisticsComponentController;
 
     @FXML private BorderPane flowsExecutionComponent;
     @FXML private ExecutionController flowsExecutionComponentController;
+    @FXML private BorderPane executionHistoryComponent;
+    @FXML private ExecutionHistoryController executionHistoryComponentController;
 
     @FXML
     private Label filePathLabel;
@@ -41,12 +43,18 @@ public class MainAppController {
     private TabPane tabPane;
     @FXML
     private Tab flowExecutionTab;
+    @FXML
+    private Tab executionHistoryTab;
+    @FXML
+    private Tab statisticsTab;
+    private final SimpleBooleanProperty isFlowSelected;
 
     private FlowExecutionDTO currentExecutionDTO;
 
     private final SimpleStringProperty selectedFileProperty;
 
     public MainAppController() {
+        this.isFlowSelected = new SimpleBooleanProperty(false);
         this.selectedFileProperty = new SimpleStringProperty();
     }
 
@@ -54,31 +62,75 @@ public class MainAppController {
         return currentExecutionDTO;
     }
 
-    public void setCurrentExecutionDTO(FlowExecutionDTO currentExecutionDTO) {
-        this.currentExecutionDTO = currentExecutionDTO;
-    }
-
     @FXML
     public void initialize() {
         if (flowsDefinitionComponentController != null &&
-                flowsExecutionComponentController != null) {
+                flowsExecutionComponentController != null &&
+        executionHistoryComponentController != null &&
+                statisticsComponentController != null) {
             flowsDefinitionComponentController.setMainAppController(this);
             flowsExecutionComponentController.setMainAppController(this);
+            executionHistoryComponentController.setMainAppController(this);
+            statisticsComponentController.setMainAppController(this);
         }
         filePathLabel.textProperty().bind(selectedFileProperty);
+        executionHistoryTab.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                executionHistoryComponentController.showOldExecutions();
+            }
+        });
+        statisticsTab.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                statisticsComponentController.show();
+            }
+        });
+         flowsDefinitionComponentController.getExecuteButtonDisableProperty().bind(isFlowSelected.not());
+        tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldTab, newTab) -> {
+            if (newTab != null) {
+                if(oldTab.equals(flowExecutionTab) || newTab.equals((flowExecutionTab))) {
+                    flowsExecutionComponentController.clearAll();
+                }
+            }
+        });
+    }
+
+    private void clearAll(){
+        flowsDefinitionComponentController.clearAll();
+        isFlowSelected.set(false);
+        flowsExecutionComponentController.clearAll();
+        executionHistoryComponentController.clearAll();
+        statisticsComponentController.clearAll();
+    }
+
+    public void setSelectedFlow() {
+        isFlowSelected.set(true);
     }
 
     public void switchToExecutionTab() {
         tabPane.getSelectionModel().select(flowExecutionTab);
-        //currentExecutionDTO = new FlowExecutionDTO(model.getCurrentFlowExecution(), new FlowDefinitionDTO(model.getCurrentFlowExecution().getFlowDefinition()));
     }
 
-    public UUID executeFlowButtonActionListener() {
+    public void addExecutionToTable() {
+        executionHistoryComponentController.addExecutionToTable();
+    }
+
+    public void executeFlowButtonActionListener() {
+        prepareToExecution(flowsDefinitionComponentController.getSelectedFlowName());
+    }
+
+    public void prepareToExecution(String flowName){
         clearFlowExecutionDetails();
         switchToExecutionTab();
-        UUID id = model.createFlowExecution(flowsDefinitionComponentController.getSelectedFlowName());
+        UUID id = model.createFlowExecution(flowName);
         flowsExecutionComponentController.initFreeInputsComponents(id);
-        return id;
+    }
+
+    public void prepareToReExecution(UUID prevID, String flowName){
+        clearFlowExecutionDetails();
+        switchToExecutionTab();
+        UUID id = model.createFlowExecution(flowName);
+        model.copyFreeInputsValues(prevID, id);
+        flowsExecutionComponentController.initFreeInputsComponents(id);
     }
 
     public void clearFlowExecutionDetails(){
@@ -93,11 +145,6 @@ public class MainAppController {
        flowsExecutionComponentController.executeListener(id);
     }
 
-    public void createFlowExecution(){
-        model.createFlowExecution(flowsDefinitionComponentController.getSelectedFlowName());
-    }
-
-
 
     @FXML
     void loadFileButtonActionListener(ActionEvent event) {
@@ -110,10 +157,10 @@ public class MainAppController {
             String filePath = selectedFile.getPath();
             XMLDTO xmldto = model.readSystemInformationFile(filePath);
             if(xmldto.getFileState().equals("The file is valid and fully loaded.")) {
-                ////clear old file
+                clearAll();
                 selectedFileProperty.set(filePath);
             } else {
-                //message about invalid file
+                showErrorDialog("Invalid file.", xmldto.getFileState());
             }
             flowsDefinitionComponentController.show();
         } else {
@@ -121,11 +168,14 @@ public class MainAppController {
         }
     }
 
-    public void setModel(StepperEngineManager model) {
-        this.model = model;
-    }
-
     public StepperEngineManager getModel() {
         return model;
+    }
+
+    private void showErrorDialog(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR, message, ButtonType.OK);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.showAndWait();
     }
 }

@@ -13,6 +13,7 @@ import step.api.StepResult;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
@@ -36,45 +37,62 @@ public class CollectFilesInFolder extends AbstractStepDefinition {
     public StepResult invoke(StepExecutionContext context) {
         context.storeExecutedStep();
         Instant start = Instant.now();
+        LocalTime startTime = LocalTime.now();
+        context.storeStartTime(startTime);
         String folderPathString = context.getDataValue("FOLDER_NAME", String.class);
         String filter = context.getDataValue("FILTER", String.class);
         List<File> filesList = new ArrayList<>();
-        StepResult result;
+        StepResult result = StepResult.FAILURE;
 
-        Path folderPath = Paths.get(folderPathString);
-        if(Files.exists(folderPath) && Files.isDirectory(folderPath)) {
-            context.addLogLine(new LogLine(String.format("Reading folder %s content with filter %s",
-                    folderPath.toString(), filter != null? filter: "no filter"),LocalTime.now()));
-            File folderFile = new File(folderPathString);
-            File[] files = folderFile.listFiles();
-            Stream<File> stream = Stream.of(files);
-            if (filter != null) {
-                filesList = stream.filter(file -> file.isFile() && file.getName().endsWith(filter)).
-                        collect(Collectors.toList());
+        try
+        {
+            Path folderPath = Paths.get(folderPathString);
+            if(Files.exists(folderPath) && Files.isDirectory(folderPath)) {
+                context.addLogLine(new LogLine(String.format("Reading folder %s content with filter %s",
+                        folderPath.toString(), filter != null? filter: "no filter"),LocalTime.now()));
+                File folderFile = new File(folderPathString);
+                File[] files = folderFile.listFiles();
+                Stream<File> stream = Stream.of(files);
+                if (filter != null) {
+                    filesList = stream.filter(file -> file.isFile() && file.getName().endsWith(filter)).
+                            collect(Collectors.toList());
+                } else {
+                    filesList = stream.filter(file -> file.isFile()).
+                            collect(Collectors.toList());
+                }
+                context.addLogLine(new LogLine(String.format("Found %d files in folder matching the filter",
+                        filesList.size()),LocalTime.now()));
+                if (filesList.size() == 0) {
+                    result = StepResult.WARNING;
+                    context.addSummeryLine("Step result is Warning because no files were collected");
+                    context.addLogLine(new LogLine("No files were collected.", LocalTime.now()));
+                } else {
+                    result = StepResult.SUCCESS;
+                    context.addSummeryLine("Step result is Success!");
+                }
             } else {
-                filesList = stream.filter(file -> file.isFile()).
-                        collect(Collectors.toList());
+                if(!Files.exists(folderPath))
+                {
+                    context.addLogLine(new LogLine("The folder doesn't exist.", LocalTime.now()));
+                    context.addSummeryLine("Step result is Failure because the folder doesn't exist.");
+                } else {
+                    context.addLogLine(new LogLine("Step result is Failure because the path is not a folder.", LocalTime.now()));
+                }
+                context.storeResult(StepResult.FAILURE);
+                Instant end = Instant.now();
+                LocalTime endTime = LocalTime.now();
+                context.storeEndTime(endTime);
+                Duration duration = Duration.between(start, end);
+                context.storeDuration(duration);
+                return StepResult.FAILURE;
             }
-            context.addLogLine(new LogLine(String.format("Found %d files in folder matching the filter",
-                    filesList.size()),LocalTime.now()));
-            if (filesList.size() == 0) {
-                result = StepResult.WARNING;
-                context.addSummeryLine("Step result is Warning because no files were collected");
-                context.addLogLine(new LogLine("No files were collected.", LocalTime.now()));
-            } else {
-                result = StepResult.SUCCESS;
-                context.addSummeryLine("Step result is Success!");
-            }
-        } else {
-            if(!Files.exists(folderPath))
-            {
-                context.addLogLine(new LogLine("The folder doesn't exist.", LocalTime.now()));
-                context.addSummeryLine("Step result is Failure because the folder doesn't exist.");
-            } else {
-                context.addLogLine(new LogLine("Step result is Failure because the path is not a folder.", LocalTime.now()));
-            }
+        } catch (InvalidPathException ex) {
+            context.addLogLine(new LogLine("The folder doesn't exist.", LocalTime.now()));
+            context.addSummeryLine("Step result is Failure because the folder doesn't exist.");
             context.storeResult(StepResult.FAILURE);
             Instant end = Instant.now();
+            LocalTime endTime = LocalTime.now();
+            context.storeEndTime(endTime);
             Duration duration = Duration.between(start, end);
             context.storeDuration(duration);
             return StepResult.FAILURE;
@@ -86,8 +104,10 @@ public class CollectFilesInFolder extends AbstractStepDefinition {
         context.storeDataValue("TOTAL_FOUND", listData.getList().size());
         context.storeResult(result);
         Instant end = Instant.now();
+        LocalTime endTime = LocalTime.now();
         Duration duration = Duration.between(start, end);
         context.storeDuration(duration);
+        context.storeEndTime(endTime);
         return result;
     }
 }

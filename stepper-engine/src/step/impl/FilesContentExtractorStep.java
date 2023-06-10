@@ -28,6 +28,8 @@ public class FilesContentExtractorStep extends AbstractStepDefinition {
     public StepResult invoke(StepExecutionContext context) {
         context.storeExecutedStep();
         Instant start = Instant.now();
+        LocalTime startTime = LocalTime.now();
+        context.storeStartTime(startTime);
         ListData<File> filesToExtract = context.getDataValue("FILES_LIST", ListData.class);
         Integer lineNumber = context.getDataValue("LINE", Integer.class);
         RelationData relation = new RelationData("Number", "Original File Name", "Data Extraction");
@@ -63,6 +65,8 @@ public class FilesContentExtractorStep extends AbstractStepDefinition {
         context.storeDataValue("DATA" , relation);
         context.storeResult(result);
         Instant end = Instant.now();
+        LocalTime endTime = LocalTime.now();
+        context.storeEndTime(endTime);
         Duration duration = Duration.between(start, end);
         context.storeDuration(duration);
         return  result;

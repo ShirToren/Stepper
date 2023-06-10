@@ -79,6 +79,15 @@ public class StepperEngineManager {
             flowExecutedTotalMillis.clear();
             stepExecutedTimes.clear();
             stepExecutedTotalMillis.clear();
+            allFlowExecutionsMap.clear();
+        }
+    }
+
+    public void copyFreeInputsValues(UUID sourceID, UUID targetID) {
+        FlowExecution sourceExecution = allFlowExecutionsMap.get(sourceID);
+        FlowExecution targetExecution = allFlowExecutionsMap.get(targetID);
+        for (Map.Entry<String, Object> input: sourceExecution.getFreeInputs().entrySet()) {
+            targetExecution.addFreeInput(input.getKey(), input.getValue());
         }
     }
 
@@ -167,9 +176,20 @@ public class StepperEngineManager {
         }
     }
 
+    public List<FlowExecutionDTO> getAllFlowExecutionsDTO() {
+        List<FlowExecutionDTO> result = new ArrayList<>();
+        for (FlowExecution execution: allFlowExecutionsList) {
+            result.add(new FlowExecutionDTO(execution, new FlowDefinitionDTO(execution.getFlowDefinition())));
+        }
+        return result;
+    }
+
     public void addFreeInputToFlowExecution(UUID id, String inputName, Object value) {
         allFlowExecutionsMap.get(id).addFreeInput(inputName, value);
         //currentFlowExecution.addFreeInput(inputName, value);
+    }
+    public void addFreeInputToFlowExecution(String inputName, Object value) {
+        currentFlowExecution.addFreeInput(inputName, value);
     }
 
     public List<FlowExecution> getAllFlowExecutionsList() {
@@ -197,7 +217,7 @@ public class StepperEngineManager {
         Instant end = Instant.now();
         Duration duration = Duration.between(start, end);
         flowExecution.setTotalTime(duration);
-//        addExecutionToStatistics(dto);
+        addExecutionToStatistics(getExecutionDTOByUUID(id));
     }
 
     public XMLDTO readSystemInformationFile(String fileName) {

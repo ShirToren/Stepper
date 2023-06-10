@@ -52,7 +52,7 @@ public class RelationData {
         return result.toString();
     }
 
-    private static class SingleRow {
+    public static class SingleRow {
         private Map<String, String> data;
 
         public SingleRow() {

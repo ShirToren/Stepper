@@ -4,14 +4,12 @@ import FXML.main.MainAppController;
 import dto.DataInFlowDTO;
 import dto.FlowDefinitionDTO;
 import dto.StepUsageDeclarationDTO;
+import javafx.beans.property.BooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 
 import java.util.ArrayList;
@@ -20,6 +18,7 @@ import java.util.List;
 public class FlowDefinitionDetailsController {
     private MainAppController mainAppController;
     private String currentFlowName;
+    @FXML private Button executeButton;
     @FXML
     private Label nameLabel;
 
@@ -58,6 +57,17 @@ public class FlowDefinitionDetailsController {
     public void clearPrevDetails() {
         formalOutputsLVItems.clear();
         stepsLVItems.clear();
+        nameLabel.setText("");
+        descriptionLabel.setText("");
+        readOnlyLabel.setText("");
+        if(freeInputsTV.getRoot() != null && allOutputsTV.getRoot() != null) {
+            freeInputsTV.getRoot().getChildren().clear();
+            allOutputsTV.getRoot().getChildren().clear();
+        }
+        if(stepInputsTV.getRoot() != null && stepOutputsTV.getRoot() != null){
+            stepInputsTV.getRoot().getChildren().clear();
+            stepOutputsTV.getRoot().getChildren().clear();
+        }
     }
 
     @FXML
@@ -136,6 +146,10 @@ public class FlowDefinitionDetailsController {
     @FXML
     void executeButtonActionListener(ActionEvent event) {
         mainAppController.executeFlowButtonActionListener();
+    }
+
+    public BooleanProperty getExecuteButtonDisableProperty(){
+        return  executeButton.disableProperty();
     }
 
 
