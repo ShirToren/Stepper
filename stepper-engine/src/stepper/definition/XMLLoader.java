@@ -2,6 +2,9 @@ package stepper.definition;
 import exception.DoubleFlowNameException;
 import exception.StepNotExistException;
 import flow.definition.api.*;
+import flow.definition.api.continuations.Continuation;
+import flow.definition.api.continuations.ContinuationMapping;
+import flow.definition.api.continuations.Continuations;
 import jaxb.schema.generated.ex02.*;
 import step.StepDefinitionRegistry;
 import step.api.StepDefinition;
@@ -13,6 +16,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -64,11 +68,33 @@ public class XMLLoader {
         return new InitialInputValue(jaxbInitialInputValue.getInputName(),
                 jaxbInitialInputValue.getInitialValue());
     }
+
+    private Continuations createContinuationsFromJaxb(STContinuations jaxbContinuations){
+        List<Continuation> continuations = new ArrayList<>();
+        for (STContinuation jaxbContinuation: jaxbContinuations.getSTContinuation()) {
+            List<ContinuationMapping> list = new ArrayList<>();
+            for (STContinuationMapping jaxbMapping: jaxbContinuation.getSTContinuationMapping()) {
+                list.add(new ContinuationMapping(jaxbMapping.getSourceData(),
+                        jaxbMapping.getTargetData()));
+            }
+            continuations.add(new Continuation(jaxbContinuation.getTargetFlow(),
+                    list));
+        }
+        return new Continuations(continuations);
+    }
     public FlowDefinitionImpl createFlowFromJAXB(STFlow jaxbFlow) {
+        FlowDefinitionImpl theFlow;
         String[] outputs = jaxbFlow.getSTFlowOutput().split(",");
 
-        FlowDefinitionImpl theFlow = new FlowDefinitionImpl(
-                jaxbFlow.getName(), jaxbFlow.getSTFlowDescription());
+        if(jaxbFlow.getSTContinuations() != null){
+            Continuations continuationsFromJaxb = createContinuationsFromJaxb(jaxbFlow.getSTContinuations());
+            theFlow = new FlowDefinitionImpl(
+                    jaxbFlow.getName(), jaxbFlow.getSTFlowDescription(), continuationsFromJaxb);
+        }else {
+            theFlow = new FlowDefinitionImpl(
+                    jaxbFlow.getName(), jaxbFlow.getSTFlowDescription(), null);
+        }
+
         for (STStepInFlow step : jaxbFlow.getSTStepsInFlow().getSTStepInFlow()) {
             theFlow.addStepToFlow(createStepFromJAXB(step)); }
         for (String output: outputs) {

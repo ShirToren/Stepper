@@ -6,6 +6,8 @@ import exception.StepNotExistException;
 import flow.definition.api.DataInFlow;
 import flow.definition.api.FlowDefinition;
 import flow.definition.api.StepUsageDeclaration;
+import flow.definition.api.continuations.Continuation;
+import flow.definition.api.continuations.ContinuationMapping;
 import flow.execution.FlowExecution;
 import flow.execution.runner.FLowExecutor;
 import step.api.DataNecessity;
@@ -88,6 +90,30 @@ public class StepperEngineManager {
         FlowExecution targetExecution = allFlowExecutionsMap.get(targetID);
         for (Map.Entry<String, Object> input: sourceExecution.getFreeInputs().entrySet()) {
             targetExecution.addFreeInput(input.getKey(), input.getValue());
+        }
+    }
+
+    public void copyContinuationValues(UUID sourceID, UUID targetID) {
+        FlowExecution sourceExecution = allFlowExecutionsMap.get(sourceID);
+        FlowExecution targetExecution = allFlowExecutionsMap.get(targetID);
+        Continuation continuation =
+                sourceExecution.getFlowDefinition().getContinuationByTargetFlowName(targetExecution.getFlowDefinition().getName());
+        List<DataInFlow> flowFreeInputs = targetExecution.getFlowDefinition().getFlowFreeInputs();
+        for (DataInFlow input: flowFreeInputs) {
+            if(sourceExecution.getAllExecutionOutputs().containsKey(input.getDataInstanceName()) &&
+                    !sourceExecution.getAllExecutionOutputs().get(input.getDataInstanceName()).equals("Not created due to failure in flow")){
+                targetExecution.addFreeInput(input.getDataInstanceName(),
+                        sourceExecution.getAllExecutionOutputs().get(input.getDataInstanceName()));
+            } else if(sourceExecution.getAllExecutionInputs().containsKey(input.getDataInstanceName())) {
+                targetExecution.addFreeInput(input.getDataInstanceName(),
+                        sourceExecution.getAllExecutionInputs().get(input.getDataInstanceName()));
+            }
+        }
+        for (ContinuationMapping mapping: continuation.getContinuationMappings()) {
+            if(!sourceExecution.getAllExecutionOutputs().get(mapping.getSourceData()).equals("Not created due to failure in flow")){
+                targetExecution.addFreeInput(mapping.getTargetData(),
+                        sourceExecution.getAllExecutionOutputs().get(mapping.getSourceData()));
+            } /*else if()*/
         }
     }
 
@@ -186,7 +212,6 @@ public class StepperEngineManager {
 
     public void addFreeInputToFlowExecution(UUID id, String inputName, Object value) {
         allFlowExecutionsMap.get(id).addFreeInput(inputName, value);
-        //currentFlowExecution.addFreeInput(inputName, value);
     }
     public void addFreeInputToFlowExecution(String inputName, Object value) {
         currentFlowExecution.addFreeInput(inputName, value);

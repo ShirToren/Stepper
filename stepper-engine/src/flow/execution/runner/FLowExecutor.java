@@ -24,11 +24,14 @@ public class FLowExecutor {
         // populate context with all free inputs (mandatory & optional) that were given from the user
         // (typically stored on top of the flow execution object)
         for(Map.Entry<String, Object> entry : flowExecution.getFreeInputs().entrySet()) {
-            String inputName = entry.getKey().substring(0, entry.getKey().indexOf("."));
+            String inputName = entry.getKey();
+            StepUsageDeclaration step = flowExecution.getOwnerStepByInputName(entry.getKey());
+            context.setCurrentStep(step);
+/*            String inputName = entry.getKey().substring(0, entry.getKey().indexOf("."));
             String stepName = entry.getKey().substring(entry.getKey().indexOf(".") +1);
             context.setCurrentStep(
                     flowExecution.getFlowDefinition()
-                            .getStepUsageDeclarationByFinalName(stepName));
+                            .getStepUsageDeclarationByFinalName(stepName));*/
             context.storeDataValue(inputName, entry.getValue());
         }
         for (InitialInputValue initInputValue: flowExecution.getFlowDefinition().getInitialInputValues()) {
@@ -75,7 +78,7 @@ public class FLowExecutor {
 
 
             try {
-                Thread.sleep(2000);
+                Thread.sleep(500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

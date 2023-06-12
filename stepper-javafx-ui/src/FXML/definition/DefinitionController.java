@@ -90,12 +90,9 @@ public class DefinitionController {
         this.mainAppController = mainAppController;
         flowDetailsComponentController.setMainAppController(mainAppController);
     }
-
     public void show() {
         addFlowsToTable();
     }
-
-
     public void addFlowsToTable() {
         data.clear();
         List<FlowDefinitionDTO> flowDefinitions = mainAppController.getModel().getAllFlowDefinitionsInStepper();
@@ -104,7 +101,7 @@ public class DefinitionController {
                     flow.getDescription(),
                     flow.getSteps().size(),
                     flow.getFreeInputs().size(),
-                    0);
+                    flow.getNumberOfContinuations());
             data.add(row);
         }
         flowsTable.setItems(data);

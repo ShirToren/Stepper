@@ -3,6 +3,7 @@ package dto;
 import flow.definition.api.DataInFlow;
 import flow.definition.api.FlowDefinition;
 import flow.definition.api.StepUsageDeclaration;
+import flow.definition.api.continuations.Continuations;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,7 @@ public class FlowDefinitionDTO implements DTO {
     private final List<DataInFlowDTO> flowsOutputs;
     private final List<DataInFlowDTO> flowsInputs;
     private final Map<String, List<String>> freeInputsStepTarget;
+    private final Continuations continuations;
 
 
     public FlowDefinitionDTO(FlowDefinition flowDefinition) {
@@ -30,6 +32,7 @@ public class FlowDefinitionDTO implements DTO {
         this.freeInputsStepTarget = flowDefinition.getFreeInputsStepTarget();
         this.description = flowDefinition.getDescription();
         this.isReadOnly = flowDefinition.isReadOnly();
+        this.continuations = flowDefinition.getContinuations();
         for (StepUsageDeclaration step : flowDefinition.getFlowSteps()) {
             this.steps.add(new StepUsageDeclarationDTO(step));
         }
@@ -53,6 +56,18 @@ public class FlowDefinitionDTO implements DTO {
 
     public String getName() {
         return name;
+    }
+
+    public Continuations getContinuations() {
+        return continuations;
+    }
+
+    public int getNumberOfContinuations(){
+        if(continuations == null) {
+            return 0;
+        } else {
+            return continuations.getContinuations().size();
+        }
     }
 
     public Map<String, List<String>> getFreeInputsStepTarget() {

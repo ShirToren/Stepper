@@ -105,9 +105,9 @@ public class FlowExecutionDetailsController {
         freeInputsList = mainAppController.getModel().getExecutionDTOByUUID(id).getFlowDefinitionDTO().getFreeInputs();
         for (DataInFlowDTO freeInput : freeInputsList) {
             if (freeInput.getDataNecessity().equals(DataNecessity.MANDATORY) &&
-                    actualFreeInputs.containsKey(freeInput.getFinalName() + "." + freeInput.getOwnerStep().getName())) {
+                    actualFreeInputs.containsKey(freeInput.getFinalName())) {
                 freeInputsLVItems.add(freeInput.getFinalName());
-            } else if (actualFreeInputs.containsKey(freeInput.getFinalName() + "." + freeInput.getOwnerStep().getName())) {
+            } else if (actualFreeInputs.containsKey(freeInput.getFinalName())) {
                 optionalInput.add(freeInput);
             }
         }
@@ -122,7 +122,7 @@ public class FlowExecutionDetailsController {
                     for (DataInFlowDTO freeInput: freeInputsList) {
                         if(freeInput.getFinalName().equals(item)) {
                             freeInputTypeLabel.setText("Type: " + freeInput.getDataDefinition().getName());
-                            freeInputValueLabel.setText("Value: " + mainAppController.getModel().getActualFreeInputsList(id).get(item + "." + freeInput.getOwnerStep().getName()).toString());
+                            freeInputValueLabel.setText("Value: " + mainAppController.getModel().getActualFreeInputsList(id).get(item).toString());
                             freeInputNecessityLabel.setText("Necessity: " + freeInput.getDataNecessity().name());
                         }
                     }

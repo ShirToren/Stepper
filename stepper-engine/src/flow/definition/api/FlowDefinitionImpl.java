@@ -1,6 +1,8 @@
 package flow.definition.api;
 
 import dd.api.DataDirection;
+import flow.definition.api.continuations.Continuation;
+import flow.definition.api.continuations.Continuations;
 import step.api.DataDefinitionDeclaration;
 
 import java.util.*;
@@ -15,6 +17,7 @@ public class FlowDefinitionImpl implements FlowDefinition {
 
     private final List<CustomMapping> customMappings;
     private final List<InitialInputValue> initialInputValues;
+    private final Continuations continuations;
 
     private final Map<String, String> dataNames;
     private final List<DataInFlow> allDataInFlow;
@@ -28,9 +31,10 @@ public class FlowDefinitionImpl implements FlowDefinition {
     private final List<DataInFlow> flowInputs;
     private final List<DataInFlow> formalOutputsDataInFlow;
 
-    public FlowDefinitionImpl(String name, String description) {
+    public FlowDefinitionImpl(String name, String description, Continuations continuations) {
         this.name = name;
         this.description = description;
+        this.continuations = continuations;
         this.formalOutputs = new ArrayList<>();
         this.steps = new ArrayList<>();
         this.dataNames = new HashMap<>();
@@ -59,6 +63,11 @@ public class FlowDefinitionImpl implements FlowDefinition {
                 dataNames.put(input.getName() + "." + step.getFinalStepName(), input.getName());
             }
         }
+    }
+
+    @Override
+    public Continuations getContinuations() {
+        return continuations;
     }
 
     @Override
@@ -387,6 +396,16 @@ public class FlowDefinitionImpl implements FlowDefinition {
     @Override
     public List<DataInFlow> getFlowFreeInputs() {
         return freeInputs;
+    }
+
+    @Override
+    public Continuation getContinuationByTargetFlowName(String targetFlow) {
+        for (Continuation continuation: continuations.getContinuations()) {
+            if(continuation.getTargetFlow().equals(targetFlow)){
+                return continuation;
+            }
+        }
+        return null;
     }
 
     @Override

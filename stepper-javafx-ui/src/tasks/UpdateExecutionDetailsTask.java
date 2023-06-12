@@ -75,9 +75,9 @@ public class UpdateExecutionDetailsTask extends Task<Boolean> {
         List<DataInFlowDTO> freeInputs = manager.getExecutionDTOByUUID(id).getFlowDefinitionDTO().getFreeInputs();
         for (DataInFlowDTO freeInput : freeInputs) {
             if (freeInput.getDataNecessity().equals(DataNecessity.MANDATORY) &&
-                    actualFreeInputs.containsKey(freeInput.getFinalName() + "." + freeInput.getOwnerStep().getName())) {
+                    actualFreeInputs.containsKey(freeInput.getFinalName())) {
                 uiAdapter.addNewInput(freeInput.getFinalName());
-            } else if (actualFreeInputs.containsKey(freeInput.getFinalName() + "." + freeInput.getOwnerStep().getName())) {
+            } else if (actualFreeInputs.containsKey(freeInput.getFinalName())) {
                 optionalInput.add(freeInput);
             }
         }

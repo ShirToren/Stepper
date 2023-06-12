@@ -136,6 +136,14 @@ public class MainAppController {
         flowsExecutionComponentController.initFreeInputsComponents(id);
     }
 
+    public void prepareToContinuation(UUID prevID, String targetFlowName){
+        clearFlowExecutionDetails();
+        switchToExecutionTab();
+        UUID id = model.createFlowExecution(targetFlowName);
+        model.copyContinuationValues(prevID, id);
+        flowsExecutionComponentController.initFreeInputsComponents(id);
+    }
+
     public void clearFlowExecutionDetails(){
         flowsExecutionComponentController.clearFlowExecutionDetails();
     }

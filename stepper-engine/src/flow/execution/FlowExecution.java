@@ -168,4 +168,16 @@ public class FlowExecution {
     public boolean isFinished() {
         return isFinished;
     }
+
+    public StepUsageDeclaration getOwnerStepByInputName(String inputName){
+
+                for (DataInFlow data: flowDefinition.getAllDataInFlow()) {
+                    if(data.getDataInstanceName().equals(inputName)){
+                        return data.getOwnerStepUsageDeclaration();
+                    }
+                }
+
+
+        return null;
+    }
 }

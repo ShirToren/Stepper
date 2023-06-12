@@ -1,5 +1,7 @@
 package flow.definition.api;
 
+import flow.definition.api.continuations.Continuation;
+import flow.definition.api.continuations.Continuations;
 import step.api.DataDefinitionDeclaration;
 import step.api.StepDefinition;
 
@@ -21,6 +23,7 @@ public interface FlowDefinition {
     Map<String, List<String>> getFreeInputsStepTarget();
     List<DataInFlow> getFlowOutputs();
     List<DataInFlow> getFlowInputs();
+    Continuations getContinuations();
 
     List<DataInFlow> getAllDataInFlow();
     StepUsageDeclaration findOwnerStep(String inputName);
@@ -33,6 +36,8 @@ public interface FlowDefinition {
     boolean validateFlowStructure();
 
     List<DataInFlow> getFlowFreeInputs();
+
+    Continuation getContinuationByTargetFlowName(String targetFlow);
 
     Map<String, String> getDataNames();
 

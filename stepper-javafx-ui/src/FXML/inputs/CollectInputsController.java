@@ -54,14 +54,14 @@ public class CollectInputsController {
                 addLabel(input.getUserString() + ":", mandatoryRowIndex, mandatoryColIndex);
                 if(input.getDataDefinition().getType().equals(String.class)) {
                     TextField textField = addMandatoryTextField(mandatoryRowIndex, mandatoryColIndex + 1);
-                    if(executionDTO.getFreeInputs().containsKey(input.getFinalName() + "." + input.getOwnerStep().getName())){
-                        textField.setText(executionDTO.getFreeInputs().get(input.getFinalName() + "." + input.getOwnerStep().getName()).toString());
+                    if(executionDTO.getFreeInputs().containsKey(input.getFinalName())){
+                        textField.setText(executionDTO.getFreeInputs().get(input.getFinalName()).toString());
                     }
                         freeInputsTextFieldComponents.put(input, textField);
                 } else {
                     Spinner<Integer> integerSpinner = addSpinner(mandatoryRowIndex, mandatoryColIndex + 1);
-                    if(executionDTO.getFreeInputs().containsKey(input.getFinalName() + "." + input.getOwnerStep().getName())){
-                        integerSpinner.getValueFactory().setValue((Integer) executionDTO.getFreeInputs().get(input.getFinalName() + "." + input.getOwnerStep().getName()));
+                    if(executionDTO.getFreeInputs().containsKey(input.getFinalName())){
+                        integerSpinner.getValueFactory().setValue((Integer) executionDTO.getFreeInputs().get(input.getFinalName()));
                     }
                     freeInputsSpinnerComponents.put(input, integerSpinner);
                 }
@@ -70,14 +70,14 @@ public class CollectInputsController {
                 addLabel(input.getUserString() + ":", optionalRowIndex, optionalColIndex);
                 if(input.getDataDefinition().getType().equals(String.class)) {
                     TextField textField = addTextField(optionalRowIndex, optionalColIndex + 1);
-                    if(executionDTO.getFreeInputs().containsKey(input.getFinalName() + "." + input.getOwnerStep())){
-                        textField.setText(executionDTO.getFreeInputs().get(input.getFinalName() + "." + input.getOwnerStep()).toString());
+                    if(executionDTO.getFreeInputs().containsKey(input.getFinalName())){
+                        textField.setText(executionDTO.getFreeInputs().get(input.getFinalName()).toString());
                     }
                     freeInputsTextFieldComponents.put(input, textField);
                 } else {
                     Spinner<Integer> integerSpinner = addSpinner(optionalRowIndex, optionalColIndex + 1);
-                    if(executionDTO.getFreeInputs().containsKey(input.getFinalName() + "." + input.getOwnerStep())){
-                        integerSpinner.getValueFactory().setValue((Integer) executionDTO.getFreeInputs().get(input.getFinalName() + "." + input.getOwnerStep()));
+                    if(executionDTO.getFreeInputs().containsKey(input.getFinalName())){
+                        integerSpinner.getValueFactory().setValue((Integer) executionDTO.getFreeInputs().get(input.getFinalName()));
                     }
                     freeInputsSpinnerComponents.put(input, integerSpinner);
                 }
@@ -113,13 +113,11 @@ public class CollectInputsController {
 
     private void executeButtonActionListener(UUID id){
         for (Map.Entry<DataInFlowDTO, Spinner<Integer>> entry: freeInputsSpinnerComponents.entrySet()) {
-            mainAppController.getModel().addFreeInputToFlowExecution(id, entry.getKey().getFinalName() +
-                    "." + entry.getKey().getOwnerStep().getName(), entry.getValue().getValue());
+            mainAppController.getModel().addFreeInputToFlowExecution(id, entry.getKey().getFinalName(), entry.getValue().getValue());
         }
         for (Map.Entry<DataInFlowDTO, TextField> entry: freeInputsTextFieldComponents.entrySet()) {
             if(!entry.getValue().getText().isEmpty()) {
-                mainAppController.getModel().addFreeInputToFlowExecution(id, entry.getKey().getFinalName() +
-                        "." + entry.getKey().getOwnerStep().getName(), entry.getValue().getText());
+                mainAppController.getModel().addFreeInputToFlowExecution(id, entry.getKey().getFinalName(), entry.getValue().getText());
             }
         }
         mainAppController.showFlowExecutionDetails(id);
