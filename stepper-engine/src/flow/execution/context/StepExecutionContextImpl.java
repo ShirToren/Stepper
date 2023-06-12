@@ -74,14 +74,14 @@ public class StepExecutionContextImpl implements StepExecutionContext {
             for(DataDefinitionDeclaration input : step.getStepDefinition().inputs()) {
                 dataInstanceName = flowExecution.getFlowDefinition().
                         findDataInstanceName(input.getName(), step.getFinalStepName());
-                storeOriginalAndCurrentTypes(input.getName(),
-                        dataInstanceName, input.dataDefinition());
+                storeOriginalAndCurrentTypes(input.getName() + "." + step.getFinalStepName(),
+                        dataInstanceName + "." + step.getFinalStepName(), input.dataDefinition());
             }
             for(DataDefinitionDeclaration output : step.getStepDefinition().outputs()) {
                 dataInstanceName = flowExecution.getFlowDefinition().
                         findDataInstanceName(output.getName(), step.getFinalStepName());
-                storeOriginalAndCurrentTypes(output.getName(),
-                        dataInstanceName, output.dataDefinition());
+                storeOriginalAndCurrentTypes(output.getName() + "." + step.getFinalStepName(),
+                        dataInstanceName + "." + step.getFinalStepName(), output.dataDefinition());
             }
         }
     }
@@ -96,16 +96,16 @@ public class StepExecutionContextImpl implements StepExecutionContext {
         return summeryLines;
     }
 
-    private void storeOriginalAndCurrentTypes(String dataOriginalInstanceName, String dataInstanceName, DataDefinition dataDefinition) {
-        dataTypes.put(dataOriginalInstanceName, dataDefinition);
-        dataTypes.put(dataInstanceName, dataDefinition);
+    private void storeOriginalAndCurrentTypes(String dataOriginalNameAndStep, String dataInstanceNameAndStep, DataDefinition dataDefinition) {
+        dataTypes.put(dataOriginalNameAndStep, dataDefinition);
+        dataTypes.put(dataInstanceNameAndStep, dataDefinition);
     }
 
 
     @Override
     public <T> T getDataValue(String dataName, Class<T> expectedDataType) {
         // assuming that from the data name we can get to its data definition
-        DataDefinition theExpectedDataDefinition = dataTypes.get(dataName);
+        DataDefinition theExpectedDataDefinition = dataTypes.get(dataName + "." + currentStep.getFinalStepName());
 
         if (expectedDataType.isAssignableFrom(theExpectedDataDefinition.getType())) {
             String finalDataName = flowExecution.getFlowDefinition().findDataInstanceName(dataName, currentStep.getFinalStepName());
@@ -122,7 +122,7 @@ public class StepExecutionContextImpl implements StepExecutionContext {
 
     @Override
     public <T> T getDataValueByFinalName(String dataName, Class<T> expectedDataType) {
-        DataDefinition theExpectedDataDefinition = dataTypes.get(dataName);
+        DataDefinition theExpectedDataDefinition = dataTypes.get(dataName+ "." + currentStep.getFinalStepName());
 
         if (expectedDataType.isAssignableFrom(theExpectedDataDefinition.getType())) {
             Object aValue = dataValues.get(dataName);
@@ -139,7 +139,7 @@ public class StepExecutionContextImpl implements StepExecutionContext {
     @Override
     public boolean storeDataValue(String dataName, Object value) {
         // assuming that from the data name we can get to its data definition
-        DataDefinition theData = dataTypes.get(dataName);
+        DataDefinition theData = dataTypes.get(dataName+ "." + currentStep.getFinalStepName());
 
         // we have the DD type so we can make sure that its from the same type
         if (theData.getType().isAssignableFrom(value.getClass())) {

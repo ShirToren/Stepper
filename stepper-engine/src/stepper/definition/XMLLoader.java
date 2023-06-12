@@ -2,7 +2,7 @@ package stepper.definition;
 import exception.DoubleFlowNameException;
 import exception.StepNotExistException;
 import flow.definition.api.*;
-import jaxb.schema.generated.*;
+import jaxb.schema.generated.ex02.*;
 import step.StepDefinitionRegistry;
 import step.api.StepDefinition;
 
@@ -14,10 +14,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class XMLLoader {
-    private final static String JAXB_XML_PACKAGE_NAME = "jaxb.schema.generated";
+    private final static String JAXB_XML_PACKAGE_NAME = "jaxb.schema.generated.ex02";
 
     public StepUsageDeclarationImpl createStepFromJAXB(STStepInFlow jaxbStep){
         String nameAsEnum = jaxbStep.getName().toUpperCase().replaceAll(" ", "_");
@@ -59,6 +60,10 @@ public class XMLLoader {
                 jaxbCustomMapping.getTargetStep(),
                 jaxbCustomMapping.getTargetData());
     }
+    public InitialInputValue createInitialInputValueFromJAXB(STInitialInputValue jaxbInitialInputValue) {
+        return new InitialInputValue(jaxbInitialInputValue.getInputName(),
+                jaxbInitialInputValue.getInitialValue());
+    }
     public FlowDefinitionImpl createFlowFromJAXB(STFlow jaxbFlow) {
         String[] outputs = jaxbFlow.getSTFlowOutput().split(",");
 
@@ -79,12 +84,18 @@ public class XMLLoader {
                 theFlow.addCustomMapping(createCustomMappingFromJAXB(customMapping));
             }
         }
+        if(jaxbFlow.getSTInitialInputValues() != null){
+            List<STInitialInputValue> stInitialInputValue = jaxbFlow.getSTInitialInputValues().getSTInitialInputValue();
+            for (STInitialInputValue initValue: stInitialInputValue) {
+                theFlow.addInitialInputValue(createInitialInputValueFromJAXB(initValue));
+            }
+        }
         theFlow.defineFlow();
         return theFlow;
     }
 
     public Stepper createStepperFromJAXB(STStepper jaxbStepper) {
-        Stepper stepper = new Stepper();
+        Stepper stepper = new Stepper(jaxbStepper.getSTThreadPool());
         Set<String> values = new HashSet<>();
 
         for (STFlow flow : jaxbStepper.getSTFlows().getSTFlow()) {

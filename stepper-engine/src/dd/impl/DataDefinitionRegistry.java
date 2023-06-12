@@ -1,6 +1,7 @@
 package dd.impl;
 
 import dd.api.DataDefinition;
+import dd.impl.enumeration.EnumerationDataDefinition;
 import dd.impl.file.FileDataDefinition;
 import dd.impl.list.ListDataDefinition;
 import dd.impl.mapping.MappingDataDefinition;
@@ -16,7 +17,8 @@ public enum DataDefinitionRegistry implements DataDefinition {
     RELATION(new RelationDataDefinition()),
     FILE(new FileDataDefinition()),
     LIST(new ListDataDefinition()),
-    MAPPING(new MappingDataDefinition())
+    MAPPING(new MappingDataDefinition()),
+    ENUMERATION(new EnumerationDataDefinition())
     ;
 
     DataDefinitionRegistry(DataDefinition dataDefinition) {

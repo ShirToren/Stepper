@@ -60,6 +60,7 @@ public class UpdateExecutionDetailsTask extends Task<Boolean> {
         uiAdapter.updateFlowDuration(Long.toString(executionDTO.getTotalTime().toMillis()));
         uiAdapter.updateFlowEndTime(executionDTO.getEndExecutionTime().toString());
         uiAdapter.updateFlowResult(executionDTO.getExecutionResult().name());
+        uiAdapter.clearOutputsItems();
         for (Map.Entry<DataInFlowDTO, Object> entry : executionDTO.getAllExecutionOutputs().entrySet()) {
             uiAdapter.addNewOutput(entry);
         }

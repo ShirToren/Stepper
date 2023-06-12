@@ -33,7 +33,7 @@ public class StepperEngineManager {
     private final Map<String, Long> flowExecutedTotalMillis;
     private final Map<String, Integer> stepExecutedTimes;
     private final  Map<String, Long> stepExecutedTotalMillis;
-    private final ExecutorService executor;
+    private ExecutorService executor;
 
 
     public StepperEngineManager() {
@@ -229,6 +229,9 @@ public class StepperEngineManager {
                 if (stepper.validateStepperStructure()) {
                     dto = new XMLDTO("The file is valid and fully loaded.");
                     this.stepper = stepper;
+                    if(stepper.getThreadPool() != 0){
+                        this.executor = Executors.newFixedThreadPool(stepper.getThreadPool());
+                    }
                     cleanAllSystem();
                 } else {
                     dto = new XMLDTO("The file is not valid. One or more flows are not valid.");

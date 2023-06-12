@@ -67,10 +67,10 @@ public class FlowExecutionDetailsController {
     public void addOutput(Map.Entry<DataInFlowDTO, Object> entry) {
         addLabel(entry.getKey().getFinalName(), rowIndex, 1);
         if(entry.getValue().equals("Not created due to failure in flow")) {
-            addTextField(entry.getValue().toString(), rowIndex, 2);
+            addTextArea(entry.getValue().toString(), rowIndex, 2);
         } else {
             if(entry.getKey().getDataDefinition().getType().equals(String.class)){
-                addTextField(entry.getValue().toString(), rowIndex, 2);
+                addTextArea(entry.getValue().toString(), rowIndex, 2);
             } else if(entry.getKey().getDataDefinition().getType().equals(Integer.class)||
                     entry.getKey().getDataDefinition().getType().equals(Double.class)) {
                 addLabel(entry.getValue().toString(), rowIndex, 2);
@@ -136,11 +136,11 @@ public class FlowExecutionDetailsController {
         flowExecutionDetailsGP.add(label, colIndex,rowIndex);
     }
 
-    private void addTextField(String text, int rowIndex, int colIndex) {
-        TextField textField = new TextField(text);
-        textField.setPrefWidth(200);
-        textField.setPrefHeight(40);
-        flowExecutionDetailsGP.add(textField, colIndex,rowIndex);
+    private void addTextArea(String text, int rowIndex, int colIndex) {
+        TextArea textArea = new TextArea(text);
+        textArea.setPrefWidth(200);
+        textArea.setPrefHeight(50);
+        flowExecutionDetailsGP.add(textArea, colIndex,rowIndex);
     }
 
     private void addFilesListView(FileList values, int rowIndex, int colIndex) {

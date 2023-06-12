@@ -6,7 +6,7 @@
 //
 
 
-package jaxb.schema.generated;
+package jaxb.schema.generated.ex01;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -24,9 +24,9 @@ import javax.xml.bind.annotation.XmlType;
  * &lt;complexType>
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;attribute name="step" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="source-data-name" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="alias" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute name="name" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute name="alias" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute name="continue-if-failing" type="{http://www.w3.org/2001/XMLSchema}boolean" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
@@ -36,62 +36,38 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "")
-@XmlRootElement(name = "ST-FlowLevelAlias")
-public class STFlowLevelAlias {
+@XmlRootElement(name = "ST-StepInFlow")
+public class STStepInFlow {
 
-    @XmlAttribute(name = "step", required = true)
-    protected String step;
-    @XmlAttribute(name = "source-data-name", required = true)
-    protected String sourceDataName;
-    @XmlAttribute(name = "alias", required = true)
+    @XmlAttribute(name = "name", required = true)
+    protected String name;
+    @XmlAttribute(name = "alias")
     protected String alias;
+    @XmlAttribute(name = "continue-if-failing")
+    protected Boolean continueIfFailing;
 
     /**
-     * Gets the value of the step property.
+     * Gets the value of the name property.
      * 
      * @return
      *     possible object is
      *     {@link String }
      *     
      */
-    public String getStep() {
-        return step;
+    public String getName() {
+        return name;
     }
 
     /**
-     * Sets the value of the step property.
+     * Sets the value of the name property.
      * 
      * @param value
      *     allowed object is
      *     {@link String }
      *     
      */
-    public void setStep(String value) {
-        this.step = value;
-    }
-
-    /**
-     * Gets the value of the sourceDataName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getSourceDataName() {
-        return sourceDataName;
-    }
-
-    /**
-     * Sets the value of the sourceDataName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setSourceDataName(String value) {
-        this.sourceDataName = value;
+    public void setName(String value) {
+        this.name = value;
     }
 
     /**
@@ -116,6 +92,30 @@ public class STFlowLevelAlias {
      */
     public void setAlias(String value) {
         this.alias = value;
+    }
+
+    /**
+     * Gets the value of the continueIfFailing property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link Boolean }
+     *     
+     */
+    public Boolean isContinueIfFailing() {
+        return continueIfFailing;
+    }
+
+    /**
+     * Sets the value of the continueIfFailing property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link Boolean }
+     *     
+     */
+    public void setContinueIfFailing(Boolean value) {
+        this.continueIfFailing = value;
     }
 
 }

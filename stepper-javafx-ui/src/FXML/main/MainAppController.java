@@ -90,6 +90,9 @@ public class MainAppController {
                 if(oldTab.equals(flowExecutionTab) || newTab.equals((flowExecutionTab))) {
                     flowsExecutionComponentController.clearAll();
                 }
+                if(oldTab.equals(executionHistoryTab)) {
+                    executionHistoryComponentController.clearAll();
+                }
             }
         });
     }

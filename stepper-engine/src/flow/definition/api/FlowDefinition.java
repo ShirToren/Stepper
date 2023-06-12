@@ -23,10 +23,12 @@ public interface FlowDefinition {
     List<DataInFlow> getFlowInputs();
 
     List<DataInFlow> getAllDataInFlow();
+    StepUsageDeclaration findOwnerStep(String inputName);
 
     List<FlowLevelAlias> getFlowLevelAliases();
 
     List<CustomMapping> getCustomMappings();
+    List<InitialInputValue> getInitialInputValues();
 
     boolean validateFlowStructure();
 
@@ -39,6 +41,7 @@ public interface FlowDefinition {
     void addFlowLevelAlias(FlowLevelAlias flowLevelAlias);
 
     void addCustomMapping(CustomMapping customMapping);
+    void addInitialInputValue(InitialInputValue initialInputValue);
 
     void applyCustomMapping();
     void applyFlowLevelAliasing();

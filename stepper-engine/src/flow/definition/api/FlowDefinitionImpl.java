@@ -14,6 +14,7 @@ public class FlowDefinitionImpl implements FlowDefinition {
     private final List<FlowLevelAlias> flowLevelAliases;
 
     private final List<CustomMapping> customMappings;
+    private final List<InitialInputValue> initialInputValues;
 
     private final Map<String, String> dataNames;
     private final List<DataInFlow> allDataInFlow;
@@ -35,6 +36,7 @@ public class FlowDefinitionImpl implements FlowDefinition {
         this.dataNames = new HashMap<>();
         this.flowLevelAliases = new ArrayList<>();
         this.customMappings = new ArrayList<>();
+        this.initialInputValues = new ArrayList<>();
         this.allDataInFlow = new ArrayList<>();
         this.freeInputs = new ArrayList<>();
         this.flowOutputs = new ArrayList<>();
@@ -106,7 +108,9 @@ public class FlowDefinitionImpl implements FlowDefinition {
     private void findFreeInputs() {
         for (DataInFlow data : allDataInFlow) {
             if(data.getDataDirection() == DataDirection.INPUT &&
-                    data.getSourceDataInFlow().size() == 0) {
+                    data.getSourceDataInFlow().size() == 0 &&
+                    !isInitialValue(data.getDataInstanceName()) &&
+            !uniqueFreeInputs.contains(data.getDataInstanceName())) {
                 freeInputs.add(data);
                 if(!uniqueFreeInputs.contains(data.getDataInstanceName())) {
                     uniqueFreeInputs.add(data.getDataInstanceName());
@@ -122,6 +126,14 @@ public class FlowDefinitionImpl implements FlowDefinition {
         }
     }
 
+    private boolean isInitialValue(String inputName) {
+        for (InitialInputValue initValue: initialInputValues) {
+            if(initValue.getInputName().equals(inputName)) {
+                return true;
+            }
+        }
+        return false;
+    }
     @Override
     public void applyAutomaticMapping() {
         for (int i = 0; i < steps.size(); i++) {
@@ -278,6 +290,15 @@ public class FlowDefinitionImpl implements FlowDefinition {
         return validateCustomMapping() && validateFlowLevelAliasing() && validateFormalOutputs() && validateMandatoryInput();
     }
 
+    public StepUsageDeclaration findOwnerStep(String inputName){
+        for (DataInFlow data: allDataInFlow) {
+            if(data.getDataInstanceName().equals(inputName)) {
+                return data.getOwnerStepUsageDeclaration();
+            }
+        }
+        return null;
+    }
+
     private boolean validateMandatoryInput(){
         Map<String, Class<?>> map = new HashMap<>();
         for (DataInFlow freeInput : freeInputs) {
@@ -389,6 +410,12 @@ public class FlowDefinitionImpl implements FlowDefinition {
     }
 
     @Override
+    public void addInitialInputValue(InitialInputValue initialInputValue) {
+        this.initialInputValues.add(initialInputValue);
+    }
+
+
+    @Override
     public String getName() {
         return name;
     }
@@ -448,5 +475,9 @@ public class FlowDefinitionImpl implements FlowDefinition {
     @Override
     public List<CustomMapping> getCustomMappings() {
         return customMappings;
+    }
+    @Override
+    public List<InitialInputValue> getInitialInputValues() {
+        return initialInputValues;
     }
 }

@@ -1,6 +1,7 @@
 package flow.execution.runner;
 
 import flow.definition.api.DataInFlow;
+import flow.definition.api.InitialInputValue;
 import flow.definition.api.StepUsageDeclaration;
 import flow.execution.FlowExecution;
 import flow.execution.FlowExecutionResult;
@@ -30,6 +31,11 @@ public class FLowExecutor {
                             .getStepUsageDeclarationByFinalName(stepName));
             context.storeDataValue(inputName, entry.getValue());
         }
+        for (InitialInputValue initInputValue: flowExecution.getFlowDefinition().getInitialInputValues()) {
+            context.setCurrentStep(flowExecution.getFlowDefinition().findOwnerStep(initInputValue.getInputName()));
+            context.storeDataValue(initInputValue.getInputName(), initInputValue.getInitialValue());
+        }
+
         ////check if all inputs are ok
         // start actual execution
         for (int i = 0; i < flowExecution.getFlowDefinition().getFlowSteps().size(); i++) {
@@ -37,6 +43,37 @@ public class FLowExecutor {
             context.setCurrentStep(stepUsageDeclaration);
             //System.out.println("Starting to execute step: " + stepUsageDeclaration.getFinalStepName());
             StepResult stepResult = stepUsageDeclaration.getStepDefinition().invoke(context);
+
+
+            for (DataInFlow formalOutput : flowExecution.getFlowDefinition().getFormalOutputsDataInFlow()) {
+                if(formalOutput.getOwnerStepUsageDeclaration().getFinalStepName().equals(stepUsageDeclaration.getFinalStepName())) {
+                    if(context.getDataValueByFinalName(formalOutput.getDataInstanceName(),
+                            formalOutput.getDataDefinition().getType()) != null){
+                        flowExecution.getExecutionFormalOutputs().put(formalOutput.getDataInstanceName(),
+                                context.getDataValueByFinalName(formalOutput.getDataInstanceName(),
+                                        formalOutput.getDataDefinition().getType()));
+                    }
+                }
+            }
+
+            for(DataInFlow output : flowExecution.getFlowDefinition().getFlowOutputs()) {
+                if (output.getOwnerStepUsageDeclaration().getFinalStepName().equals(stepUsageDeclaration.getFinalStepName())) {
+                    Object dataValue = context.getDataValueByFinalName(output.getDataInstanceName(), output.getDataDefinition().getType());
+                    if (dataValue != null) {
+                        flowExecution.getAllExecutionOutputs().put(output.getDataInstanceName(), dataValue);
+                    }
+                }
+            }
+            for (DataInFlow input: flowExecution.getFlowDefinition().getFlowInputs()) {
+                if (input.getOwnerStepUsageDeclaration().getFinalStepName().equals(stepUsageDeclaration.getFinalStepName())) {
+                    Object dataValue = context.getDataValueByFinalName(input.getDataInstanceName(), input.getDataDefinition().getType());
+                    if (dataValue != null) {
+                        flowExecution.getAllExecutionInputs().put(input.getDataInstanceName(), dataValue);
+                    }
+                }
+            }
+
+
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
@@ -55,27 +92,6 @@ public class FLowExecutor {
             //System.out.println("Done executing step: " + stepUsageDeclaration.getFinalStepName() + ". Result: " + stepResult);
             // check if should continue etc..
             }
-        for (DataInFlow formalOutput : flowExecution.getFlowDefinition().getFormalOutputsDataInFlow()) {
-            if(context.getDataValueByFinalName(formalOutput.getDataInstanceName(),
-                    formalOutput.getDataDefinition().getType()) != null){
-                flowExecution.getExecutionFormalOutputs().put(formalOutput.getDataInstanceName(),
-                        context.getDataValueByFinalName(formalOutput.getDataInstanceName(),
-                                formalOutput.getDataDefinition().getType()));
-            }
-        }
-
-        for(DataInFlow output : flowExecution.getFlowDefinition().getFlowOutputs()) {
-            Object dataValue = context.getDataValueByFinalName(output.getDataInstanceName(), output.getDataDefinition().getType());
-            if(dataValue != null) {
-                flowExecution.getAllExecutionOutputs().put(output.getDataInstanceName(), dataValue);
-            }
-        }
-        for (DataInFlow input: flowExecution.getFlowDefinition().getFlowInputs()) {
-            Object dataValue = context.getDataValueByFinalName(input.getDataInstanceName(), input.getDataDefinition().getType());
-            if(dataValue != null) {
-                flowExecution.getAllExecutionInputs().put(input.getDataInstanceName(), dataValue);
-            }
-        }
 
         //System.out.println("End execution of flow " + flowExecution.getFlowDefinition().getName() + " [ID: " + flowExecution.getUuid() + "]. Status: " + flowExecution.getFlowExecutionResult());
         LocalTime endExecutionTime = LocalTime.now();

@@ -20,9 +20,10 @@ public class StepperApplication extends Application {
         Parent root = fxmlLoader.load(url.openStream());
         MainAppController mainAppController = fxmlLoader.getController();
 
-        primaryStage.setOnCloseRequest(event -> {
-            mainAppController.getModel().getExecutor().shutdown();
-        });
+            primaryStage.setOnCloseRequest(event -> {
+                mainAppController.getModel().getExecutor().shutdown();
+            });
+
 
         Scene scene = new Scene(root, 1000, 600);
         primaryStage.setScene(scene);

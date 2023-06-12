@@ -6,7 +6,7 @@
 //
 
 
-package jaxb.schema.generated;
+package jaxb.schema.generated.ex01;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.annotation.XmlElementDecl;

@@ -14,9 +14,9 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import logs.LogLine;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -64,6 +64,17 @@ public class StepExecutionDetailsController {
         List<DataInFlowDTO> flowsOutputs = currentExecutionDTO.getFlowDefinitionDTO().getFlowsOutputs();
         Map<DataInFlowDTO, Object> allExecutionOutputs = currentExecutionDTO.getAllExecutionOutputs();
         addDataDetails(step, flowsOutputs, allExecutionOutputs);
+        addLogLines(currentExecutionDTO, step);
+    }
+
+    private void addLogLines(FlowExecutionDTO currentExecutionDTO, StepUsageDeclarationDTO step){
+        addLabel("Logs:", rowIndex, 1);
+        StringBuilder stringBuilder = new StringBuilder();
+       List<LogLine> logLines = currentExecutionDTO.getLogLines().get(step.getName());
+        for (LogLine log: logLines) {
+            stringBuilder.append(log.getTime()).append(": ").append(log.getLine()).append("\n");
+        }
+        addTextArea(stringBuilder.toString(), rowIndex, 2);
     }
 
     private void addDataDetails(StepUsageDeclarationDTO step, List<DataInFlowDTO> allData,
@@ -74,10 +85,10 @@ public class StepExecutionDetailsController {
                 if(allExecutionData.containsKey(data)) {
                     addLabel(data.getFinalName(), rowIndex, 1);
                     if (allExecutionData.get(data).equals("Not created due to failure in flow")) {
-                        addTextField(allExecutionData.get(data).toString(), rowIndex, 2);
+                        addTextArea(allExecutionData.get(data).toString(), rowIndex, 2);
                     } else {
                         if (data.getDataDefinition().getType().equals(String.class)) {
-                            addTextField(allExecutionData.get(data).toString(), rowIndex, 2);
+                            addTextArea(allExecutionData.get(data).toString(), rowIndex, 2);
                         } else if (data.getDataDefinition().getType().equals(Integer.class) ||
                                 data.getDataDefinition().getType().equals(Double.class)) {
                             addLabel(allExecutionData.get(data).toString(), rowIndex, 2);
@@ -103,11 +114,11 @@ public class StepExecutionDetailsController {
         stepDetailsGP.add(label, colIndex,rowIndex);
     }
 
-    private void addTextField(String text, int rowIndex, int colIndex) {
-        TextField textField = new TextField(text);
-        textField.setPrefWidth(200);
-        textField.setPrefHeight(40);
-        stepDetailsGP.add(textField, colIndex,rowIndex);
+    private void addTextArea(String text, int rowIndex, int colIndex) {
+        TextArea textArea = new TextArea(text);
+        textArea.setPrefWidth(200);
+        textArea.setPrefHeight(50);
+        stepDetailsGP.add(textArea, colIndex,rowIndex);
     }
 
     private void addFilesListView(FileList values, int rowIndex, int colIndex) {

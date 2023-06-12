@@ -6,8 +6,10 @@
 //
 
 
-package jaxb.schema.generated;
+package jaxb.schema.generated.ex01;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -25,7 +27,7 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element ref="{}ST-Flows"/>
+ *         &lt;element ref="{}ST-Flow" maxOccurs="unbounded"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -36,36 +38,41 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-    "stFlows"
+    "stFlow"
 })
-@XmlRootElement(name = "ST-Stepper")
-public class STStepper {
+@XmlRootElement(name = "ST-Flows")
+public class STFlows {
 
-    @XmlElement(name = "ST-Flows", required = true)
-    protected STFlows stFlows;
-
-    /**
-     * Gets the value of the stFlows property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link STFlows }
-     *     
-     */
-    public STFlows getSTFlows() {
-        return stFlows;
-    }
+    @XmlElement(name = "ST-Flow", required = true)
+    protected List<STFlow> stFlow;
 
     /**
-     * Sets the value of the stFlows property.
+     * Gets the value of the stFlow property.
      * 
-     * @param value
-     *     allowed object is
-     *     {@link STFlows }
-     *     
+     * <p>
+     * This accessor method returns a reference to the live list,
+     * not a snapshot. Therefore any modification you make to the
+     * returned list will be present inside the JAXB object.
+     * This is why there is not a <CODE>set</CODE> method for the stFlow property.
+     * 
+     * <p>
+     * For example, to add a new item, do as follows:
+     * <pre>
+     *    getSTFlow().add(newItem);
+     * </pre>
+     * 
+     * 
+     * <p>
+     * Objects of the following type(s) are allowed in the list
+     * {@link STFlow }
+     * 
+     * 
      */
-    public void setSTFlows(STFlows value) {
-        this.stFlows = value;
+    public List<STFlow> getSTFlow() {
+        if (stFlow == null) {
+            stFlow = new ArrayList<STFlow>();
+        }
+        return this.stFlow;
     }
 
 }

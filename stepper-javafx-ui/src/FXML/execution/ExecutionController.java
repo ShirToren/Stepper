@@ -24,25 +24,20 @@ public class ExecutionController {
     @FXML
     private CollectInputsController collectInputsComponentController;
 
-
     public void clearFlowExecutionDetails() {
         executionDetailsComponentController.clearAll();
     }
-
     public void setMainAppController(MainAppController mainAppController) {
         this.mainAppController = mainAppController;
         collectInputsComponentController.setMainAppController(mainAppController, this);
         executionDetailsComponentController.setMainAppController(mainAppController);
     }
-
     public void addFlowExecutionDetails(UUID id) {
         executionDetailsComponentController.addFlowExecutionDetails(id);
     }
-
     public void initFreeInputsComponents(UUID id) {
         collectInputsComponentController.initInputsComponents(id);
     }
-
     public void executeListener(UUID id) {
         UIAdapter uiAdapter = executionDetailsComponentController.createUIAdapter();
         UpdateExecutionDetailsTask task = new UpdateExecutionDetailsTask(id,mainAppController.getModel(),
@@ -51,7 +46,6 @@ public class ExecutionController {
 
         new Thread(task).start();
     }
-
     public void clearAll(){
         executionDetailsComponentController.clearAll();
         collectInputsComponentController.clearAll();
