@@ -23,9 +23,13 @@ import java.util.UUID;
 
 public class MainAppController {
     private StepperEngineManager model = new StepperEngineManager();
+    @FXML
+    private BorderPane borderPane;
 
     @FXML
     private Button loadFileButton;
+    @FXML
+    private ChoiceBox<String> cssChoiceBox;
 
     @FXML private BorderPane flowsDefinitionComponent;
     @FXML private DefinitionController flowsDefinitionComponentController;
@@ -95,6 +99,37 @@ public class MainAppController {
                 }
             }
         });
+
+        borderPane.getStylesheets().add("/FXML/css/default.css");
+        // Add items to the ChoiceBox
+        cssChoiceBox.getItems().addAll("Default skin", "Skin 2", "Skin 3");
+
+        // Set a default selection
+       //cssChoiceBox.setValue("Skin 1");
+
+        // Add a listener to handle selection changes
+        cssChoiceBox.setOnAction(event -> {
+            String selectedValue = cssChoiceBox.getValue();
+            changeCss(selectedValue);
+        });
+    }
+
+    public void addRerunButton(UUID id){
+        flowsExecutionComponentController.addRerunButton(id);
+    }
+    public void clearRerunButton(){
+        flowsExecutionComponentController.clearRerunButton();
+    }
+
+    private void changeCss(String option){
+        borderPane.getStylesheets().clear();
+        if(option.endsWith("2")) {
+            borderPane.getStylesheets().add("/FXML/css/second.css");
+        } else if (option.endsWith("3")) {
+            borderPane.getStylesheets().add("/FXML/css/third.css");
+        } else if(option.equals("Default skin")){
+            borderPane.getStylesheets().add("/FXML/css/default.css");
+        }
     }
 
     private void clearAll(){
@@ -157,6 +192,11 @@ public class MainAppController {
     }
 
 
+    public void addStatistics(){
+        statisticsComponentController.addStatisticsToTable();
+    }
+
+
     @FXML
     void loadFileButtonActionListener(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
@@ -174,8 +214,6 @@ public class MainAppController {
                 showErrorDialog("Invalid file.", xmldto.getFileState());
             }
             flowsDefinitionComponentController.show();
-        } else {
-            System.out.println("No file selected.");
         }
     }
 
@@ -189,4 +227,5 @@ public class MainAppController {
         alert.setHeaderText(null);
         alert.showAndWait();
     }
+
 }

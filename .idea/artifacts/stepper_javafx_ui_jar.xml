@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="stepper-javafx-ui:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/stepper_javafx_ui_jar</output-path>
+    <root id="archive" name="stepper-javafx-ui.jar">
+      <element id="module-output" name="stepper-javafx-ui" />
+      <element id="module-output" name="stepper-engine" />
+    </root>
+  </artifact>
+</component>

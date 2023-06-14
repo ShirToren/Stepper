@@ -50,6 +50,7 @@ public class FlowExecutionDetailsController {
         freeInputsLV.setItems(freeInputsLVItems);
     }
     public void addFlowExecutionDetails(UUID id) {
+        clearAll();
         FlowExecutionDTO executionDTO = mainAppController.getModel().getExecutionDTOByUUID(id);
         flowNameLabel.setText(executionDTO.getFlowDefinitionDTO().getName());
         flowIDLabel.setText(executionDTO.getUuid().toString());
@@ -69,9 +70,7 @@ public class FlowExecutionDetailsController {
         if(entry.getValue().equals("Not created due to failure in flow")) {
             addTextArea(entry.getValue().toString(), rowIndex, 2);
         } else {
-            if(entry.getKey().getDataDefinition().getType().equals(String.class)){
-                addTextArea(entry.getValue().toString(), rowIndex, 2);
-            } else if(entry.getKey().getDataDefinition().getType().equals(Integer.class)||
+             if(entry.getKey().getDataDefinition().getType().equals(Integer.class)||
                     entry.getKey().getDataDefinition().getType().equals(Double.class)) {
                 addLabel(entry.getValue().toString(), rowIndex, 2);
             } else if (entry.getKey().getDataDefinition().getType().equals(ListData.class)) {
@@ -82,7 +81,11 @@ public class FlowExecutionDetailsController {
                 }
             }  else if(entry.getKey().getDataDefinition().getType().equals(RelationData.class)) {
                 addTableView((RelationData)entry.getValue(), rowIndex, 2);
-            }
+            } else {
+                 //if(entry.getKey().getDataDefinition().getType().equals(String.class)){
+                     addTextArea(entry.getValue().toString(), rowIndex, 2);
+                 //}
+             }
         }
         /*} else if(entry.getKey().getDataDefinition().getType().equals(StringList.class)){
             addStringListView((StringList)entry.getValue(), rowIndex, 2);
@@ -122,7 +125,7 @@ public class FlowExecutionDetailsController {
                     for (DataInFlowDTO freeInput: freeInputsList) {
                         if(freeInput.getFinalName().equals(item)) {
                             freeInputTypeLabel.setText("Type: " + freeInput.getDataDefinition().getName());
-                            freeInputValueLabel.setText("Value: " + mainAppController.getModel().getActualFreeInputsList(id).get(item).toString());
+                            freeInputValueLabel.setText("Value: " + mainAppController.getModel().getActualFreeInputsList(id).get(item));
                             freeInputNecessityLabel.setText("Necessity: " + freeInput.getDataNecessity().name());
                         }
                     }

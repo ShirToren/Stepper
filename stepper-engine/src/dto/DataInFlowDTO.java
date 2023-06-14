@@ -10,6 +10,7 @@ import java.util.List;
 
 public class DataInFlowDTO implements DTO {
     private final String finalName;
+    private final String originalName;
     private final DataDefinition dataDefinition;
     private final List<StepUsageDeclarationDTO> sourceSteps;
     private final List<StepUsageDeclarationDTO> targetSteps;
@@ -20,6 +21,7 @@ public class DataInFlowDTO implements DTO {
     public DataInFlowDTO(DataInFlow dataInFlow) {
         this.sourceSteps = new ArrayList<>();
         this.targetSteps = new ArrayList<>();
+        this.originalName = dataInFlow.getOriginalDataInstanceNameInStep();
         this.finalName = dataInFlow.getDataInstanceName();
         this.dataNecessity = dataInFlow.getDataDefinitionDeclaration().necessity();
         this.dataDefinition = dataInFlow.getDataDefinition();
@@ -39,6 +41,10 @@ public class DataInFlowDTO implements DTO {
 
     public DataDefinition getDataDefinition() {
         return dataDefinition;
+    }
+
+    public String getOriginalName() {
+        return originalName;
     }
 
     public List<StepUsageDeclarationDTO> getSourceSteps() {

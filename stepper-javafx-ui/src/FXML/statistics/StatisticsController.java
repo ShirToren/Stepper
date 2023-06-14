@@ -1,21 +1,24 @@
 package FXML.statistics;
 
 import FXML.main.MainAppController;
-import FXML.old.executions.table.OldExecutionsTableController;
-import dto.FlowExecutionDTO;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.GridPane;
 
-import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 public class StatisticsController {
     private MainAppController mainAppController;
+    @FXML
+    private GridPane statisticsGP;
 
     @FXML
     private TableView<TargetTable> flowsTV;
@@ -64,8 +67,37 @@ public class StatisticsController {
     public void clearAll(){
         flowsData.clear();
         stepsData.clear();
+        statisticsGP.getChildren().removeIf(node -> GridPane.getRowIndex(node) >= 5);
     }
 
+    private void createTimesChart(String text, Map<String, Integer> executedTimes, int rowIndex, int colIndex){
+        CategoryAxis xAxis = new CategoryAxis();
+        NumberAxis yAxis = new NumberAxis();
+        BarChart<String, Number> chart = new BarChart<>(xAxis, yAxis);
+        chart.setTitle(text);
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        for (Map.Entry<String, Integer> time: executedTimes.entrySet()) {
+            series.getData().add(new XYChart.Data<>(time.getKey(), time.getValue()));
+        }
+        chart.getData().add(series);
+        chart.setPrefHeight(250);
+        chart.setPrefWidth(200);
+        statisticsGP.add(chart, colIndex, rowIndex);
+    }
+    private void createAvgChart(String text, Map<String, Long> executedTotalMillis,Map<String, Integer> executedTimes,  int rowIndex, int colIndex){
+        CategoryAxis xAxis = new CategoryAxis();
+        NumberAxis yAxis = new NumberAxis();
+        BarChart<String, Number> chart = new BarChart<>(xAxis, yAxis);
+        chart.setTitle(text);
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        for (Map.Entry<String, Long> millis: executedTotalMillis.entrySet()) {
+            series.getData().add(new XYChart.Data<>(millis.getKey(), millis.getValue() / executedTimes.get(millis.getKey())));
+        }
+        chart.getData().add(series);
+        chart.setPrefHeight(250);
+        chart.setPrefWidth(200);
+        statisticsGP.add(chart, colIndex, rowIndex);
+    }
     public void addStatisticsToTable() {
         clearAll();
         Map<String, Integer> flowExecutedTimes = mainAppController.getModel().getFlowExecutedTimes();
@@ -74,21 +106,25 @@ public class StatisticsController {
         Map<String, Long> stepExecutedTotalMillis = mainAppController.getModel().getStepExecutedTotalMillis();
 
         for (Map.Entry<String, Integer> times: flowExecutedTimes.entrySet()) {
-            TargetTable row = new TargetTable(times.getKey(), times.getValue(), flowExecutedTotalMillis.get(times.getKey()));
+            TargetTable row = new TargetTable(times.getKey(), times.getValue(), (double) flowExecutedTotalMillis.get(times.getKey()) / times.getValue());
             flowsData.add(row);
         }
         for (Map.Entry<String, Integer> times: stepExecutedTimes.entrySet()) {
-            TargetTable row = new TargetTable(times.getKey(), times.getValue(), stepExecutedTotalMillis.get(times.getKey()));
+            TargetTable row = new TargetTable(times.getKey(), times.getValue(), (double)stepExecutedTotalMillis.get(times.getKey()) / times.getValue());
             stepsData.add(row);
         }
+        createTimesChart("Flows executions", flowExecutedTimes, 5, 0);
+        createAvgChart("Flows average time",flowExecutedTotalMillis, flowExecutedTimes, 5, 1);
+        createTimesChart("Steps executions", stepExecutedTimes, 6, 0);
+        createAvgChart("Steps average time", stepExecutedTotalMillis, stepExecutedTimes, 6, 1);
     }
 
     public class TargetTable {
         private final String name;
         private final int times;
-        private final long avg;
+        private final double avg;
 
-        public TargetTable(String name, int times, long avg) {
+        public TargetTable(String name, int times, double avg) {
             this.name = name;
             this.times = times;
             this.avg = avg;
@@ -102,7 +138,7 @@ public class StatisticsController {
             return times;
         }
 
-        public long getAvg() {
+        public double getAvg() {
             return avg;
         }
     }

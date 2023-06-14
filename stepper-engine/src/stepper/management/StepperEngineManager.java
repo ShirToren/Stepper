@@ -101,10 +101,12 @@ public class StepperEngineManager {
         List<DataInFlow> flowFreeInputs = targetExecution.getFlowDefinition().getFlowFreeInputs();
         for (DataInFlow input: flowFreeInputs) {
             if(sourceExecution.getAllExecutionOutputs().containsKey(input.getDataInstanceName()) &&
-                    !sourceExecution.getAllExecutionOutputs().get(input.getDataInstanceName()).equals("Not created due to failure in flow")){
+                    !sourceExecution.getAllExecutionOutputs().get(input.getDataInstanceName()).equals("Not created due to failure in flow") &&
+            input.getDataDefinition().getType().equals(sourceExecution.getAllExecutionOutputs().get(input.getDataInstanceName()).getClass())){
                 targetExecution.addFreeInput(input.getDataInstanceName(),
                         sourceExecution.getAllExecutionOutputs().get(input.getDataInstanceName()));
-            } else if(sourceExecution.getAllExecutionInputs().containsKey(input.getDataInstanceName())) {
+            } else if(sourceExecution.getAllExecutionInputs().containsKey(input.getDataInstanceName()) &&
+            input.getDataDefinition().getType().equals(sourceExecution.getAllExecutionInputs().get(input.getDataInstanceName()).getClass())) {
                 targetExecution.addFreeInput(input.getDataInstanceName(),
                         sourceExecution.getAllExecutionInputs().get(input.getDataInstanceName()));
             }
@@ -113,7 +115,7 @@ public class StepperEngineManager {
             if(!sourceExecution.getAllExecutionOutputs().get(mapping.getSourceData()).equals("Not created due to failure in flow")){
                 targetExecution.addFreeInput(mapping.getTargetData(),
                         sourceExecution.getAllExecutionOutputs().get(mapping.getSourceData()));
-            } /*else if()*/
+            }
         }
     }
 

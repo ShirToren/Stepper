@@ -32,38 +32,44 @@ public class UpdateExecutionDetailsTask extends Task<Boolean> {
     @Override
     protected Boolean call() throws Exception {
         FlowExecutionDTO executionDTO;
-       while (!flowExecution.isFinished() && manager.getAllFlowExecutionsList().get(0).equals(flowExecution)) {
-           executionDTO = manager.getExecutionDTOByUUID(id);
-           if(executionDTO.getStartExecutionTime() != null) {
-               uiAdapter.updateFlowStartTime(executionDTO.getStartExecutionTime().toString());
-           }
-           uiAdapter.updateFlowName(executionDTO.getFlowDefinitionDTO().getName());
-           uiAdapter.updateFlowID(executionDTO.getUuid().toString());
-           updateProgress(flowExecution.getExecutedSteps().size(),flowExecution.getFlowDefinition().getFlowSteps().size());
-           Map<DataInFlowDTO, Object> allExecutionOutputs = executionDTO.getAllExecutionOutputs();
-           showFreeInputsDetails(id);
-           uiAdapter.clearOutputsItems();
-           for (Map.Entry<DataInFlowDTO, Object> entry : allExecutionOutputs.entrySet()) {
-               if(!entry.getValue().equals("Not created due to failure in flow")) {
-                   uiAdapter.addNewOutput(entry);
-               }
-           }
-           List<StepUsageDeclarationDTO> onlyExecutedSteps = manager.getOnlyExecutedSteps(executionDTO);
-           uiAdapter.clearStepsItems();
-           for (StepUsageDeclarationDTO step: onlyExecutedSteps) {
-               uiAdapter.addNewStep(step.getName());
-           }
-           Thread.sleep(200);
-       }
+            while (!flowExecution.isFinished() && manager.getAllFlowExecutionsList().get(0).equals(flowExecution)) {
+                executionDTO = manager.getExecutionDTOByUUID(id);
+                if (executionDTO.getStartExecutionTime() != null) {
+                    uiAdapter.updateFlowStartTime(executionDTO.getStartExecutionTime().toString());
+                }
+                uiAdapter.updateFlowName(executionDTO.getFlowDefinitionDTO().getName());
+                uiAdapter.updateFlowID(executionDTO.getUuid().toString());
+                updateProgress(flowExecution.getExecutedSteps().size(), flowExecution.getFlowDefinition().getFlowSteps().size());
+                Map<DataInFlowDTO, Object> allExecutionOutputs = executionDTO.getAllExecutionOutputs();
+                showFreeInputsDetails(id);
+                uiAdapter.clearOutputsItems();
+                for (Map.Entry<DataInFlowDTO, Object> entry : allExecutionOutputs.entrySet()) {
+                    if (!entry.getValue().equals("Not created due to failure in flow")) {
+                        uiAdapter.addNewOutput(entry);
+                    }
+                }
+                List<StepUsageDeclarationDTO> onlyExecutedSteps = manager.getOnlyExecutedSteps(executionDTO);
+                uiAdapter.clearStepsItems();
+                for (StepUsageDeclarationDTO step : onlyExecutedSteps) {
+                    uiAdapter.addNewStep(step.getName());
+                }
+                Thread.sleep(200);
+            }
 
-        executionDTO = manager.getExecutionDTOByUUID(id);
-        uiAdapter.updateFlowDuration(Long.toString(executionDTO.getTotalTime().toMillis()));
-        uiAdapter.updateFlowEndTime(executionDTO.getEndExecutionTime().toString());
-        uiAdapter.updateFlowResult(executionDTO.getExecutionResult().name());
-        uiAdapter.clearOutputsItems();
-        for (Map.Entry<DataInFlowDTO, Object> entry : executionDTO.getAllExecutionOutputs().entrySet()) {
-            uiAdapter.addNewOutput(entry);
-        }
+            executionDTO = manager.getExecutionDTOByUUID(id);
+            uiAdapter.updateFlowStartTime(executionDTO.getStartExecutionTime().toString());
+            uiAdapter.clearStepsItems();
+            for (StepUsageDeclarationDTO step : manager.getOnlyExecutedSteps(executionDTO)) {
+            uiAdapter.addNewStep(step.getName());
+            }
+            uiAdapter.updateFlowDuration(Long.toString(executionDTO.getTotalTime().toMillis()));
+            uiAdapter.updateFlowEndTime(executionDTO.getEndExecutionTime().toString());
+            uiAdapter.updateFlowResult(executionDTO.getExecutionResult().name());
+            uiAdapter.clearOutputsItems();
+            for (Map.Entry<DataInFlowDTO, Object> entry : executionDTO.getAllExecutionOutputs().entrySet()) {
+                uiAdapter.addNewOutput(entry);
+            }
+
         updateProgress(0,0);
        return true;
     }

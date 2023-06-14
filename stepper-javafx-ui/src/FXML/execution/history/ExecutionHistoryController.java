@@ -5,6 +5,7 @@ import FXML.old.executions.table.OldExecutionsTableController;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import java.util.UUID;
@@ -16,7 +17,7 @@ public class ExecutionHistoryController {
     @FXML
     private GridPane oldExecutionsTableComponent;
     @FXML
-    private BorderPane executionDetailsComponent;
+    private ScrollPane executionDetailsComponent;
     @FXML
     private ExecutionDetailsController executionDetailsComponentController;
     @FXML
@@ -42,6 +43,7 @@ public class ExecutionHistoryController {
         executionDetailsComponentController.addFlowExecutionDetails(id);
         executionDetailsComponentController.updateFinalDetails(id);
         executionDetailsComponentController.addExecutedSteps(id);
+        executionDetailsComponentController.addContinuations(id);
     }
 
     public void addExecutionToTable(){

@@ -208,10 +208,12 @@ public class FlowDefinitionImpl implements FlowDefinition {
                 findDataInFlowByNameAndOwnerStep(sourceDataName, sourceStepName);
         DataInFlow targetDataInFlow =
                 findDataInFlowByNameAndOwnerStep(targetDataName, targetStepName);
-        assert targetDataInFlow != null;
-        assert sourceDataInFlow != null;
-        targetDataInFlow.getSourceDataInFlow().add(sourceDataInFlow);
-        sourceDataInFlow.getTargetDataInFlow().add(targetDataInFlow);
+        if(targetDataInFlow != null){
+            targetDataInFlow.getSourceDataInFlow().add(sourceDataInFlow);
+        }
+        if(sourceDataInFlow != null) {
+            sourceDataInFlow.getTargetDataInFlow().add(targetDataInFlow);
+        }
         //check same type
     }
     private void addDataSourceByAutomatic(String sourceDataName, String sourceStepName, String targetDataName, String targetStepName) {
@@ -296,7 +298,25 @@ public class FlowDefinitionImpl implements FlowDefinition {
             return false;
         }
 
-        return validateCustomMapping() && validateFlowLevelAliasing() && validateFormalOutputs() && validateMandatoryInput();
+        return validateInitialInputValues() && validateCustomMapping() && validateFlowLevelAliasing() && validateFormalOutputs() && validateMandatoryInput();
+    }
+
+    private boolean validateInitialInputValues(){
+        for (InitialInputValue initValue: initialInputValues) {
+            if(!isInputExist(initValue.getInputName())){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isInputExist(String inputName){
+        for (DataInFlow input: flowInputs) {
+            if(input.getDataInstanceName().equals(inputName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public StepUsageDeclaration findOwnerStep(String inputName){

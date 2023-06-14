@@ -11,12 +11,15 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class FlowDefinitionDetailsController {
     private MainAppController mainAppController;
+    @FXML
+    private BorderPane borderPane;
     private String currentFlowName;
     @FXML private Button executeButton;
     @FXML
@@ -52,6 +55,7 @@ public class FlowDefinitionDetailsController {
         descriptionLabel.setWrapText(true);
         formalOutputsLV.setItems(formalOutputsLVItems);
         stepsLV.setItems(stepsLVItems);
+        //borderPane.getStylesheets().add("/FXML/css/second.css");
     }
 
     public void clearPrevDetails() {
@@ -92,9 +96,6 @@ public class FlowDefinitionDetailsController {
                     }
                 }
 
-            } else {
-                // Invalid index
-                System.out.println("Invalid index.");
             }
 
         }

@@ -87,9 +87,7 @@ public class StepExecutionDetailsController {
                     if (allExecutionData.get(data).equals("Not created due to failure in flow")) {
                         addTextArea(allExecutionData.get(data).toString(), rowIndex, 2);
                     } else {
-                        if (data.getDataDefinition().getType().equals(String.class)) {
-                            addTextArea(allExecutionData.get(data).toString(), rowIndex, 2);
-                        } else if (data.getDataDefinition().getType().equals(Integer.class) ||
+                         if (data.getDataDefinition().getType().equals(Integer.class) ||
                                 data.getDataDefinition().getType().equals(Double.class)) {
                             addLabel(allExecutionData.get(data).toString(), rowIndex, 2);
                         } else if (data.getDataDefinition().getType().equals(ListData.class)) {
@@ -100,7 +98,11 @@ public class StepExecutionDetailsController {
                             }
                         } else if (data.getDataDefinition().getType().equals(RelationData.class)) {
                             addTableView((RelationData) allExecutionData.get(data), rowIndex, 2);
-                        }
+                        } else {
+                            // if (data.getDataDefinition().getType().equals(String.class)) {
+                                 addTextArea(allExecutionData.get(data).toString(), rowIndex, 2);
+                             //}
+                         }
                     }
                     rowIndex++;
                 }

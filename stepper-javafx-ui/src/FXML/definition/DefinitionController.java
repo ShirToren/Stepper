@@ -75,9 +75,6 @@ public class DefinitionController {
                 flowDetailsComponentController.addFlowDetails(item.getName());
                 this.selectedFlowName = item.getName();
 
-            } else {
-                // Invalid index
-                System.out.println("Invalid index.");
             }
         }
     }

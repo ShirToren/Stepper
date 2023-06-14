@@ -11,18 +11,17 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="1000.0" minWidth="900.0" prefHeight="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="FXML.execution.ExecutionController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="1400.0" minWidth="1000.0" prefHeight="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="FXML.execution.ExecutionController">
    <center>
-      <GridPane BorderPane.alignment="CENTER">
+      <GridPane minHeight="1000.0" minWidth="1000.0" BorderPane.alignment="CENTER">
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" maxWidth="333.33331298828125" minWidth="10.0" prefWidth="274.0" />
           <ColumnConstraints hgrow="SOMETIMES" maxWidth="436.66668701171875" minWidth="10.0" prefWidth="405.0" />
         </columnConstraints>
         <rowConstraints>
-          <RowConstraints maxHeight="163.66665649414062" minHeight="10.0" prefHeight="19.33331298828125" vgrow="SOMETIMES" />
-            <RowConstraints maxHeight="640.3333435058594" minHeight="10.0" prefHeight="636.6666870117188" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" vgrow="NEVER" />
+            <RowConstraints maxHeight="806.0" minHeight="10.0" prefHeight="806.0" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="171.33349609375" minHeight="10.0" prefHeight="49.3333740234375" vgrow="SOMETIMES" />
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
@@ -45,15 +44,7 @@
                   <fx:include fx:id="executionDetailsComponent" source="details/executionDetails.fxml" />
                </children>
             </AnchorPane>
-            <AnchorPane GridPane.rowIndex="4">
-               <children>
-                  <fx:include fx:id="continuationsComponent" source="../continuations/list/continuationsList.fxml" />
-               </children>
-               <GridPane.margin>
-                  <Insets left="5.0" top="10.0" />
-               </GridPane.margin>
-            </AnchorPane>
-            <Button fx:id="continueButton" mnemonicParsing="false" text="Continue to flow" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+            <Button fx:id="rerunButton" mnemonicParsing="false" text="Rerun flow" GridPane.columnIndex="1" />
          </children>
       </GridPane>
    </center>

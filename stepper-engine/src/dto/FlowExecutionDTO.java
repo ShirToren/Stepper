@@ -87,6 +87,13 @@ public class FlowExecutionDTO implements DTO{
 
     }
 
+    public boolean isFlowName(String name) {
+        if(flowDefinitionDTO.getName().equals(name)){
+            return true;
+        }
+        return false;
+    }
+
     public Map<String, List<LogLine>> getLogLines() {
         return logLines;
     }

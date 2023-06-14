@@ -4,6 +4,7 @@ import dto.DataInFlowDTO;
 import javafx.application.Platform;
 
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 public class UIAdapter {
@@ -16,12 +17,14 @@ public class UIAdapter {
     private final Consumer<String> introduceNewInput;
     private final Consumer<String> introduceNewStep;
     private final Consumer<String> introduceFlowStartTime;
+    private final Consumer<UUID> introduceRerunButton;
     private final Runnable clearStepsItems;
     private final Runnable clearOutputsItems;
     private final Runnable clearInputsItems;
+    private final Runnable clearRerunButton;
 
 
-    public UIAdapter(Consumer<String> introduceFlowName, Consumer<String> introduceFlowID, Consumer<String> introduceFlowEndTime, Consumer<String> introduceFlowDuration, Consumer<String> introduceFlowResult, Consumer<Map.Entry<DataInFlowDTO, Object>> introduceNewOutput, Consumer<String> introduceNewInput, Consumer<String> introduceNewStep, Consumer<String> introduceFlowStartTime, Runnable clearStepsItems, Runnable clearOutputsItems, Runnable clearInputsItems) {
+    public UIAdapter(Consumer<String> introduceFlowName, Consumer<String> introduceFlowID, Consumer<String> introduceFlowEndTime, Consumer<String> introduceFlowDuration, Consumer<String> introduceFlowResult, Consumer<Map.Entry<DataInFlowDTO, Object>> introduceNewOutput, Consumer<String> introduceNewInput, Consumer<String> introduceNewStep, Consumer<String> introduceFlowStartTime, Consumer<UUID> introduceRerunButton, Runnable clearStepsItems, Runnable clearOutputsItems, Runnable clearInputsItems, Runnable clearRerunButton) {
         this.introduceFlowName = introduceFlowName;
         this.introduceFlowID = introduceFlowID;
         this.introduceFlowEndTime = introduceFlowEndTime;
@@ -31,9 +34,11 @@ public class UIAdapter {
         this.introduceNewInput = introduceNewInput;
         this.introduceNewStep = introduceNewStep;
         this.introduceFlowStartTime = introduceFlowStartTime;
+        this.introduceRerunButton = introduceRerunButton;
         this.clearStepsItems = clearStepsItems;
         this.clearOutputsItems = clearOutputsItems;
         this.clearInputsItems = clearInputsItems;
+        this.clearRerunButton = clearRerunButton;
     }
 
     public void updateFlowName(String name) {
@@ -75,9 +80,23 @@ public class UIAdapter {
         );
     }
 
+    public void addRerunButton(UUID id){
+        Platform.runLater(
+                () -> {
+                    introduceRerunButton.accept(id);
+                }
+        );
+    }
+
     public void clearStepsItems(){
         Platform.runLater(
                 clearStepsItems::run
+        );
+    }
+
+    public void clearRerunButton(){
+        Platform.runLater(
+                clearRerunButton::run
         );
     }
 

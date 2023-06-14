@@ -27,11 +27,6 @@ public class FLowExecutor {
             String inputName = entry.getKey();
             StepUsageDeclaration step = flowExecution.getOwnerStepByInputName(entry.getKey());
             context.setCurrentStep(step);
-/*            String inputName = entry.getKey().substring(0, entry.getKey().indexOf("."));
-            String stepName = entry.getKey().substring(entry.getKey().indexOf(".") +1);
-            context.setCurrentStep(
-                    flowExecution.getFlowDefinition()
-                            .getStepUsageDeclarationByFinalName(stepName));*/
             context.storeDataValue(inputName, entry.getValue());
         }
         for (InitialInputValue initInputValue: flowExecution.getFlowDefinition().getInitialInputValues()) {
@@ -77,11 +72,11 @@ public class FLowExecutor {
             }
 
 
-            try {
+/*            try {
                 Thread.sleep(500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
-            }
+            }*/
 
             if(stepResult.equals(StepResult.FAILURE)) {
                 flowExecution.setFlowExecutionResult(FlowExecutionResult.FAILURE);

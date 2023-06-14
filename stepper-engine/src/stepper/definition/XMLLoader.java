@@ -116,6 +116,7 @@ public class XMLLoader {
                 theFlow.addInitialInputValue(createInitialInputValueFromJAXB(initValue));
             }
         }
+
         theFlow.defineFlow();
         return theFlow;
     }

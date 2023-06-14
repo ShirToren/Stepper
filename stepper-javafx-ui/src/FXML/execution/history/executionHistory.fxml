@@ -11,7 +11,7 @@
       <HBox prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <children>
             <fx:include fx:id="oldExecutionsTableComponent" source="../../old/executions/table/oldExecutionsTable.fxml" BorderPane.alignment="TOP_CENTER" />
-            <Button fx:id="executeAgainButton" mnemonicParsing="false" onAction="#executeAgainActionListener" text="Execute again!">
+            <Button fx:id="executeAgainButton" mnemonicParsing="false" onAction="#executeAgainActionListener" text="Rerun flow">
                <HBox.margin>
                   <Insets left="5.0" />
                </HBox.margin>

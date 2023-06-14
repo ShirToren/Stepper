@@ -7,11 +7,18 @@ import FXML.main.MainAppController;
 import FXML.step.execution.details.StepExecutionDetailsController;
 import dto.FlowExecutionDTO;
 import dto.StepUsageDeclarationDTO;
+import flow.definition.api.continuations.Continuation;
+import flow.definition.api.continuations.Continuations;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 
@@ -21,6 +28,12 @@ import java.util.*;
 
 public class ExecutionDetailsController {
     private MainAppController mainAppController;
+    @FXML
+    private Button continueButton;
+    @FXML
+    private ListView<String> continuationsLV;
+    private final ObservableList<String> continuationsData = FXCollections.observableArrayList();
+    private String selectedContinuation;
     @FXML
     private TreeView<String> executedFlowAndStepsTV;
     @FXML
@@ -43,6 +56,8 @@ public class ExecutionDetailsController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        continuationsLV.setItems(continuationsData);
+        continueButton.disableProperty().bind(continuationsLV.getSelectionModel().selectedItemProperty().isNull());
     }
 
     private void clearFlowExecutionDetails() {
@@ -62,6 +77,7 @@ public class ExecutionDetailsController {
         clearStepExecutionDetails();
         executionDetailsComponent.getChildren().clear();
         executionDetailsComponent.getChildren().add(flowExecutionDetailsComponent);
+        continuationsData.clear();
     }
 
     public void setMainAppController(MainAppController mainAppController) {
@@ -77,7 +93,19 @@ public class ExecutionDetailsController {
 
         executedFlowAndStepsTV.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                executionDetailsComponent.getChildren().clear();
+                if(currentExecutionDTO.isFlowName(newValue.getValue())){
+                    executionDetailsComponent.getChildren().clear();
+                    executionDetailsComponent.getChildren().add(flowExecutionDetailsComponent);
+                } else {
+                    executionDetailsComponent.getChildren().clear();
+                    executionDetailsComponent.getChildren().add(stepExecutionDetailsComponent);
+                    for (StepUsageDeclarationDTO step : currentExecutionDTO.getFlowDefinitionDTO().getSteps()) {
+                        if (step.getName().equals(newValue.getValue())) {
+                            stepExecutionDetailsComponentController.addStepDetails(id, step);
+                        }
+                    }
+                }
+/*                executionDetailsComponent.getChildren().clear();
                 if(newValue.isLeaf()) {
                     executionDetailsComponent.getChildren().add(stepExecutionDetailsComponent);
                     for (StepUsageDeclarationDTO step : currentExecutionDTO.getFlowDefinitionDTO().getSteps()) {
@@ -89,20 +117,6 @@ public class ExecutionDetailsController {
                     executionDetailsComponent.getChildren().add(flowExecutionDetailsComponent);
                 } else if(oldValue != null && oldValue.isLeaf() && newValue.isLeaf()) {
                     executionDetailsComponent.getChildren().add(stepExecutionDetailsComponent);
-                    for (StepUsageDeclarationDTO step : currentExecutionDTO.getFlowDefinitionDTO().getSteps()) {
-                        if (step.getName().equals(newValue.getValue())) {
-                            stepExecutionDetailsComponentController.addStepDetails(id, step);
-                        }
-                    }
-                }
-/*                if (newValue.isLeaf() && oldValue == null || oldValue != null && !oldValue.isLeaf() && newValue.isLeaf()) {
-                    executionDetailsComponent.getChildren().clear();
-                    executionDetailsComponent.getChildren().add(stepExecutionDetailsComponent);
-                } else if (oldValue != null && oldValue.isLeaf() && !newValue.isLeaf()) {
-                    executionDetailsComponent.getChildren().clear();
-                    executionDetailsComponent.getChildren().add(flowExecutionDetailsComponent);
-                }
-                if (newValue.isLeaf()) {
                     for (StepUsageDeclarationDTO step : currentExecutionDTO.getFlowDefinitionDTO().getSteps()) {
                         if (step.getName().equals(newValue.getValue())) {
                             stepExecutionDetailsComponentController.addStepDetails(id, step);
@@ -132,6 +146,9 @@ public class ExecutionDetailsController {
     public void addFlowExecutionDetails(UUID id) {
         flowExecutionDetailsComponentController.addFlowExecutionDetails(id);
         addExecutedFlowAndSteps(id);
+        continueButton.setOnAction(event -> {
+            mainAppController.prepareToContinuation(id, selectedContinuation);
+        });
     }
 
     public void updateFinalDetails(UUID id){
@@ -144,6 +161,27 @@ public class ExecutionDetailsController {
             flowExecutionDetailsComponentController.updateResult(currentExecutionDTO.getExecutionResult().name());
             flowExecutionDetailsComponentController.updateEndTime(currentExecutionDTO.getEndExecutionTime().toString());
             flowExecutionDetailsComponentController.updateStartTime(currentExecutionDTO.getStartExecutionTime().toString());
+        }
+    }
+
+    @FXML
+    void rowClickedActionListener(MouseEvent event) {
+        if(event.getClickCount() == 1) {
+            int selectedIndex = continuationsLV.getSelectionModel().getSelectedIndex();
+
+            if (selectedIndex >= 0 && selectedIndex < continuationsData.size()) {
+                selectedContinuation = continuationsLV.getSelectionModel().getSelectedItem();
+            }
+        }
+    }
+    public void addContinuations(UUID id){
+        continuationsData.clear();
+        FlowExecutionDTO executionDTOByUUID = mainAppController.getModel().getExecutionDTOByUUID(id);
+        Continuations continuations = executionDTOByUUID.getFlowDefinitionDTO().getContinuations();
+        if(continuations != null){
+            for (Continuation continuation: continuations.getContinuations()) {
+                continuationsData.add(continuation.getTargetFlow());
+            }
         }
     }
 
@@ -175,14 +213,22 @@ public class ExecutionDetailsController {
                 startTime -> {
                     flowExecutionDetailsComponentController.updateStartTime(startTime);
                 }
-                , () -> {
+                , uuid -> {
+                    mainAppController.addRerunButton(uuid);
+                }, () -> {
                     executedFlowAndStepsTV.getRoot().getChildren().clear();
                 },
                 () -> {
                     flowExecutionDetailsComponentController.clearAllOutputs();
                 }, () -> {
                     flowExecutionDetailsComponentController.clearAllInputs();
+        }, () -> {
+                    mainAppController.clearRerunButton();
         });
     }
+    public String getSelectedContinuation() {
+        return selectedContinuation;
+    }
+
 }
 
