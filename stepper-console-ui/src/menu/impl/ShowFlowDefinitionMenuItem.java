@@ -45,8 +45,8 @@ public class ShowFlowDefinitionMenuItem implements MenuItem {
             relatedSteps.delete(relatedSteps.length() - 2, relatedSteps.length());
             System.out.printf("Name: %s, Type: %s, Necessity: %s,%n",
                     freeInput.getFinalName(),
-                    freeInput.getDataDefinition().getType().getName()
-                            .substring(freeInput.getDataDefinition().getType().getName().lastIndexOf(".") + 1),
+                    freeInput.getDataDefinitionDTO().getType().getName()
+                            .substring(freeInput.getDataDefinitionDTO().getType().getName().lastIndexOf(".") + 1),
                     freeInput.getDataNecessity().name());
             System.out.printf("related steps: %s%n", relatedSteps);
         }
@@ -57,8 +57,8 @@ public class ShowFlowDefinitionMenuItem implements MenuItem {
         for (DataInFlowDTO output : dto.getFlowsOutputs()) {
             System.out.println(String.format("Name: %s, Type: %s, From step: %s",
                     output.getFinalName(),
-                    output.getDataDefinition().getType().getName()
-                            .substring(output.getDataDefinition().getType().getName().lastIndexOf("." ) +1),
+                    output.getDataDefinitionDTO().getType().getName()
+                            .substring(output.getDataDefinitionDTO().getType().getName().lastIndexOf("." ) +1),
                     output.getOwnerStep().getName()));
         }
     }
@@ -94,7 +94,7 @@ public class ShowFlowDefinitionMenuItem implements MenuItem {
                     throw new IntOutOfRangeException(0 ,manager.getAllFlowsNames().size());
                 }
                 if (numOfFlow != 0) {
-                    dto = manager.showFlowDefinition(manager.getAllFlowsNames().get(numOfFlow - 1));
+                   // dto = manager.showFlowDefinition(manager.getAllFlowsNames().get(numOfFlow - 1));
                     showFlowDefinitionDTODetails();
                 }
             } catch (InputMismatchException e) {

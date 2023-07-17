@@ -5,9 +5,10 @@ import dd.impl.list.FileList;
 import dd.impl.list.ListData;
 import dd.impl.list.StringList;
 import dd.impl.relation.RelationData;
-import dto.DataInFlowDTO;
-import dto.FlowExecutionDTO;
-import dto.StepUsageDeclarationDTO;
+import impl.DataInFlowDTO;
+import impl.FlowExecutionDTO;
+import impl.LogLineDTO;
+import impl.StepUsageDeclarationDTO;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -46,15 +47,15 @@ public class StepExecutionDetailsController {
 
     public void addStepDetails(UUID id, StepUsageDeclarationDTO step) {
         clearAll();
-        FlowExecutionDTO currentExecutionDTO = mainAppController.getModel().getExecutionDTOByUUID(id);
+        FlowExecutionDTO currentExecutionDTO = mainAppController.getModel().getExecutionDTOByUUID(id.toString());
         stepNameLabel.setText(step.getName());
         if(currentExecutionDTO.getStepsTotalTimes().containsKey(step.getName())){
-            DurationLabel.setText(Long.toString(currentExecutionDTO.getStepsTotalTimes().get(step.getName()).toMillis()));
+            DurationLabel.setText(Long.toString(currentExecutionDTO.getStepsTotalTimes().get(step.getName())));
         }
-        resultLabel.setText(currentExecutionDTO.getStepsResults().get(step.getName()).name());
+        resultLabel.setText(currentExecutionDTO.getStepsResults().get(step.getName()));
         summaryLabel.setText(currentExecutionDTO.getSummeryLines().get(step.getName()));
-        startTimeLabel.setText(currentExecutionDTO.getStepsStartTimes().get(step.getName()).toString());
-        endTimeLabel.setText(currentExecutionDTO.getStepsEndTimes().get(step.getName()).toString());
+        startTimeLabel.setText(currentExecutionDTO.getStepsStartTimes().get(step.getName()));
+        endTimeLabel.setText(currentExecutionDTO.getStepsEndTimes().get(step.getName()));
 
         List<DataInFlowDTO> flowsInputs = currentExecutionDTO.getFlowDefinitionDTO().getFlowsInputs();
         Map<DataInFlowDTO, Object> allExecutionInputs = currentExecutionDTO.getAllExecutionInputs();
@@ -70,8 +71,8 @@ public class StepExecutionDetailsController {
     private void addLogLines(FlowExecutionDTO currentExecutionDTO, StepUsageDeclarationDTO step){
         addLabel("Logs:", rowIndex, 1);
         StringBuilder stringBuilder = new StringBuilder();
-       List<LogLine> logLines = currentExecutionDTO.getLogLines().get(step.getName());
-        for (LogLine log: logLines) {
+       List<LogLineDTO> logLines = currentExecutionDTO.getLogLines().get(step.getName());
+        for (LogLineDTO log: logLines) {
             stringBuilder.append(log.getTime()).append(": ").append(log.getLine()).append("\n");
         }
         addTextArea(stringBuilder.toString(), rowIndex, 2);
@@ -87,16 +88,16 @@ public class StepExecutionDetailsController {
                     if (allExecutionData.get(data).equals("Not created due to failure in flow")) {
                         addTextArea(allExecutionData.get(data).toString(), rowIndex, 2);
                     } else {
-                         if (data.getDataDefinition().getType().equals(Integer.class) ||
-                                data.getDataDefinition().getType().equals(Double.class)) {
+                         if (data.getDataDefinition().getType().equals(Integer.class.getName()) ||
+                                data.getDataDefinition().getType().equals(Double.class.getName())) {
                             addLabel(allExecutionData.get(data).toString(), rowIndex, 2);
-                        } else if (data.getDataDefinition().getType().equals(ListData.class)) {
+                        } else if (data.getDataDefinition().getType().equals(ListData.class.getName())) {
                             if (allExecutionData.get(data).getClass().isAssignableFrom(FileList.class)) {
                                 addFilesListView((FileList) allExecutionData.get(data), rowIndex, 2);
                             } else if (allExecutionData.get(data).getClass().isAssignableFrom(StringList.class)) {
                                 addStringListView((StringList) allExecutionData.get(data), rowIndex, 2);
                             }
-                        } else if (data.getDataDefinition().getType().equals(RelationData.class)) {
+                        } else if (data.getDataDefinition().getType().equals(RelationData.class.getName())) {
                             addTableView((RelationData) allExecutionData.get(data), rowIndex, 2);
                         } else {
                             // if (data.getDataDefinition().getType().equals(String.class)) {

@@ -48,7 +48,7 @@ public class ExecutionController {
     public void addFlowExecutionDetails(UUID id) {
         executionDetailsComponentController.addFlowExecutionDetails(id);
         rerunButton.setOnAction(event -> {
-            mainAppController.prepareToReExecution(id, mainAppController.getModel().getExecutionDTOByUUID(id).getFlowDefinitionDTO().getName());
+            mainAppController.prepareToReExecution(id, mainAppController.getModel().getExecutionDTOByUUID(id.toString()).getFlowDefinitionDTO().getName());
         });
     }
 

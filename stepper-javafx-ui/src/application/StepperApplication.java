@@ -18,8 +18,6 @@ import java.net.URL;
 public class StepperApplication extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
-        StepperEngineManager manager = new StepperEngineManager();
-
         FXMLLoader fxmlLoader = new FXMLLoader();
         URL url = getClass().getResource("/FXML/main/mainApp.fxml");
         fxmlLoader.setLocation(url);

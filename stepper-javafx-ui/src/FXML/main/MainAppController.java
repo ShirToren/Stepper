@@ -167,7 +167,7 @@ public class MainAppController {
         clearFlowExecutionDetails();
         switchToExecutionTab();
         UUID id = model.createFlowExecution(flowName);
-        model.copyFreeInputsValues(prevID, id);
+        model.copyFreeInputsValues(prevID.toString(), id.toString());
         flowsExecutionComponentController.initFreeInputsComponents(id);
     }
 
@@ -175,7 +175,7 @@ public class MainAppController {
         clearFlowExecutionDetails();
         switchToExecutionTab();
         UUID id = model.createFlowExecution(targetFlowName);
-        model.copyContinuationValues(prevID, id);
+        model.copyContinuationValues(prevID.toString(), id.toString());
         flowsExecutionComponentController.initFreeInputsComponents(id);
     }
 
@@ -227,5 +227,4 @@ public class MainAppController {
         alert.setHeaderText(null);
         alert.showAndWait();
     }
-
 }

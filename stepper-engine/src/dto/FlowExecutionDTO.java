@@ -2,33 +2,29 @@ package dto;
 
 import flow.definition.api.StepUsageDeclaration;
 import flow.execution.FlowExecution;
-import flow.execution.FlowExecutionResult;
 import logs.LogLine;
-import step.api.StepResult;
-
-import java.time.Duration;
 import java.time.LocalTime;
 import java.util.*;
 
 public class FlowExecutionDTO implements DTO{
     private final UUID uuid;
     private final FlowDefinitionDTO flowDefinitionDTO;
-    private final FlowExecutionResult executionResult;
+    private final String executionResult;
     private final Map<DataInFlowDTO, Object> executionFormalOutputs;
     private final Map<DataInFlowDTO, Object> allExecutionOutputs;
     private final Map<DataInFlowDTO, Object> allExecutionInputs;
 
-    private final Duration totalTime;
+    private final long totalTime;
 
     private final LocalTime startExecutionTime;
-    private final LocalTime endExecutionTime;
+    private final String endExecutionTime;
 
-    private final Map<String, Duration> stepsTotalTimes;
+    private final Map<String, Long> stepsTotalTimes;
     private final List<StepUsageDeclarationDTO> executedSteps;
-    private final Map<String, StepResult> stepsResults;
-    private Map<String, List<LogLine>> logLines;
-    private Map<String, String> summeryLines;
-    private boolean isFinished;
+    private final Map<String, String> stepsResults;
+    private final Map<String, List<LogLine>> logLines;
+    private final Map<String, String> summeryLines;
+    private final boolean isFinished;
     private final Map<String, Object> freeInputs;
     private final Map<String, LocalTime> stepsStartTimes;
     private final Map<String, LocalTime> stepsEndTimes;
@@ -36,11 +32,18 @@ public class FlowExecutionDTO implements DTO{
 
     public FlowExecutionDTO(FlowExecution flowExecution, FlowDefinitionDTO flowDefinitionDTO) {
         this.uuid = flowExecution.getUuid();
-        this.executionResult = flowExecution.getFlowExecutionResult();
+        if(flowExecution.getFlowExecutionResult() != null) {
+            this.executionResult = flowExecution.getFlowExecutionResult().name();
+        } else { this.executionResult = null; }
         this.flowDefinitionDTO = flowDefinitionDTO;
-        this.totalTime = flowExecution.getTotalTime();
-        this.startExecutionTime = flowExecution.getStartExecutionTime();
-        this.endExecutionTime = flowExecution.getEndExecutionTime();
+        if(flowExecution.getTotalTime() != null) {
+            this.totalTime = flowExecution.getTotalTime().toMillis();
+        } else { this.totalTime = 0; }
+            this.startExecutionTime = flowExecution.getStartExecutionTime();
+        if(flowExecution.getEndExecutionTime() != null) {
+            this.endExecutionTime = flowExecution.getEndExecutionTime().toString();
+        } else { this.endExecutionTime = null; }
+
         this.executionFormalOutputs = new HashMap<>();
         this.allExecutionOutputs = new HashMap<>();
         this.allExecutionInputs = new HashMap<>();
@@ -53,38 +56,50 @@ public class FlowExecutionDTO implements DTO{
         this.isFinished = flowExecution.isFinished();
         this.stepsStartTimes = new HashMap<>();
         this.stepsEndTimes = new HashMap<>();
-        ///for (StepUsageDeclarationDTO step : flowDefinitionDTO.getSteps())
-        for (StepUsageDeclaration step : flowExecution.getExecutedSteps()) {
-            stepsTotalTimes.put(step.getFinalStepName(), flowExecution.getStepsTotalTimes().get(step.getFinalStepName()));
-            stepsResults.put(step.getFinalStepName(), flowExecution.getStepsResults().get(step.getFinalStepName()));
-            executedSteps.add(new StepUsageDeclarationDTO(step));
-        }
-        for (DataInFlowDTO dataInFlowDTO : flowDefinitionDTO.getFlowsOutputs()) {
-            if (flowExecution.getExecutionFormalOutputs().containsKey(dataInFlowDTO.getFinalName())) {
-                executionFormalOutputs.put(dataInFlowDTO, flowExecution.getExecutionFormalOutputs().get(dataInFlowDTO.getFinalName()));
-            }
-            if (flowExecution.getAllExecutionOutputs().containsKey(dataInFlowDTO.getFinalName())) {
-                allExecutionOutputs.put(dataInFlowDTO, flowExecution.getAllExecutionOutputs().get(dataInFlowDTO.getFinalName()));
-            }
-        }
-        for (DataInFlowDTO input: flowDefinitionDTO.getFlowsInputs()) {
-            if (flowExecution.getAllExecutionInputs().containsKey(input.getFinalName())) {
-                allExecutionInputs.put(input, flowExecution.getAllExecutionInputs().get(input.getFinalName()));
-            }
-        }
-        for (Map.Entry<StepUsageDeclaration, List<LogLine>> entry : flowExecution.getLogLines().entrySet()) {
-            logLines.put(entry.getKey().getFinalStepName(), entry.getValue());
-        }
-        for (Map.Entry<StepUsageDeclaration,String> entry : flowExecution.getSummeryLines().entrySet()) {
-            summeryLines.put(entry.getKey().getFinalStepName(), entry.getValue());
-        }
+
+        readStepsData(flowExecution);
+        readOutputsData(flowExecution);
+        readInputsData(flowExecution);
+        readLogsAndSummeryData(flowExecution);
+
         stepsStartTimes.putAll(flowExecution.getStepsStartTimes());
         stepsEndTimes.putAll(flowExecution.getStepsEndTimes());
+    }
 
-/*        for (StepUsageDeclaration step: flowExecution.getExecutedSteps()) {
-            executedSteps.add(new StepUsageDeclarationDTO(step));
-        }*/
+    private void readLogsAndSummeryData(FlowExecution flowExecution){
+        for (Map.Entry<StepUsageDeclaration, List<LogLine>> entry : flowExecution.getLogLines().entrySet()) {
+            this.logLines.put(entry.getKey().getFinalStepName(), entry.getValue());
+        }
+        for (Map.Entry<StepUsageDeclaration,String> entry : flowExecution.getSummeryLines().entrySet()) {
+            this.summeryLines.put(entry.getKey().getFinalStepName(), entry.getValue());
+        }
+    }
 
+    private void readStepsData(FlowExecution flowExecution){
+        for (StepUsageDeclaration step : flowExecution.getExecutedSteps()) {
+            this.stepsTotalTimes.put(step.getFinalStepName(), flowExecution.getStepsTotalTimes().get(step.getFinalStepName()).toMillis());
+            this.stepsResults.put(step.getFinalStepName(), flowExecution.getStepsResults().get(step.getFinalStepName()).name());
+            this.executedSteps.add(new StepUsageDeclarationDTO(step));
+        }
+    }
+
+    private void readInputsData(FlowExecution flowExecution){
+        for (DataInFlowDTO input: this.flowDefinitionDTO.getFlowsInputs()) {
+            if (flowExecution.getAllExecutionInputs().containsKey(input.getFinalName())) {
+                this.allExecutionInputs.put(input, flowExecution.getAllExecutionInputs().get(input.getFinalName()));
+            }
+        }
+    }
+
+    private void readOutputsData(FlowExecution flowExecution){
+        for (DataInFlowDTO dataInFlowDTO : this.flowDefinitionDTO.getFlowsOutputs()) {
+            if (flowExecution.getExecutionFormalOutputs().containsKey(dataInFlowDTO.getFinalName())) {
+                this.executionFormalOutputs.put(dataInFlowDTO, flowExecution.getExecutionFormalOutputs().get(dataInFlowDTO.getFinalName()));
+            }
+            if (flowExecution.getAllExecutionOutputs().containsKey(dataInFlowDTO.getFinalName())) {
+                this.allExecutionOutputs.put(dataInFlowDTO, flowExecution.getAllExecutionOutputs().get(dataInFlowDTO.getFinalName()));
+            }
+        }
     }
 
     public boolean isFlowName(String name) {
@@ -102,7 +117,7 @@ public class FlowExecutionDTO implements DTO{
         return summeryLines;
     }
 
-    public Map<String, Duration> getStepsTotalTimes() {
+    public Map<String, Long> getStepsTotalTimes() {
         return stepsTotalTimes;
     }
 
@@ -122,7 +137,7 @@ public class FlowExecutionDTO implements DTO{
         return stepsEndTimes;
     }
 
-    public Map<String, StepResult> getStepsResults() {
+    public Map<String, String> getStepsResults() {
         return stepsResults;
     }
 
@@ -134,7 +149,7 @@ public class FlowExecutionDTO implements DTO{
         return uuid;
     }
 
-    public LocalTime getEndExecutionTime() {
+    public String getEndExecutionTime() {
         return endExecutionTime;
     }
 
@@ -150,7 +165,7 @@ public class FlowExecutionDTO implements DTO{
         return allExecutionInputs;
     }
 
-    public FlowExecutionResult getExecutionResult() {
+    public String getExecutionResult() {
         return executionResult;
     }
 
@@ -158,7 +173,7 @@ public class FlowExecutionDTO implements DTO{
         return executionFormalOutputs;
     }
 
-    public Duration getTotalTime() {
+    public long getTotalTime() {
         return totalTime;
     }
 

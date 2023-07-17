@@ -2,7 +2,7 @@ package FXML.old.executions.table;
 
 import FXML.execution.history.ExecutionHistoryController;
 import FXML.main.MainAppController;
-import dto.FlowExecutionDTO;
+import impl.FlowExecutionDTO;
 import flow.execution.FlowExecutionResult;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
@@ -123,8 +123,8 @@ public class OldExecutionsTableController {
         for (FlowExecutionDTO dto: allFlowExecutionsDTO) {
             if(dto.isFinished()) {
                 TargetTable row = new TargetTable(dto.getFlowDefinitionDTO().getName(),
-                        dto.getStartExecutionTime().toString(),
-                        dto.getExecutionResult().name(), dto.getUuid());
+                        dto.getStartExecutionTime(),
+                        dto.getExecutionResult(), dto.getUuid());
                 data.add(row);
             }
         }

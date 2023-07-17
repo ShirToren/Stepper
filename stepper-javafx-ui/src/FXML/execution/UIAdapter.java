@@ -1,6 +1,6 @@
 package FXML.execution;
 
-import dto.DataInFlowDTO;
+import impl.DataInFlowDTO;
 import javafx.application.Platform;
 
 import java.util.Map;

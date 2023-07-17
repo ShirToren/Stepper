@@ -5,8 +5,8 @@ import dd.impl.list.FileList;
 import dd.impl.list.ListData;
 import dd.impl.list.StringList;
 import dd.impl.relation.RelationData;
-import dto.DataInFlowDTO;
-import dto.FlowExecutionDTO;
+import impl.DataInFlowDTO;
+import impl.FlowExecutionDTO;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -51,7 +51,7 @@ public class FlowExecutionDetailsController {
     }
     public void addFlowExecutionDetails(UUID id) {
         clearAll();
-        FlowExecutionDTO executionDTO = mainAppController.getModel().getExecutionDTOByUUID(id);
+        FlowExecutionDTO executionDTO = mainAppController.getModel().getExecutionDTOByUUID(id.toString());
         flowNameLabel.setText(executionDTO.getFlowDefinitionDTO().getName());
         flowIDLabel.setText(executionDTO.getUuid().toString());
         showFreeInputsDetails(id);
@@ -70,16 +70,16 @@ public class FlowExecutionDetailsController {
         if(entry.getValue().equals("Not created due to failure in flow")) {
             addTextArea(entry.getValue().toString(), rowIndex, 2);
         } else {
-             if(entry.getKey().getDataDefinition().getType().equals(Integer.class)||
-                    entry.getKey().getDataDefinition().getType().equals(Double.class)) {
+             if(entry.getKey().getDataDefinition().getType().equals(Integer.class.getName())||
+                    entry.getKey().getDataDefinition().getType().equals(Double.class.getName())) {
                 addLabel(entry.getValue().toString(), rowIndex, 2);
-            } else if (entry.getKey().getDataDefinition().getType().equals(ListData.class)) {
+            } else if (entry.getKey().getDataDefinition().getType().equals(ListData.class.getName())) {
                 if (entry.getValue().getClass().isAssignableFrom(FileList.class)) {
                     addFilesListView((FileList) entry.getValue(), rowIndex, 2);
                 } else if (entry.getValue().getClass().isAssignableFrom(StringList.class)){
                     addStringListView((StringList) entry.getValue(), rowIndex, 2);
                 }
-            }  else if(entry.getKey().getDataDefinition().getType().equals(RelationData.class)) {
+            }  else if(entry.getKey().getDataDefinition().getType().equals(RelationData.class.getName())) {
                 addTableView((RelationData)entry.getValue(), rowIndex, 2);
             } else {
                  //if(entry.getKey().getDataDefinition().getType().equals(String.class)){
@@ -105,9 +105,9 @@ public class FlowExecutionDetailsController {
         freeInputsLVItems.clear();
         Map<String, Object> actualFreeInputs = mainAppController.getModel().getActualFreeInputsList(id);
         List<DataInFlowDTO> optionalInput = new ArrayList<>();
-        freeInputsList = mainAppController.getModel().getExecutionDTOByUUID(id).getFlowDefinitionDTO().getFreeInputs();
+        freeInputsList = mainAppController.getModel().getExecutionDTOByUUID(id.toString()).getFlowDefinitionDTO().getFreeInputs();
         for (DataInFlowDTO freeInput : freeInputsList) {
-            if (freeInput.getDataNecessity().equals(DataNecessity.MANDATORY) &&
+            if (freeInput.getDataNecessity().equals(DataNecessity.MANDATORY.name()) &&
                     actualFreeInputs.containsKey(freeInput.getFinalName())) {
                 freeInputsLVItems.add(freeInput.getFinalName());
             } else if (actualFreeInputs.containsKey(freeInput.getFinalName())) {
@@ -126,7 +126,7 @@ public class FlowExecutionDetailsController {
                         if(freeInput.getFinalName().equals(item)) {
                             freeInputTypeLabel.setText("Type: " + freeInput.getDataDefinition().getName());
                             freeInputValueLabel.setText("Value: " + mainAppController.getModel().getActualFreeInputsList(id).get(item));
-                            freeInputNecessityLabel.setText("Necessity: " + freeInput.getDataNecessity().name());
+                            freeInputNecessityLabel.setText("Necessity: " + freeInput.getDataNecessity());
                         }
                     }
                 }
@@ -194,7 +194,7 @@ public class FlowExecutionDetailsController {
     private void showAllFlowOutputsDetails(UUID id) {
         clearAllOutputs();
         //outputsLVItems.clear();
-        FlowExecutionDTO executionDTO = mainAppController.getModel().getExecutionDTOByUUID(id);
+        FlowExecutionDTO executionDTO = mainAppController.getModel().getExecutionDTOByUUID(id.toString());
         for (Map.Entry<DataInFlowDTO , Object> entry : executionDTO.getAllExecutionOutputs().entrySet()) {
             addOutput(entry);
         }

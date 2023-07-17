@@ -41,8 +41,8 @@ public class ShowExecutionDetailsMenuItem implements MenuItem {
                     manager.setCurrentFlowExecution(dto);
                     System.out.println("ID: " + dto.getUuid().toString());
                     System.out.println("Flow name: " + dto.getFlowDefinitionDTO().getName());
-                    System.out.println("Execution result: " + dto.getExecutionResult().name());
-                    System.out.println("Total execution time: " + dto.getTotalTime().toMillis());
+                    System.out.println("Execution result: " + dto.getExecutionResult());
+                    System.out.println("Total execution time: " + dto.getTotalTime());
 
                     System.out.println("Free inputs from user: ");
                     showFreeInputsDetails(manager);
@@ -66,9 +66,9 @@ public class ShowExecutionDetailsMenuItem implements MenuItem {
     private void showAllStepsExecutionDetails(){
         for (StepUsageDeclarationDTO step : dto.getFlowDefinitionDTO().getSteps()) {
             if(dto.getStepsTotalTimes().containsKey(step.getName()) && dto.getStepsTotalTimes().get(step.getName()) != null) {
-                System.out.println(step.getName() + ": Total Execution time: " + dto.getStepsTotalTimes().get(step.getName()).toMillis() + ", Step result: " + dto.getStepsResults().get(step.getName()).name());
+                System.out.println(step.getName() + ": Total Execution time: " + dto.getStepsTotalTimes().get(step.getName()) + ", Step result: " + dto.getStepsResults().get(step.getName()));
             }else {
-                System.out.println(step.getName() + ": Total Execution time: 0, Step result: " + dto.getStepsResults().get(step.getName()).name());
+                System.out.println(step.getName() + ": Total Execution time: 0, Step result: " + dto.getStepsResults().get(step.getName()));
             }
             System.out.printf("Summery line: %s%n",
                     dto.getSummeryLines().get(step.getName()));
@@ -88,14 +88,14 @@ public class ShowExecutionDetailsMenuItem implements MenuItem {
         for (Map.Entry<DataInFlowDTO, Object> entry : dto.getAllExecutionOutputs().entrySet()) {
             if(entry.getValue() == null) {
                 System.out.printf("%d. %s: Type: %s, Value: %s%n", index,
-                        entry.getKey().getFinalName(), entry.getKey().getDataDefinition().getType().getName()
-                                .substring(entry.getKey().getDataDefinition().getType().getName().lastIndexOf(".") + 1),
+                        entry.getKey().getFinalName(), entry.getKey().getDataDefinitionDTO().getType().getName()
+                                .substring(entry.getKey().getDataDefinitionDTO().getType().getName().lastIndexOf(".") + 1),
                         entry.getValue().toString());
                 index++;
             }
             System.out.printf("%d. %s: Type: %s, Value: %s%n", index,
-                    entry.getKey().getFinalName(), entry.getKey().getDataDefinition().getType().getName()
-                            .substring(entry.getKey().getDataDefinition().getType().getName().lastIndexOf(".") + 1),
+                    entry.getKey().getFinalName(), entry.getKey().getDataDefinitionDTO().getType().getName()
+                            .substring(entry.getKey().getDataDefinitionDTO().getType().getName().lastIndexOf(".") + 1),
                     entry.getValue().toString());
             index++;
         }
@@ -110,8 +110,8 @@ public class ShowExecutionDetailsMenuItem implements MenuItem {
             if(freeInput.getDataNecessity().equals(DataNecessity.MANDATORY) &&
                     actualFreeInputs.containsKey(freeInput.getFinalName() + "." + freeInput.getOwnerStep().getName())) {
                 System.out.printf("%d. %s: Type: %s, Value: %s, %s%n", index,
-                        freeInput.getFinalName(), freeInput.getDataDefinition().getType().getName().
-                                substring(freeInput.getDataDefinition().getType().getName().lastIndexOf(".") + 1),
+                        freeInput.getFinalName(), freeInput.getDataDefinitionDTO().getType().getName().
+                                substring(freeInput.getDataDefinitionDTO().getType().getName().lastIndexOf(".") + 1),
                         actualFreeInputs.get(freeInput.getFinalName() + "." + freeInput.getOwnerStep().getName()),
                         freeInput.getDataNecessity().name());
                 index++;
@@ -122,8 +122,8 @@ public class ShowExecutionDetailsMenuItem implements MenuItem {
         }
         for (DataInFlowDTO optional : optionalInput) {
             System.out.printf("%d. %s: Type: %s, Value: %s, %s%n", index,
-                    optional.getFinalName(), optional.getDataDefinition().getType().getName().
-                            substring(optional.getDataDefinition().getType().getName().lastIndexOf(".")),
+                    optional.getFinalName(), optional.getDataDefinitionDTO().getType().getName().
+                            substring(optional.getDataDefinitionDTO().getType().getName().lastIndexOf(".")),
                     actualFreeInputs.get(optional.getFinalName() + "." + optional.getOwnerStep().getName()),
                     optional.getDataNecessity().name());
             index++;

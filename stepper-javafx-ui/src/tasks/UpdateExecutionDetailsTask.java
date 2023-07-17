@@ -1,9 +1,9 @@
 package tasks;
 
 import FXML.execution.UIAdapter;
-import dto.DataInFlowDTO;
-import dto.FlowExecutionDTO;
-import dto.StepUsageDeclarationDTO;
+import impl.DataInFlowDTO;
+import impl.FlowExecutionDTO;
+import impl.StepUsageDeclarationDTO;
 import flow.execution.FlowExecution;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -33,9 +33,9 @@ public class UpdateExecutionDetailsTask extends Task<Boolean> {
     protected Boolean call() throws Exception {
         FlowExecutionDTO executionDTO;
             while (!flowExecution.isFinished() && manager.getAllFlowExecutionsList().get(0).equals(flowExecution)) {
-                executionDTO = manager.getExecutionDTOByUUID(id);
+                executionDTO = manager.getExecutionDTOByUUID(id.toString());
                 if (executionDTO.getStartExecutionTime() != null) {
-                    uiAdapter.updateFlowStartTime(executionDTO.getStartExecutionTime().toString());
+                    uiAdapter.updateFlowStartTime(executionDTO.getStartExecutionTime());
                 }
                 uiAdapter.updateFlowName(executionDTO.getFlowDefinitionDTO().getName());
                 uiAdapter.updateFlowID(executionDTO.getUuid().toString());
@@ -56,15 +56,15 @@ public class UpdateExecutionDetailsTask extends Task<Boolean> {
                 Thread.sleep(200);
             }
 
-            executionDTO = manager.getExecutionDTOByUUID(id);
-            uiAdapter.updateFlowStartTime(executionDTO.getStartExecutionTime().toString());
+            executionDTO = manager.getExecutionDTOByUUID(id.toString());
+            //uiAdapter.updateFlowStartTime(executionDTO.getStartExecutionTime().toString());
             uiAdapter.clearStepsItems();
             for (StepUsageDeclarationDTO step : manager.getOnlyExecutedSteps(executionDTO)) {
             uiAdapter.addNewStep(step.getName());
             }
-            uiAdapter.updateFlowDuration(Long.toString(executionDTO.getTotalTime().toMillis()));
-            uiAdapter.updateFlowEndTime(executionDTO.getEndExecutionTime().toString());
-            uiAdapter.updateFlowResult(executionDTO.getExecutionResult().name());
+            uiAdapter.updateFlowDuration(Long.toString(executionDTO.getTotalTime()));
+            uiAdapter.updateFlowEndTime(executionDTO.getEndExecutionTime());
+            uiAdapter.updateFlowResult(executionDTO.getExecutionResult());
             uiAdapter.clearOutputsItems();
             for (Map.Entry<DataInFlowDTO, Object> entry : executionDTO.getAllExecutionOutputs().entrySet()) {
                 uiAdapter.addNewOutput(entry);
@@ -78,9 +78,9 @@ public class UpdateExecutionDetailsTask extends Task<Boolean> {
         uiAdapter.clearInputsItems();
         Map<String, Object> actualFreeInputs = manager.getActualFreeInputsList(id);
         List<DataInFlowDTO> optionalInput = new ArrayList<>();
-        List<DataInFlowDTO> freeInputs = manager.getExecutionDTOByUUID(id).getFlowDefinitionDTO().getFreeInputs();
+        List<DataInFlowDTO> freeInputs = manager.getExecutionDTOByUUID(id.toString()).getFlowDefinitionDTO().getFreeInputs();
         for (DataInFlowDTO freeInput : freeInputs) {
-            if (freeInput.getDataNecessity().equals(DataNecessity.MANDATORY) &&
+            if (freeInput.getDataNecessity().equals(DataNecessity.MANDATORY.name()) &&
                     actualFreeInputs.containsKey(freeInput.getFinalName())) {
                 uiAdapter.addNewInput(freeInput.getFinalName());
             } else if (actualFreeInputs.containsKey(freeInput.getFinalName())) {

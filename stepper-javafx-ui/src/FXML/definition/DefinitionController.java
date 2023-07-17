@@ -2,7 +2,7 @@ package FXML.definition;
 
 import FXML.flow.definition.details.FlowDefinitionDetailsController;
 import FXML.main.MainAppController;
-import dto.FlowDefinitionDTO;
+import impl.FlowDefinitionDTO;
 import javafx.beans.property.BooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

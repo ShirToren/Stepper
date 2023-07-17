@@ -3,10 +3,9 @@ package dto;
 import flow.definition.api.StepUsageDeclaration;
 
 public class StepUsageDeclarationDTO implements DTO {
-    private final String originalName;
-    private final String name;
-    private final boolean isReadOnly;
-
+    private  String originalName;
+    private  String name;
+    private  boolean isReadOnly;
 
     public StepUsageDeclarationDTO(StepUsageDeclaration stepUsageDeclaration) {
         this.originalName = stepUsageDeclaration.getStepDefinition().getName();
@@ -25,4 +24,16 @@ public class StepUsageDeclarationDTO implements DTO {
     public boolean isReadOnly() {
         return isReadOnly;
     }
+
+/*    public void setOriginalName(String originalName) {
+        this.originalName = originalName;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setReadOnly(boolean readOnly) {
+        isReadOnly = readOnly;
+    }*/
 }

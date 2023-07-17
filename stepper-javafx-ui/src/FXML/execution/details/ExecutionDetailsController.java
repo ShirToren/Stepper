@@ -5,10 +5,12 @@ import FXML.execution.UIAdapter;
 import FXML.flow.execution.details.FlowExecutionDetailsController;
 import FXML.main.MainAppController;
 import FXML.step.execution.details.StepExecutionDetailsController;
-import dto.FlowExecutionDTO;
-import dto.StepUsageDeclarationDTO;
+import impl.FlowExecutionDTO;
+import impl.StepUsageDeclarationDTO;
 import flow.definition.api.continuations.Continuation;
 import flow.definition.api.continuations.Continuations;
+import impl.continuations.ContinuationDTO;
+import impl.continuations.ContinuationsDTO;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -72,6 +74,7 @@ public class ExecutionDetailsController {
         stepExecutionDetailsComponentController.clearAll();
     }
 
+
     public void clearAll(){
         clearFlowExecutionDetails();
         clearStepExecutionDetails();
@@ -87,7 +90,7 @@ public class ExecutionDetailsController {
     }
 
     public void addExecutedFlowAndSteps(UUID id) {
-        FlowExecutionDTO currentExecutionDTO = mainAppController.getModel().getExecutionDTOByUUID(id);
+        FlowExecutionDTO currentExecutionDTO = mainAppController.getModel().getExecutionDTOByUUID(id.toString());
         TreeItem<String> rootItem = new TreeItem<>(currentExecutionDTO.getFlowDefinitionDTO().getName());
         executedFlowAndStepsTV.setRoot(rootItem);
 
@@ -105,28 +108,8 @@ public class ExecutionDetailsController {
                         }
                     }
                 }
-/*                executionDetailsComponent.getChildren().clear();
-                if(newValue.isLeaf()) {
-                    executionDetailsComponent.getChildren().add(stepExecutionDetailsComponent);
-                    for (StepUsageDeclarationDTO step : currentExecutionDTO.getFlowDefinitionDTO().getSteps()) {
-                        if (step.getName().equals(newValue.getValue())) {
-                            stepExecutionDetailsComponentController.addStepDetails(id, step);
-                        }
-                    }
-                } else if(oldValue != null && oldValue.isLeaf() && !newValue.isLeaf()) {
-                    executionDetailsComponent.getChildren().add(flowExecutionDetailsComponent);
-                } else if(oldValue != null && oldValue.isLeaf() && newValue.isLeaf()) {
-                    executionDetailsComponent.getChildren().add(stepExecutionDetailsComponent);
-                    for (StepUsageDeclarationDTO step : currentExecutionDTO.getFlowDefinitionDTO().getSteps()) {
-                        if (step.getName().equals(newValue.getValue())) {
-                            stepExecutionDetailsComponentController.addStepDetails(id, step);
-                        }
-                    }
-                }*/
             }
         });
-
-
     }
 
 
@@ -137,7 +120,7 @@ public class ExecutionDetailsController {
     }
 
     public void addExecutedSteps(UUID id) {
-        FlowExecutionDTO currentExecutionDTO = mainAppController.getModel().getExecutionDTOByUUID(id);
+        FlowExecutionDTO currentExecutionDTO = mainAppController.getModel().getExecutionDTOByUUID(id.toString());
         for (StepUsageDeclarationDTO step: currentExecutionDTO.getExecutedSteps()) {
             executedFlowAndStepsTV.getRoot().getChildren().add(new TreeItem<>(step.getName()));
         }
@@ -152,15 +135,15 @@ public class ExecutionDetailsController {
     }
 
     public void updateFinalDetails(UUID id){
-        FlowExecutionDTO currentExecutionDTO = mainAppController.getModel().getExecutionDTOByUUID(id);
-        if(currentExecutionDTO.getTotalTime() != null &&
+        FlowExecutionDTO currentExecutionDTO = mainAppController.getModel().getExecutionDTOByUUID(id.toString());
+        if(currentExecutionDTO.getTotalTime() != 0 &&
                 currentExecutionDTO.getExecutionResult() != null &&
                 currentExecutionDTO.getEndExecutionTime() != null &&
                 currentExecutionDTO.getStartExecutionTime() != null) {
-            flowExecutionDetailsComponentController.updateDuration(Long.toString(currentExecutionDTO.getTotalTime().toMillis()));
-            flowExecutionDetailsComponentController.updateResult(currentExecutionDTO.getExecutionResult().name());
-            flowExecutionDetailsComponentController.updateEndTime(currentExecutionDTO.getEndExecutionTime().toString());
-            flowExecutionDetailsComponentController.updateStartTime(currentExecutionDTO.getStartExecutionTime().toString());
+            flowExecutionDetailsComponentController.updateDuration(Long.toString(currentExecutionDTO.getTotalTime()));
+            flowExecutionDetailsComponentController.updateResult(currentExecutionDTO.getExecutionResult());
+            flowExecutionDetailsComponentController.updateEndTime(currentExecutionDTO.getEndExecutionTime());
+            flowExecutionDetailsComponentController.updateStartTime(currentExecutionDTO.getStartExecutionTime());
         }
     }
 
@@ -176,11 +159,11 @@ public class ExecutionDetailsController {
     }
     public void addContinuations(UUID id){
         continuationsData.clear();
-        FlowExecutionDTO executionDTOByUUID = mainAppController.getModel().getExecutionDTOByUUID(id);
-        Continuations continuations = executionDTOByUUID.getFlowDefinitionDTO().getContinuations();
-        if(continuations != null){
-            for (Continuation continuation: continuations.getContinuations()) {
-                continuationsData.add(continuation.getTargetFlow());
+        FlowExecutionDTO executionDTOByUUID = mainAppController.getModel().getExecutionDTOByUUID(id.toString());
+        ContinuationsDTO continuationsDTO = executionDTOByUUID.getFlowDefinitionDTO().getContinuations();
+        if(continuationsDTO != null){
+            for (ContinuationDTO continuationDTO: continuationsDTO.getContinuations()) {
+                continuationsData.add(continuationDTO.getTargetFlow());
             }
         }
     }

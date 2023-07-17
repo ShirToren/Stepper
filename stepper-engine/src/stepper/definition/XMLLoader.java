@@ -140,10 +140,17 @@ public class XMLLoader {
         STStepper jaxbStepper = readXMLFile(fileName);
         return createStepperFromJAXB(jaxbStepper);
     }
+    public Stepper loadStepperFromXMLFile(InputStream inputStream) throws JAXBException{
+        STStepper jaxbStepper = readXMLFile(inputStream);
+        return createStepperFromJAXB(jaxbStepper);
+    }
 
     public STStepper readXMLFile(String fileName) throws FileNotFoundException, JAXBException {
             InputStream inputStream = new FileInputStream(new File(fileName));
             return deserializeFrom(inputStream);
+    }
+    public STStepper readXMLFile(InputStream inputStream) throws JAXBException {
+        return deserializeFrom(inputStream);
     }
     private STStepper deserializeFrom(InputStream in) throws JAXBException {
         JAXBContext jc = JAXBContext.newInstance(JAXB_XML_PACKAGE_NAME);

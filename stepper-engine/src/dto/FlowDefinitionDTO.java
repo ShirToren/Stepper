@@ -10,17 +10,16 @@ import java.util.List;
 import java.util.Map;
 
 public class FlowDefinitionDTO implements DTO {
-    private final String name;
-    private final String description;
-    private final List<DataInFlowDTO> flowsFormalOutputs;
-    private final boolean isReadOnly;
-    private final List<StepUsageDeclarationDTO> steps;
-    private final List<DataInFlowDTO> freeInputs;
-    private final List<DataInFlowDTO> flowsOutputs;
-    private final List<DataInFlowDTO> flowsInputs;
-    private final Map<String, List<String>> freeInputsStepTarget;
-    private final Continuations continuations;
-
+    private  String name;
+    private  String description;
+    private  List<DataInFlowDTO> flowsFormalOutputs;
+    private  boolean isReadOnly;
+    private  List<StepUsageDeclarationDTO> steps;
+    private  List<DataInFlowDTO> freeInputs;
+    private  List<DataInFlowDTO> flowsOutputs;
+    private  List<DataInFlowDTO> flowsInputs;
+    private  Map<String, List<String>> freeInputsStepTarget;
+    private  Continuations continuations;
 
     public FlowDefinitionDTO(FlowDefinition flowDefinition) {
         this.steps = new ArrayList<>();
@@ -96,4 +95,44 @@ public class FlowDefinitionDTO implements DTO {
     public List<DataInFlowDTO> getFlowsInputs() {
         return flowsInputs;
     }
+
+/*    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setFlowsFormalOutputs(List<DataInFlowDTO> flowsFormalOutputs) {
+        this.flowsFormalOutputs = flowsFormalOutputs;
+    }
+
+    public void setReadOnly(boolean readOnly) {
+        isReadOnly = readOnly;
+    }
+
+    public void setSteps(List<StepUsageDeclarationDTO> steps) {
+        this.steps = steps;
+    }
+
+    public void setFreeInputs(List<DataInFlowDTO> freeInputs) {
+        this.freeInputs = freeInputs;
+    }
+
+    public void setFlowsOutputs(List<DataInFlowDTO> flowsOutputs) {
+        this.flowsOutputs = flowsOutputs;
+    }
+
+    public void setFlowsInputs(List<DataInFlowDTO> flowsInputs) {
+        this.flowsInputs = flowsInputs;
+    }
+
+    public void setFreeInputsStepTarget(Map<String, List<String>> freeInputsStepTarget) {
+        this.freeInputsStepTarget = freeInputsStepTarget;
+    }
+
+    public void setContinuations(Continuations continuations) {
+        this.continuations = continuations;
+    }*/
 }

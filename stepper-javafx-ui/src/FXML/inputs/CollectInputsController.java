@@ -2,8 +2,8 @@ package FXML.inputs;
 
 import FXML.execution.ExecutionController;
 import FXML.main.MainAppController;
-import dto.DataInFlowDTO;
-import dto.FlowExecutionDTO;
+import impl.DataInFlowDTO;
+import impl.FlowExecutionDTO;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -57,17 +57,17 @@ public class CollectInputsController {
         clearAll();
         int mandatoryRowIndex = 2, optionalRowIndex = 2;
         int mandatoryColIndex = 1, optionalColIndex = 5;
-        FlowExecutionDTO executionDTO = mainAppController.getModel().getExecutionDTOByUUID(id);
+        FlowExecutionDTO executionDTO = mainAppController.getModel().getExecutionDTOByUUID(id.toString());
         List<DataInFlowDTO> currentFreeInputs = executionDTO.getFlowDefinitionDTO().getFreeInputs();
         for (DataInFlowDTO input: currentFreeInputs) {
             //addRowConstraints();
-            if(input.getDataNecessity().equals(DataNecessity.MANDATORY)) {
+            if(input.getDataNecessity().equals(DataNecessity.MANDATORY.name())) {
                 if(!input.getFinalName().equals(input.getOriginalName())){
                     addLabel(input.getUserString() + " (" + input.getFinalName() +"):", mandatoryRowIndex, mandatoryColIndex);
                 } else {
                     addLabel(input.getUserString() + ":", mandatoryRowIndex, mandatoryColIndex);
                 }
-                if(input.getDataDefinition().getType().equals(Integer.class)){
+                if(input.getDataDefinition().getType().equals(Integer.class.getName())){
                     Spinner<Integer> integerSpinner = addSpinner(mandatoryRowIndex, mandatoryColIndex + 1);
                     if(executionDTO.getFreeInputs().containsKey(input.getFinalName())){
                         integerSpinner.getValueFactory().setValue((Integer) executionDTO.getFreeInputs().get(input.getFinalName()));
@@ -83,7 +83,7 @@ public class CollectInputsController {
                 mandatoryRowIndex++;
             } else {
                 addLabel(input.getUserString() + ":", optionalRowIndex, optionalColIndex);
-                if(input.getDataDefinition().getType().equals(Integer.class)){
+                if(input.getDataDefinition().getType().equals(Integer.class.getName())){
                     Spinner<Integer> integerSpinner = addSpinner(optionalRowIndex, optionalColIndex + 1);
                     if(executionDTO.getFreeInputs().containsKey(input.getFinalName())){
                         integerSpinner.getValueFactory().setValue((Integer) executionDTO.getFreeInputs().get(input.getFinalName()));
@@ -131,7 +131,7 @@ public class CollectInputsController {
                 mainAppController.executeListener(id);
                 clearAll();
                 Runnable task = () -> {
-                    mainAppController.getModel().executeFlow(id);
+                    mainAppController.getModel().executeFlow(id.toString());
                     Platform.runLater(() -> {
                         mainAppController.addExecutionToTable();
                         executionController.addContinuations(id);
@@ -148,20 +148,20 @@ public class CollectInputsController {
         rerunButton = new Button("Rerun flow");
         Button button = addButton("Rerun flow", 2, 1);
         button.setOnAction(event1 -> {
-            mainAppController.prepareToReExecution(id, mainAppController.getModel().getExecutionDTOByUUID(id).getFlowDefinitionDTO().getName());
+            mainAppController.prepareToReExecution(id, mainAppController.getModel().getExecutionDTOByUUID(id.toString()).getFlowDefinitionDTO().getName());
         });
     }
 
     private boolean executeButtonActionListener(UUID id){
         for (Map.Entry<DataInFlowDTO, Spinner<Integer>> entry: freeInputsSpinnerComponents.entrySet()) {
-            mainAppController.getModel().addFreeInputToFlowExecution(id, entry.getKey().getFinalName(), entry.getValue().getValue());
+            mainAppController.getModel().addFreeInputToFlowExecution(id.toString(), entry.getKey().getFinalName(), entry.getValue().getValue());
         }
         for (Map.Entry<DataInFlowDTO, TextField> entry: freeInputsTextFieldComponents.entrySet()) {
             if(!entry.getValue().getText().isEmpty()) {
-                if(entry.getKey().getDataDefinition().getType().equals(Double.class)) {
+                if(entry.getKey().getDataDefinition().getType().equals(Double.class.getName())) {
                     try {
                         double value = Double.parseDouble(entry.getValue().getText());
-                        mainAppController.getModel().addFreeInputToFlowExecution(id, entry.getKey().getFinalName(), value);
+                        mainAppController.getModel().addFreeInputToFlowExecution(id.toString(), entry.getKey().getFinalName(), value);
                     } catch (NumberFormatException e) {
                         // Display an alert or handle the invalid input
                         showErrorDialog("Invalid Input", "Please enter a valid double value.");
@@ -169,7 +169,7 @@ public class CollectInputsController {
                         return false;
                     }
                 } else {
-                    mainAppController.getModel().addFreeInputToFlowExecution(id, entry.getKey().getFinalName(), entry.getValue().getText());
+                    mainAppController.getModel().addFreeInputToFlowExecution(id.toString(), entry.getKey().getFinalName(), entry.getValue().getText());
                 }
             }
         }

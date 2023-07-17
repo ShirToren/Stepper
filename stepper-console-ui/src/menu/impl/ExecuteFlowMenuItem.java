@@ -89,7 +89,7 @@ public class ExecuteFlowMenuItem implements MenuItem {
     private void showFlowExecutionDetails() {
         System.out.println("Execution unique ID: " + dto.getUuid().toString());
         System.out.println("Flow's name: " + dto.getFlowDefinitionDTO().getName());
-        System.out.println("Flow execution result: " + dto.getExecutionResult().name());
+        System.out.println("Flow execution result: " + dto.getExecutionResult());
         System.out.println("Formal outputs: ");
         for (Map.Entry<DataInFlowDTO, Object> output : dto.getExecutionFormalOutputs().entrySet()) {
             System.out.println(output.getKey().getUserString() + ": " + output.getValue());
@@ -116,9 +116,9 @@ public class ExecuteFlowMenuItem implements MenuItem {
         String stepName = inputDataInFlow.getOwnerStep().getName();
         System.out.println("Please enter " + currentFreeInputs.get(numOfInput).getUserString() + " (" + inputName + ")");
         Object userInput = null;
-        if(inputDataInFlow.getDataDefinition().getType() == String.class) {
+        if(inputDataInFlow.getDataDefinitionDTO().getType() == String.class) {
             userInput = scanner.nextLine();
-        } else if(inputDataInFlow.getDataDefinition().getType() == Integer.class) {
+        } else if(inputDataInFlow.getDataDefinitionDTO().getType() == Integer.class) {
             userInput = scanner.nextInt();
         } else {
             userInput = scanner.nextDouble();
