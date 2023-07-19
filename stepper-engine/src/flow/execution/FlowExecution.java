@@ -11,7 +11,6 @@ import java.time.LocalTime;
 import java.util.*;
 
 public class FlowExecution {
-
     private final UUID uuid;
     private final FlowDefinition flowDefinition;
     private Duration totalTime;
@@ -33,13 +32,15 @@ public class FlowExecution {
     private LocalTime startExecutionTime;
     private LocalTime endExecutionTime;
     private boolean isFinished;
+    private final String userName;
 
     ///all outputs?
 
 
-    public FlowExecution( UUID uuid, FlowDefinition flowDefinition) {
+    public FlowExecution(UUID uuid, FlowDefinition flowDefinition, String userName) {
         this.uuid = uuid;
         this.flowDefinition = flowDefinition;
+        this.userName = userName;
         this.freeInputs = new HashMap<>();
         this.executionFormalOutputs = new HashMap<>();
         this.stepsTotalTimes = new HashMap<>();
@@ -167,6 +168,10 @@ public class FlowExecution {
 
     public boolean isFinished() {
         return isFinished;
+    }
+
+    public String getUserName() {
+        return userName;
     }
 
     public StepUsageDeclaration getOwnerStepByInputName(String inputName){

@@ -197,8 +197,11 @@ public class StepperEngineManager {
         }
 
         for (StepUsageDeclaration step : flowExecution.getExecutedSteps()) {
-            stepsTotalTimes.put(step.getFinalStepName(), flowExecution.getStepsTotalTimes().get(step.getFinalStepName()).toMillis());
-            stepsResults.put(step.getFinalStepName(), flowExecution.getStepsResults().get(step.getFinalStepName()).name());
+            if(flowExecution.getStepsTotalTimes().get(step.getFinalStepName()) != null &&
+                    flowExecution.getStepsResults().get(step.getFinalStepName()) != null) {
+                stepsTotalTimes.put(step.getFinalStepName(), flowExecution.getStepsTotalTimes().get(step.getFinalStepName()).toMillis());
+                stepsResults.put(step.getFinalStepName(), flowExecution.getStepsResults().get(step.getFinalStepName()).name());
+            }
             executedSteps.add(createStepUsageDeclarationDTO(step));
         }
 
@@ -225,7 +228,7 @@ public class StepperEngineManager {
                 totalTime, startExecutionTime, endExecutionTime,
                 stepsTotalTimes, executedSteps, stepsResults, logLines, summeryLines,
                 flowExecution.isFinished(), flowExecution.getFreeInputs(),
-                stepsStartTimes, stepsEndTimes);
+                stepsStartTimes, stepsEndTimes, flowExecution.getUserName());
     }
     private ContinuationsDTO createContinuationsDTO(Continuations continuations){
         List<ContinuationDTO> continuationDTOS = new ArrayList<>();
@@ -398,13 +401,23 @@ public class StepperEngineManager {
         return  names;
     }
 
-    public UUID createFlowExecution(String flowName) {
+    public UUID createFlowExecution(String flowName, String userName) {
         UUID id = UUID.randomUUID();
         FlowExecution flowExecution = new FlowExecution(id,
-                stepper.findFlowDefinitionByName(flowName));
+                stepper.findFlowDefinitionByName(flowName), userName);
             this.allFlowExecutionsList.add(0, flowExecution);
             this.allFlowExecutionsMap.put(id, flowExecution);
             this.stringToIDMap.put(id.toString(), id);
+        return id;
+    }
+
+    public UUID createFlowExecution(String flowName) {
+        UUID id = UUID.randomUUID();
+        FlowExecution flowExecution = new FlowExecution(id,
+                stepper.findFlowDefinitionByName(flowName), "");
+        this.allFlowExecutionsList.add(0, flowExecution);
+        this.allFlowExecutionsMap.put(id, flowExecution);
+        this.stringToIDMap.put(id.toString(), id);
         //currentFlowExecution = flowExecution;
         return id;
     }
@@ -423,6 +436,16 @@ public class StepperEngineManager {
         List<FlowExecutionDTO> result = new ArrayList<>();
         for (FlowExecution execution: allFlowExecutionsList) {
             result.add(createFlowExecutionDTO(execution));
+        }
+        return result;
+    }
+
+    public List<FlowExecutionDTO> getFlowExecutionsDTOByUserName(String userName) {
+        List<FlowExecutionDTO> result = new ArrayList<>();
+        for (FlowExecution execution: allFlowExecutionsList) {
+            if(execution.getUserName().equals(userName)) {
+                result.add(createFlowExecutionDTO(execution));
+            }
         }
         return result;
     }
