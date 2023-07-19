@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<BorderPane fx:id="borderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="0.0" minWidth="0.0" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="FXML.main.MainAppController">
+    <top>
+        <HBox alignment="CENTER_LEFT" prefHeight="53.0" prefWidth="600.0" spacing="5.0" BorderPane.alignment="CENTER">
+            <children>
+            <ChoiceBox fx:id="cssChoiceBox" prefHeight="25.0" prefWidth="110.0" />
+                <Button fx:id="loadFileButton" mnemonicParsing="false" onAction="#loadFileButtonActionListener" text="Load File" />
+                <Label fx:id="filePathLabel" prefHeight="51.0" prefWidth="513.0">
+                    <padding>
+                        <Insets left="5.0" />
+                    </padding>
+                </Label>
+            </children>
+            <padding>
+                <Insets left="5.0" />
+            </padding>
+        </HBox>
+    </top>
+    <center>
+        <ScrollPane fitToHeight="true" fitToWidth="true" BorderPane.alignment="CENTER">
+            <content>
+                <GridPane hgap="5.0" minHeight="1200.0" minWidth="1200.0" vgap="5.0">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                    <children>
+                        <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                            <tabs>
+                                <Tab text="Flows Definition">
+                                    <content>
+                                        <AnchorPane minWidth="100.0">
+                                            <children>
+                                                <fx:include fx:id="flowsDefinitionComponent" source="../definition/definition.fxml" />
+                                            </children>
+                                        </AnchorPane>
+                                    </content>
+                                </Tab>
+                                <Tab fx:id="flowExecutionTab" text="Flows Execution">
+                                    <content>
+                                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <fx:include fx:id="flowsExecutionComponent" source="../execution/execution.fxml" />
+                                 </children>
+                              </AnchorPane>
+                                    </content>
+                                </Tab>
+                                <Tab fx:id="executionHistoryTab" text="Executions History">
+                           <content>
+                              <fx:include fx:id="executionHistoryComponent" source="../execution/history/executionHistory.fxml" />
+                           </content></Tab>
+                                <Tab fx:id="statisticsTab" text="Statistics">
+                                    <content>
+                                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <fx:include fx:id="statisticsComponent" source="../statistics/statistics.fxml" />
+                                 </children></AnchorPane>
+                                    </content>
+                                </Tab>
+                            </tabs>
+                        </TabPane>
+                    </children>
+                </GridPane>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>
