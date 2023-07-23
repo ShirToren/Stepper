@@ -45,37 +45,38 @@ public class StepExecutionDetailsController {
     private Label summaryLabel;
     private int rowIndex = 8;
 
-    public void addStepDetails(UUID id, StepUsageDeclarationDTO step) {
+    public void addStepDetails(FlowExecutionDTO flowExecutionDTO, StepUsageDeclarationDTO step) {
         clearAll();
-        FlowExecutionDTO currentExecutionDTO = mainAppController.getModel().getExecutionDTOByUUID(id.toString());
         stepNameLabel.setText(step.getName());
-        if(currentExecutionDTO.getStepsTotalTimes().containsKey(step.getName())){
-            DurationLabel.setText(Long.toString(currentExecutionDTO.getStepsTotalTimes().get(step.getName())));
+        if(flowExecutionDTO.getStepsTotalTimes().containsKey(step.getName())){
+            DurationLabel.setText(Long.toString(flowExecutionDTO.getStepsTotalTimes().get(step.getName())));
         }
-        resultLabel.setText(currentExecutionDTO.getStepsResults().get(step.getName()));
-        summaryLabel.setText(currentExecutionDTO.getSummeryLines().get(step.getName()));
-        startTimeLabel.setText(currentExecutionDTO.getStepsStartTimes().get(step.getName()).toString());
-        endTimeLabel.setText(currentExecutionDTO.getStepsEndTimes().get(step.getName()).toString());
+        resultLabel.setText(flowExecutionDTO.getStepsResults().get(step.getName()));
+        summaryLabel.setText(flowExecutionDTO.getSummeryLines().get(step.getName()));
+        startTimeLabel.setText(flowExecutionDTO.getStepsStartTimes().get(step.getName()));
+        endTimeLabel.setText(flowExecutionDTO.getStepsEndTimes().get(step.getName()));
 
-        List<DataInFlowDTO> flowsInputs = currentExecutionDTO.getFlowDefinitionDTO().getFlowsInputs();
-        Map<DataInFlowDTO, Object> allExecutionInputs = currentExecutionDTO.getAllExecutionInputs();
+        List<DataInFlowDTO> flowsInputs = flowExecutionDTO.getFlowDefinitionDTO().getFlowsInputs();
+        Map<DataInFlowDTO, Object> allExecutionInputs = flowExecutionDTO.getAllExecutionInputs();
         addDataDetails(step, flowsInputs, allExecutionInputs);
         addLabel("Outputs:", rowIndex, 1);
         rowIndex++;
-        List<DataInFlowDTO> flowsOutputs = currentExecutionDTO.getFlowDefinitionDTO().getFlowsOutputs();
-        Map<DataInFlowDTO, Object> allExecutionOutputs = currentExecutionDTO.getAllExecutionOutputs();
+        List<DataInFlowDTO> flowsOutputs = flowExecutionDTO.getFlowDefinitionDTO().getFlowsOutputs();
+        Map<DataInFlowDTO, Object> allExecutionOutputs = flowExecutionDTO.getAllExecutionOutputs();
         addDataDetails(step, flowsOutputs, allExecutionOutputs);
-        addLogLines(currentExecutionDTO, step);
+        addLogLines(flowExecutionDTO, step);
     }
 
     private void addLogLines(FlowExecutionDTO currentExecutionDTO, StepUsageDeclarationDTO step){
         addLabel("Logs:", rowIndex, 1);
         StringBuilder stringBuilder = new StringBuilder();
-       List<LogLineDTO> logLines = currentExecutionDTO.getLogLines().get(step.getName());
-        for (LogLineDTO log: logLines) {
-            stringBuilder.append(log.getTime()).append(": ").append(log.getLine()).append("\n");
+        List<LogLineDTO> logLines = currentExecutionDTO.getLogLines().get(step.getName());
+        if(logLines != null){
+            for (LogLineDTO log: logLines) {
+                stringBuilder.append(log.getTime()).append(": ").append(log.getLine()).append("\n");
+            }
+            addTextArea(stringBuilder.toString(), rowIndex, 2);
         }
-        addTextArea(stringBuilder.toString(), rowIndex, 2);
     }
 
     private void addDataDetails(StepUsageDeclarationDTO step, List<DataInFlowDTO> allData,
@@ -83,30 +84,35 @@ public class StepExecutionDetailsController {
         for (DataInFlowDTO data: allData) {
             if(data.getOwnerStep().getName().equals(step.getName())){
                 ////if input is exist
-                if(allExecutionData.containsKey(data)) {
-                    addLabel(data.getFinalName(), rowIndex, 1);
-                    if (allExecutionData.get(data).equals("Not created due to failure in flow")) {
-                        addTextArea(allExecutionData.get(data).toString(), rowIndex, 2);
-                    } else {
-                         if (data.getDataDefinition().getType().equals(Integer.class.getName()) ||
-                                data.getDataDefinition().getType().equals(Double.class.getName())) {
-                            addLabel(allExecutionData.get(data).toString(), rowIndex, 2);
-                        } else if (data.getDataDefinition().getType().equals(ListData.class.getName())) {
-                            if (allExecutionData.get(data).getClass().isAssignableFrom(FileList.class)) {
-                                addFilesListView((FileList) allExecutionData.get(data), rowIndex, 2);
-                            } else if (allExecutionData.get(data).getClass().isAssignableFrom(StringList.class)) {
-                                addStringListView((StringList) allExecutionData.get(data), rowIndex, 2);
-                            }
-                        } else if (data.getDataDefinition().getType().equals(RelationData.class.getName())) {
-                            addTableView((RelationData) allExecutionData.get(data), rowIndex, 2);
+                for (Map.Entry<DataInFlowDTO, Object> entry : allExecutionData.entrySet()) {
+                    if(entry.getKey().getFinalName().equals(data.getFinalName())) {
+                        addLabel(data.getFinalName(), rowIndex, 1);
+                        if (allExecutionData.get(entry.getKey()).equals("Not created due to failure in flow")) {
+                            addTextArea(allExecutionData.get(entry.getKey()).toString(), rowIndex, 2);
                         } else {
-                            // if (data.getDataDefinition().getType().equals(String.class)) {
-                                 addTextArea(allExecutionData.get(data).toString(), rowIndex, 2);
-                             //}
-                         }
+                            if (data.getDataDefinition().getType().equals(Integer.class.getName()) ||
+                                    data.getDataDefinition().getType().equals(Double.class.getName())) {
+                                addLabel(allExecutionData.get(entry.getKey()).toString(), rowIndex, 2);
+                            } else if (data.getDataDefinition().getType().equals(ListData.class.getName())) {
+                                if (allExecutionData.get(entry.getKey()).getClass().isAssignableFrom(FileList.class)) {
+                                    addFilesListView((FileList) allExecutionData.get(entry.getKey()), rowIndex, 2);
+                                } else if (allExecutionData.get(entry.getKey()).getClass().isAssignableFrom(StringList.class)) {
+                                    addStringListView((StringList) allExecutionData.get(entry.getKey()), rowIndex, 2);
+                                }
+                            } else if (data.getDataDefinition().getType().equals(RelationData.class.getName())) {
+                                addTableView((RelationData) allExecutionData.get(entry.getKey()), rowIndex, 2);
+                            } else {
+                                // if (data.getDataDefinition().getType().equals(String.class)) {
+                                addTextArea(allExecutionData.get(entry.getKey()).toString(), rowIndex, 2);
+                                //}
+                            }
+                        }
+                        rowIndex++;
                     }
-                    rowIndex++;
                 }
+/*                if(allExecutionData.containsKey(data)) {
+
+                }*/
             }
         }
     }

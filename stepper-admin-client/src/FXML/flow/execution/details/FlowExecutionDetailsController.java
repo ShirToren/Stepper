@@ -1,20 +1,34 @@
 package FXML.flow.execution.details;
 
 import FXML.main.AdminMainAppController;
+import FXML.utils.Constants;
+import FXML.utils.adapter.DataInFlowMapDeserializer;
+import FXML.utils.adapter.FreeInputsMapDeserializer;
+import FXML.utils.http.HttpClientUtil;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import dd.impl.list.FileList;
 import dd.impl.list.ListData;
 import dd.impl.list.StringList;
 import dd.impl.relation.RelationData;
 import impl.DataInFlowDTO;
 import impl.FlowExecutionDTO;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.HttpUrl;
+import okhttp3.Response;
+import org.jetbrains.annotations.NotNull;
 import step.api.DataNecessity;
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 public class FlowExecutionDetailsController {
@@ -49,13 +63,42 @@ public class FlowExecutionDetailsController {
     public void initialize() {
         freeInputsLV.setItems(freeInputsLVItems);
     }
-    public void addFlowExecutionDetails(UUID id) {
+    public void addFlowExecutionDetails(String id) {
         clearAll();
-        FlowExecutionDTO executionDTO = mainAppController.getModel().getExecutionDTOByUUID(id.toString());
-        flowNameLabel.setText(executionDTO.getFlowDefinitionDTO().getName());
-        flowIDLabel.setText(executionDTO.getUuid().toString());
-        showFreeInputsDetails(id);
-        showAllFlowOutputsDetails(id);
+
+        String finalUrl = HttpUrl
+                .parse(Constants.FLOW_EXECUTION)
+                .newBuilder()
+                .addQueryParameter(Constants.EXECUTION_ID_PARAMETER, id)
+                .build()
+                .toString();
+
+
+        HttpClientUtil.runAsync(finalUrl, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                //httpStatusUpdate.updateHttpLine("Attempt to send chat line [" + chatLine + "] request ended with failure...:(");
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                String rawBody = response.body().string();
+                if (response.isSuccessful()) {
+                    GsonBuilder gsonBuilder = new GsonBuilder();
+                    gsonBuilder.registerTypeAdapter(new TypeToken<Map<DataInFlowDTO, Object>>(){}.getType(), new DataInFlowMapDeserializer());
+                    gsonBuilder.registerTypeAdapter(new TypeToken<Map<String, Object>>(){}.getType(), new FreeInputsMapDeserializer());
+                    Gson gson = gsonBuilder.create();
+
+                    FlowExecutionDTO executionDTO = gson.fromJson(rawBody, FlowExecutionDTO.class);
+                    Platform.runLater(() -> {
+                        flowNameLabel.setText(executionDTO.getFlowDefinitionDTO().getName());
+                        flowIDLabel.setText(executionDTO.getUuid().toString());
+                        showFreeInputsDetails(executionDTO);
+                        // showAllFlowOutputsDetails(executionDTO);
+                    });
+                }
+            }
+        });
     }
     public void updateEndTime(String endTime) { endTimeLabel.setText(endTime); }
     public void updateName(String name) { flowNameLabel.setText(name); }
@@ -70,26 +113,19 @@ public class FlowExecutionDetailsController {
         if(entry.getValue().equals("Not created due to failure in flow")) {
             addTextArea(entry.getValue().toString(), rowIndex, 2);
         } else {
-             if(entry.getKey().getDataDefinition().getType().equals(Integer.class.getName())||
+            if(entry.getKey().getDataDefinition().getType().equals(Integer.class.getName())||
                     entry.getKey().getDataDefinition().getType().equals(Double.class.getName())) {
                 addLabel(entry.getValue().toString(), rowIndex, 2);
-            } else if (entry.getKey().getDataDefinition().getType().equals(ListData.class.getName())) {
-                if (entry.getValue().getClass().isAssignableFrom(FileList.class)) {
-                    addFilesListView((FileList) entry.getValue(), rowIndex, 2);
-                } else if (entry.getValue().getClass().isAssignableFrom(StringList.class)){
-                    addStringListView((StringList) entry.getValue(), rowIndex, 2);
-                }
-            }  else if(entry.getKey().getDataDefinition().getType().equals(RelationData.class.getName())) {
+            } else if (entry.getKey().getDataDefinition().getType().equals("dd.impl.list.ListData")) {
+                addListView((List<Object>) entry.getValue(), rowIndex, 2);
+            }  else if(entry.getKey().getDataDefinition().getType().equals("dd.impl.relation.RelationData")) {
                 addTableView((RelationData)entry.getValue(), rowIndex, 2);
             } else {
-                 //if(entry.getKey().getDataDefinition().getType().equals(String.class)){
-                     addTextArea(entry.getValue().toString(), rowIndex, 2);
-                 //}
-             }
+                //if(entry.getKey().getDataDefinition().getType().equals(String.class)){
+                addTextArea(entry.getValue().toString(), rowIndex, 2);
+                //}
+            }
         }
-        /*} else if(entry.getKey().getDataDefinition().getType().equals(StringList.class)){
-            addStringListView((StringList)entry.getValue(), rowIndex, 2);
-        }*/
         rowIndex++;
     }
     public void addInput(String inputName) { freeInputsLVItems.add(inputName); }
@@ -101,13 +137,15 @@ public class FlowExecutionDetailsController {
     public void clearAllInputs(){
         freeInputsLVItems.clear();
     }
-    private void showFreeInputsDetails(UUID id) {
+    private void showFreeInputsDetails(FlowExecutionDTO flowExecutionDTO) {
         freeInputsLVItems.clear();
-        Map<String, Object> actualFreeInputs = mainAppController.getModel().getActualFreeInputsList(id);
+        //Map<String, Object> actualFreeInputs = mainAppController.getModel().getActualFreeInputsList(id);
+        Map<String, Object> actualFreeInputs = flowExecutionDTO.getFreeInputs();
         List<DataInFlowDTO> optionalInput = new ArrayList<>();
-        freeInputsList = mainAppController.getModel().getExecutionDTOByUUID(id.toString()).getFlowDefinitionDTO().getFreeInputs();
+        freeInputsList = flowExecutionDTO.getFlowDefinitionDTO().getFreeInputs();
+        //freeInputsList = mainAppController.getModel().getExecutionDTOByUUID(id.toString()).getFlowDefinitionDTO().getFreeInputs();
         for (DataInFlowDTO freeInput : freeInputsList) {
-            if (freeInput.getDataNecessity().equals(DataNecessity.MANDATORY.name()) &&
+            if (freeInput.getDataNecessity().equals("MANDATORY") &&
                     actualFreeInputs.containsKey(freeInput.getFinalName())) {
                 freeInputsLVItems.add(freeInput.getFinalName());
             } else if (actualFreeInputs.containsKey(freeInput.getFinalName())) {
@@ -125,7 +163,7 @@ public class FlowExecutionDetailsController {
                     for (DataInFlowDTO freeInput: freeInputsList) {
                         if(freeInput.getFinalName().equals(item)) {
                             freeInputTypeLabel.setText("Type: " + freeInput.getDataDefinition().getName());
-                            freeInputValueLabel.setText("Value: " + mainAppController.getModel().getActualFreeInputsList(id).get(item));
+                            freeInputValueLabel.setText("Value: " + actualFreeInputs.get(item));
                             freeInputNecessityLabel.setText("Necessity: " + freeInput.getDataNecessity());
                         }
                     }
@@ -166,6 +204,26 @@ public class FlowExecutionDetailsController {
         items.addAll(values.getList());
         flowExecutionDetailsGP.add(listView, colIndex,rowIndex);
     }
+    private void addListView(List<Object> values, int rowIndex, int colIndex) {
+        ObservableList<String> items = FXCollections.observableArrayList();
+        ListView<String> listView = new ListView<>();
+        listView.setItems(items);
+        listView.setPrefHeight(100);
+        listView.setPrefWidth(200);
+        if(values.size() != 0 ) {
+            Object obj = values.get(0);
+            if(obj instanceof File){
+                for (Object file: values) {
+                    items.add(((File)file).getAbsolutePath());
+                }
+            } else {
+                for (Object string: values) {
+                    items.add((String)string);
+                }
+            }
+        }
+        flowExecutionDetailsGP.add(listView, colIndex,rowIndex);
+    }
     private void addTableView(RelationData relation, int rowIndex, int colIndex) {
         TableView<ObservableList<String>> tableView = new TableView<>();
         ObservableList<ObservableList<String>> data = FXCollections.observableArrayList();
@@ -189,15 +247,6 @@ public class FlowExecutionDetailsController {
             data.add(rowData);
         }
         flowExecutionDetailsGP.add(tableView, colIndex,rowIndex);
-    }
-
-    private void showAllFlowOutputsDetails(UUID id) {
-        clearAllOutputs();
-        //outputsLVItems.clear();
-        FlowExecutionDTO executionDTO = mainAppController.getModel().getExecutionDTOByUUID(id.toString());
-        for (Map.Entry<DataInFlowDTO , Object> entry : executionDTO.getAllExecutionOutputs().entrySet()) {
-            addOutput(entry);
-        }
     }
 
     public void setMainAppController(AdminMainAppController mainAppController) {

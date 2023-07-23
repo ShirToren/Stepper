@@ -2,7 +2,6 @@ package FXML.main;
 
 import FXML.execution.history.ExecutionHistoryController;
 import FXML.statistics.StatisticsController;
-import dto.XMLDTO;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -21,7 +20,7 @@ import java.util.List;
 import okhttp3.*;
 
 public class AdminMainAppController {
-    private StepperEngineManager model = new StepperEngineManager();
+    ///private StepperEngineManager model = new StepperEngineManager();
     @FXML
     private Label nameLabel;
     @FXML
@@ -47,9 +46,9 @@ public class AdminMainAppController {
         this.selectedFileProperty = new SimpleStringProperty();
     }
 
-    public StepperEngineManager getModel() {
+/*    public StepperEngineManager getModel() {
         return model;
-    }
+    }*/
     @FXML
     public void initialize() {
         if (  executionHistoryComponentController != null &&
@@ -75,7 +74,7 @@ public class AdminMainAppController {
                     flowsExecutionComponentController.clearAll();
                 }*/
                 if(oldTab.equals(executionHistoryTab)) {
-                    executionHistoryComponentController.clearAll();
+                    //executionHistoryComponentController.clearAll();
                 }
             }
         });

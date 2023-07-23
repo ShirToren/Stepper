@@ -1,9 +1,7 @@
 package servlets;
 
 import com.google.gson.*;
-import com.google.gson.reflect.TypeToken;
 import dd.impl.list.ListData;
-import impl.DataInFlowDTO;
 import impl.FlowExecutionDTO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -17,16 +15,10 @@ import constants.*;
 import utils.adapter.FilesListSerializer;
 import utils.adapter.StringListSerializer;
 
-import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.*;
-import java.util.stream.Collectors;
 
-import static constants.Constants.GSON_INSTANCE;
 
 @WebServlet("/flow-execution")
 public class FlowExecutionServlet extends HttpServlet {
@@ -58,10 +50,6 @@ public class FlowExecutionServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("application/json");
         StepperEngineManager manager = ServletUtils.getManager(getServletContext());
-        String username = SessionUtils.getUsername(request);
-        if (username == null) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        }
 
         GsonBuilder gsonBuilder = new GsonBuilder().enableComplexMapKeySerialization();
         gsonBuilder.registerTypeAdapter(ListData.class, new FilesListSerializer());

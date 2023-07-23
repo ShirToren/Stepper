@@ -39,16 +39,12 @@ public class ExecutionHistoryController {
     }
 
     public void addFlowExecutionDetails(UUID id) {
-        executionDetailsComponentController.addFlowExecutionDetails(id);
-        executionDetailsComponentController.updateFinalDetails(id);
-        executionDetailsComponentController.addExecutedSteps(id);
-        executionDetailsComponentController.addContinuations(id);
+        executionDetailsComponentController.addFlowExecutionDetails(id.toString());
     }
 
     public void addExecutionToTable(){
         oldExecutionsTableComponentController.addExecutionsToTable();
     }
-
     @FXML
     void executeAgainActionListener(ActionEvent event) {
         /*mainAppController.prepareToReExecution(oldExecutionsTableComponentController.getSelectedItemID(),

@@ -5,12 +5,19 @@ import FXML.execution.UIAdapter;
 import FXML.flow.execution.details.FlowExecutionDetailsController;
 import FXML.main.AdminMainAppController;
 import FXML.step.execution.details.StepExecutionDetailsController;
+import FXML.utils.Constants;
+import FXML.utils.adapter.DataInFlowMapDeserializer;
+import FXML.utils.adapter.FreeInputsMapDeserializer;
+import FXML.utils.http.HttpClientUtil;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+import impl.DataInFlowDTO;
 import impl.FlowExecutionDTO;
 import impl.StepUsageDeclarationDTO;
-import flow.definition.api.continuations.Continuation;
-import flow.definition.api.continuations.Continuations;
 import impl.continuations.ContinuationDTO;
 import impl.continuations.ContinuationsDTO;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -23,10 +30,16 @@ import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.HttpUrl;
+import okhttp3.Response;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
+import java.util.function.Consumer;
 
 public class ExecutionDetailsController {
     private AdminMainAppController mainAppController;
@@ -89,47 +102,64 @@ public class ExecutionDetailsController {
         stepExecutionDetailsComponentController.setMainAppController(mainAppController);
     }
 
-    public void addExecutedFlowAndSteps(UUID id) {
-        FlowExecutionDTO currentExecutionDTO = mainAppController.getModel().getExecutionDTOByUUID(id.toString());
-        TreeItem<String> rootItem = new TreeItem<>(currentExecutionDTO.getFlowDefinitionDTO().getName());
-        executedFlowAndStepsTV.setRoot(rootItem);
+    private void httpCallGetExecution(String id, Consumer<FlowExecutionDTO> consumer) {
+        String finalUrl = HttpUrl
+                .parse(Constants.FLOW_EXECUTION)
+                .newBuilder()
+                .addQueryParameter(Constants.EXECUTION_ID_PARAMETER, id)
+                .build()
+                .toString();
 
-        executedFlowAndStepsTV.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                if(currentExecutionDTO.isFlowName(newValue.getValue())){
-                    executionDetailsComponent.getChildren().clear();
-                    executionDetailsComponent.getChildren().add(flowExecutionDetailsComponent);
-                } else {
-                    executionDetailsComponent.getChildren().clear();
-                    executionDetailsComponent.getChildren().add(stepExecutionDetailsComponent);
-                    for (StepUsageDeclarationDTO step : currentExecutionDTO.getFlowDefinitionDTO().getSteps()) {
-                        if (step.getName().equals(newValue.getValue())) {
-                            stepExecutionDetailsComponentController.addStepDetails(id, step);
-                        }
-                    }
+
+        HttpClientUtil.runAsync(finalUrl, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                String rawBody = response.body().string();
+                if (response.isSuccessful()) {
+                    GsonBuilder gsonBuilder = new GsonBuilder();
+                    gsonBuilder.registerTypeAdapter(new TypeToken<Map<DataInFlowDTO, Object>>(){}.getType(), new DataInFlowMapDeserializer());
+                    gsonBuilder.registerTypeAdapter(new TypeToken<Map<String, Object>>(){}.getType(), new FreeInputsMapDeserializer());
+                    Gson gson = gsonBuilder.create();
+
+                    FlowExecutionDTO executionDTO = gson.fromJson(rawBody, FlowExecutionDTO.class);
+                    Platform.runLater(() -> {
+                        consumer.accept(executionDTO);
+                    });
                 }
-/*                executionDetailsComponent.getChildren().clear();
-                if(newValue.isLeaf()) {
-                    executionDetailsComponent.getChildren().add(stepExecutionDetailsComponent);
-                    for (StepUsageDeclarationDTO step : currentExecutionDTO.getFlowDefinitionDTO().getSteps()) {
-                        if (step.getName().equals(newValue.getValue())) {
-                            stepExecutionDetailsComponentController.addStepDetails(id, step);
-                        }
-                    }
-                } else if(oldValue != null && oldValue.isLeaf() && !newValue.isLeaf()) {
-                    executionDetailsComponent.getChildren().add(flowExecutionDetailsComponent);
-                } else if(oldValue != null && oldValue.isLeaf() && newValue.isLeaf()) {
-                    executionDetailsComponent.getChildren().add(stepExecutionDetailsComponent);
-                    for (StepUsageDeclarationDTO step : currentExecutionDTO.getFlowDefinitionDTO().getSteps()) {
-                        if (step.getName().equals(newValue.getValue())) {
-                            stepExecutionDetailsComponentController.addStepDetails(id, step);
-                        }
-                    }
-                }*/
             }
         });
+    }
 
+    public void addExecutedFlowAndSteps(String id) {
+        httpCallGetExecution(id, (flowExecutionDTO -> {
+            TreeItem<String> rootItem = new TreeItem<>(flowExecutionDTO.getFlowDefinitionDTO().getName());
+            executedFlowAndStepsTV.setRoot(rootItem);
 
+            executedFlowAndStepsTV.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+                httpCallGetExecution(id, updatedFlowExecutionDTO -> {
+                    if (newValue != null) {
+                        if(updatedFlowExecutionDTO.isFlowName(newValue.getValue())){
+                            executionDetailsComponent.getChildren().clear();
+                            executionDetailsComponent.getChildren().add(flowExecutionDetailsComponent);
+                        } else {
+                            executionDetailsComponent.getChildren().clear();
+                            executionDetailsComponent.getChildren().add(stepExecutionDetailsComponent);
+                            for (StepUsageDeclarationDTO step : updatedFlowExecutionDTO.getFlowDefinitionDTO().getSteps()) {
+                                if (step.getName().equals(newValue.getValue())) {
+                                    stepExecutionDetailsComponentController.addStepDetails(updatedFlowExecutionDTO, step);
+                                }
+                            }
+                        }
+                    }
+                });
+            });
+            updateFinalDetails(id);
+            addExecutedSteps(id);
+        }));
     }
 
 
@@ -139,32 +169,33 @@ public class ExecutionDetailsController {
         }
     }
 
-    public void addExecutedSteps(UUID id) {
-        FlowExecutionDTO currentExecutionDTO = mainAppController.getModel().getExecutionDTOByUUID(id.toString());
-        for (StepUsageDeclarationDTO step: currentExecutionDTO.getExecutedSteps()) {
-            executedFlowAndStepsTV.getRoot().getChildren().add(new TreeItem<>(step.getName()));
-        }
+    public void addExecutedSteps(String id) {
+        httpCallGetExecution(id,
+                (flowExecutionDTO -> {
+                    for (StepUsageDeclarationDTO step: flowExecutionDTO.getExecutedSteps()) {
+                        executedFlowAndStepsTV.getRoot().getChildren().add(new TreeItem<>(step.getName()));
+                    }
+                }));
     }
 
-    public void addFlowExecutionDetails(UUID id) {
+    public void addFlowExecutionDetails(String id) {
         flowExecutionDetailsComponentController.addFlowExecutionDetails(id);
         addExecutedFlowAndSteps(id);
-       /* continueButton.setOnAction(event -> {
-            mainAppController.prepareToContinuation(id, selectedContinuation);
-        });*/
     }
 
-    public void updateFinalDetails(UUID id){
-        FlowExecutionDTO currentExecutionDTO = mainAppController.getModel().getExecutionDTOByUUID(id.toString());
-        if(currentExecutionDTO.getTotalTime() != 0 &&
-                currentExecutionDTO.getExecutionResult() != null &&
-                currentExecutionDTO.getEndExecutionTime() != null &&
-                currentExecutionDTO.getStartExecutionTime() != null) {
-            flowExecutionDetailsComponentController.updateDuration(Long.toString(currentExecutionDTO.getTotalTime()));
-            flowExecutionDetailsComponentController.updateResult(currentExecutionDTO.getExecutionResult());
-            flowExecutionDetailsComponentController.updateEndTime(currentExecutionDTO.getEndExecutionTime());
-            flowExecutionDetailsComponentController.updateStartTime(currentExecutionDTO.getStartExecutionTime());
-        }
+    public void updateFinalDetails(String id){
+        httpCallGetExecution(id,
+                (flowExecutionDTO -> {
+                    if(flowExecutionDTO.getTotalTime() != 0 &&
+                            flowExecutionDTO.getExecutionResult() != null &&
+                            flowExecutionDTO.getEndExecutionTime() != null &&
+                            flowExecutionDTO.getStartExecutionTime() != null) {
+                        flowExecutionDetailsComponentController.updateDuration(Long.toString(flowExecutionDTO.getTotalTime()));
+                        flowExecutionDetailsComponentController.updateResult(flowExecutionDTO.getExecutionResult());
+                        flowExecutionDetailsComponentController.updateEndTime(flowExecutionDTO.getEndExecutionTime());
+                        flowExecutionDetailsComponentController.updateStartTime(flowExecutionDTO.getStartExecutionTime());
+                    }
+                }));
     }
 
     @FXML
@@ -174,16 +205,6 @@ public class ExecutionDetailsController {
 
             if (selectedIndex >= 0 && selectedIndex < continuationsData.size()) {
                 selectedContinuation = continuationsLV.getSelectionModel().getSelectedItem();
-            }
-        }
-    }
-    public void addContinuations(UUID id){
-        continuationsData.clear();
-        FlowExecutionDTO executionDTOByUUID = mainAppController.getModel().getExecutionDTOByUUID(id.toString());
-        ContinuationsDTO continuations = executionDTOByUUID.getFlowDefinitionDTO().getContinuations();
-        if(continuations != null){
-            for (ContinuationDTO continuation: continuations.getContinuations()) {
-                continuationsData.add(continuation.getTargetFlow());
             }
         }
     }

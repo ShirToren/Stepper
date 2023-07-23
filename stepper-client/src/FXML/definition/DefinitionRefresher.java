@@ -1,6 +1,7 @@
 package FXML.definition;
 
 import FXML.definition.model.DefinitionsListWithVersion;
+import impl.FlowDefinitionDTO;
 import javafx.beans.property.IntegerProperty;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -17,13 +18,13 @@ import java.util.function.Consumer;
 import static utils.Constants.GSON_INSTANCE;
 
 public class DefinitionRefresher extends TimerTask {
-    private final Consumer<DefinitionsListWithVersion> flowsListConsumer;
+    private final Consumer<List<FlowDefinitionDTO>> flowsListConsumer;
     private final List<String> roles;
     private final String paramValue;
     private final IntegerProperty definitionVersion;
     private static final Object listLock = new Object();
 
-    public DefinitionRefresher(Consumer<DefinitionsListWithVersion> flowsListConsumer, IntegerProperty definitionVersion, List<String> roles) {
+    public DefinitionRefresher(Consumer<List<FlowDefinitionDTO>> flowsListConsumer, IntegerProperty definitionVersion, List<String> roles) {
         this.flowsListConsumer = flowsListConsumer;
         this.definitionVersion = definitionVersion;
         //synchronized (listLock){
@@ -36,16 +37,11 @@ public class DefinitionRefresher extends TimerTask {
     public void run() {
         HttpUrl.Builder urlBuilder;
         String finalUrl;
-       // synchronized (listLock){
             urlBuilder = HttpUrl.parse(Constants.FLOW_DEFINITIONS_LIST)
                     .newBuilder();
-/*            for (String role : newRolesList) {
-                urlBuilder.addQueryParameter("roles", role);
-            }*/
-            urlBuilder.addQueryParameter("roles", paramValue);
-            urlBuilder.addQueryParameter("definitionVersion", String.valueOf(definitionVersion.get()));
+            //urlBuilder.addQueryParameter("roles", paramValue);
+            //urlBuilder.addQueryParameter("definitionVersion", String.valueOf(definitionVersion.get()));
             finalUrl = urlBuilder.build().toString();
-        //}
 
         HttpClientUtil.runAsync(finalUrl, new Callback() {
 
@@ -57,8 +53,10 @@ public class DefinitionRefresher extends TimerTask {
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 String rawBody = response.body().string();
                 if (response.isSuccessful()) {
-                    DefinitionsListWithVersion definitionsListWithVersion = GSON_INSTANCE.fromJson(rawBody, DefinitionsListWithVersion.class);
-                    flowsListConsumer.accept(definitionsListWithVersion);
+                    FlowDefinitionDTO[] flowDefinitionDTOS = GSON_INSTANCE.fromJson(rawBody, FlowDefinitionDTO[].class);
+                    //DefinitionsListWithVersion definitionsListWithVersion = GSON_INSTANCE.fromJson(rawBody, DefinitionsListWithVersion.class);
+                    //flowsListConsumer.accept(definitionsListWithVersion);
+                    flowsListConsumer.accept(Arrays.asList(flowDefinitionDTOS));
                 }
             }
         });

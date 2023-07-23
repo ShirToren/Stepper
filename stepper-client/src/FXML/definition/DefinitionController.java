@@ -17,6 +17,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.control.TableColumn;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -37,6 +38,7 @@ public class DefinitionController {
 
 
     private final ObservableList<TargetTable> data = FXCollections.observableArrayList();
+    private final List<String> availableFlows;
 
     @FXML
     private TableView<TargetTable> flowsTable;
@@ -59,7 +61,7 @@ public class DefinitionController {
 
     public DefinitionController() {
         this.flowDefinitionsVersion = new SimpleIntegerProperty();
-        //this.availableFlows = new ArrayList<>();
+        this.availableFlows = new ArrayList<>();
     }
 
     public String getSelectedFlowName() {
@@ -114,20 +116,38 @@ public class DefinitionController {
         timer.schedule(listRefresher, REFRESH_RATE, REFRESH_RATE);
     }
 
-    private void updateFlowsTable(DefinitionsListWithVersion flowDefinitionsWithVersion) {
-        if (flowDefinitionsWithVersion.getVersion() != flowDefinitionsVersion.get()) {
+    private void updateFlowsTable(List<FlowDefinitionDTO> flowDefinitionDTO) {
+        List<TargetTable> flowsToDelete = new ArrayList<>();
+        //if (flowDefinitionsWithVersion.getVersion() != flowDefinitionsVersion.get()) {
             Platform.runLater(() -> {
-                flowDefinitionsVersion.set(flowDefinitionsWithVersion.getVersion());
-                    for (FlowDefinitionDTO flow : flowDefinitionsWithVersion.getEntries()) {
-                        TargetTable row = new TargetTable(flow.getName(),
-                                flow.getDescription(),
-                                flow.getSteps().size(),
-                                flow.getFreeInputs().size(),
-                                flow.getNumberOfContinuations());
-                        data.add(row);
+                //flowDefinitionsVersion.set(flowDefinitionsWithVersion.getVersion());
+                    for (FlowDefinitionDTO flow : flowDefinitionDTO) {
+                       if(!availableFlows.contains(flow.getName())) {
+                           TargetTable row = new TargetTable(flow.getName(),
+                                   flow.getDescription(),
+                                   flow.getSteps().size(),
+                                   flow.getFreeInputs().size(),
+                                   flow.getNumberOfContinuations());
+                           data.add(row);
+                           availableFlows.add(flow.getName());
+                       }
                     }
+                for (TargetTable flowTargetTable: data) {
+                    boolean isExist = false;
+                    for (FlowDefinitionDTO flow : flowDefinitionDTO) {
+                        if (flowTargetTable.name.equals(flow.getName())) {
+                            isExist = true;
+                            break;
+                        }
+                    }
+                    if(!isExist) {
+                        availableFlows.remove(flowTargetTable.name);
+                        flowsToDelete.add(flowTargetTable);
+                    }
+                }
+                data.removeAll(flowsToDelete);
             });
-        }
+        //}
 /*        Platform.runLater(() -> {
             data.clear();
             for (FlowDefinitionDTO flow : flowDefinitionDTOS) {

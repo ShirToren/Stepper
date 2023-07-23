@@ -354,7 +354,7 @@ public class StepperEngineManager {
         return allFlowDefinitionsInStepper;
     }
 
-    public List<FlowDefinitionDTO> getFlowDefinitionsByRole(List<String> rolesList, int fromIndex){
+    public List<FlowDefinitionDTO> getFlowDefinitionsByRole(List<String> rolesList/*, int fromIndex*/){
         List<FlowDefinitionDTO> flowDefinitionDTOS = new ArrayList<>();
         if(stepper != null) {
             for (FlowDefinition flow: stepper.getFlows()) {
@@ -366,11 +366,11 @@ public class StepperEngineManager {
                 }
             }
         }
-        if (fromIndex < 0 || fromIndex > flowDefinitionDTOS.size()) {
+/*        if (fromIndex < 0 || fromIndex > flowDefinitionDTOS.size()) {
             fromIndex = 0;
-        }
-        return flowDefinitionDTOS.subList(fromIndex, flowDefinitionDTOS.size());
-       // return flowDefinitionDTOS;
+        }*/
+       // return flowDefinitionDTOS.subList(fromIndex, flowDefinitionDTOS.size());
+        return flowDefinitionDTOS;
     }
 
     public int getFlowDefinitionsVersion(List<String> rolesList) {

@@ -15,6 +15,8 @@ public class Constants {
     public final static String ROLES_LIST = FULL_SERVER_PATH + "/roles-list";
     public final static String ADD_ROLES = FULL_SERVER_PATH + "/add-roles";
     public final static String REMOVE_ROLES = FULL_SERVER_PATH + "/remove-roles";
+    public final static String FLOW_EXECUTION = FULL_SERVER_PATH + "/flow-execution";
+    public static final String EXECUTION_ID_PARAMETER = "executionID";
 
     public final static Gson GSON_INSTANCE = new Gson();
 }
