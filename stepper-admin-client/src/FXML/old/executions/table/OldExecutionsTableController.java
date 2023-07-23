@@ -2,6 +2,7 @@ package FXML.old.executions.table;
 
 import FXML.execution.history.ExecutionHistoryController;
 import FXML.main.AdminMainAppController;
+import FXML.statistics.StatisticsRefresher;
 import impl.FlowExecutionDTO;
 import flow.execution.FlowExecutionResult;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -17,12 +18,18 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import static FXML.utils.Constants.REFRESH_RATE;
+
 public class OldExecutionsTableController {
     private AdminMainAppController mainAppController;
+    private Timer timer;
+    private TimerTask executionHistoryRefresher;
     private ExecutionHistoryController executionHistoryController;
 
     @FXML
@@ -113,12 +120,13 @@ public class OldExecutionsTableController {
         };
     }
     public void show() {
-        data.clear();
+        //data.clear();
         addExecutionsToTable();
     }
 
     public void addExecutionsToTable() {
-        data.clear();
+        startExecutionHistoryRefresher();
+/*        data.clear();
         List<FlowExecutionDTO> allFlowExecutionsDTO = mainAppController.getModel().getAllFlowExecutionsDTO();
         for (FlowExecutionDTO dto: allFlowExecutionsDTO) {
             if(dto.isFinished()) {
@@ -126,6 +134,26 @@ public class OldExecutionsTableController {
                         dto.getStartExecutionTime(),
                         dto.getExecutionResult(), dto.getUuid());
                 data.add(row);
+            }
+        }*/
+    }
+
+    public void startExecutionHistoryRefresher() {
+        executionHistoryRefresher = new OldExecutionsRefresher(this::updateExecutionHistory);
+        timer = new Timer();
+        timer.schedule(executionHistoryRefresher, REFRESH_RATE, REFRESH_RATE);
+    }
+
+    private void updateExecutionHistory(List<FlowExecutionDTO> flowExecutionDTOList) {
+        if(flowExecutionDTOList.size() != data.size()){
+            data.clear();
+            for (FlowExecutionDTO dto: flowExecutionDTOList) {
+                if(dto.isFinished()) {
+                    TargetTable row = new TargetTable(dto.getFlowDefinitionDTO().getName(),
+                            dto.getStartExecutionTime(),
+                            dto.getExecutionResult(), dto.getUuid());
+                    data.add(row);
+                }
             }
         }
     }

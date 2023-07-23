@@ -22,6 +22,7 @@ import step.api.DataNecessity;
 import stepper.definition.Stepper;
 import stepper.definition.XMLLoader;
 import impl.*;
+import users.User;
 
 import javax.xml.bind.JAXBException;
 import java.io.FileNotFoundException;
@@ -69,6 +70,15 @@ public class StepperEngineManager {
 
     public Map<String, RoleDefinition> getRoles() {
         return roles;
+    }
+
+    public Map<String, RoleDefinitionDTO> getRolesDTO() {
+        Map<String, RoleDefinitionDTO> result = new HashMap<>();
+        for (Map.Entry<String, RoleDefinition> entry: roles.entrySet()) {
+            result.put(entry.getKey(),
+                    createRoleDefinitionDTO(entry.getValue()));
+        }
+        return result;
     }
 
     public FlowDefinitionDTO showFlowDefinition(String flowName) {
@@ -302,6 +312,20 @@ public class StepperEngineManager {
         }
     }
 
+    private RoleDefinitionDTO createRoleDefinitionDTO(RoleDefinition roleDefinition) {
+        return new RoleDefinitionDTO(roleDefinition.getName(),
+                roleDefinition.getDescription(),
+                roleDefinition.getFlows());
+    }
+
+    public UserDTO createUserDTO(User user){
+        List<RoleDefinitionDTO> roleDefinitionDTOList = new ArrayList<>();
+        for (RoleDefinition role: user.getRolesDefinitions()) {
+            roleDefinitionDTOList.add(createRoleDefinitionDTO(role));
+        }
+        return new UserDTO(user.getName(), roleDefinitionDTOList, user.getNumOfExecutions(), user.isManager());
+    }
+
     public List<dto.FlowExecutionDTO> getAllExecutionsDTO(){
         return allExecutionsDTO;
     }
@@ -399,6 +423,12 @@ public class StepperEngineManager {
             names.add(flow.getName());
         }
         return  names;
+    }
+
+    public String getFlowNameByExecutionID(String id) {
+        UUID uuid = stringToIDMap.get(id);
+        FlowExecution flowExecution = allFlowExecutionsMap.get(uuid);
+        return flowExecution.getFlowDefinition().getName();
     }
 
     public UUID createFlowExecution(String flowName, String userName) {
@@ -502,6 +532,10 @@ public class StepperEngineManager {
             }
         }
         return false;
+    }
+
+    public StatisticsDTO createStatisticsDTO() {
+        return new StatisticsDTO(flowExecutedTimes, flowExecutedTotalMillis, stepExecutedTimes, stepExecutedTotalMillis);
     }
 
     public XMLDTO readSystemInformationFile(InputStream inputStream) {

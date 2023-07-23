@@ -1,7 +1,6 @@
 package FXML.definition;
 
 import FXML.definition.model.DefinitionsListWithVersion;
-import dto.FlowDefinitionDTO;
 import javafx.beans.property.IntegerProperty;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -20,7 +19,6 @@ import static utils.Constants.GSON_INSTANCE;
 public class DefinitionRefresher extends TimerTask {
     private final Consumer<DefinitionsListWithVersion> flowsListConsumer;
     private final List<String> roles;
-    //private final List<String> newRolesList;
     private final String paramValue;
     private final IntegerProperty definitionVersion;
     private static final Object listLock = new Object();

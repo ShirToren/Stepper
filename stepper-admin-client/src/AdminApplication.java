@@ -16,9 +16,9 @@ public class AdminApplication extends Application {
         Parent root = fxmlLoader.load(url.openStream());
         AdminMainAppController mainAppController = fxmlLoader.getController();
 
-        primaryStage.setOnCloseRequest(event -> {
+/*        primaryStage.setOnCloseRequest(event -> {
             mainAppController.getModel().getExecutor().shutdown();
-        });
+        });*/
 
         Scene scene = new Scene(root, 1000, 600);
         primaryStage.setScene(scene);

@@ -6,7 +6,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import java.util.UUID;
 
@@ -41,9 +40,6 @@ public class ExecutionHistoryController {
 
     public void addFlowExecutionDetails(UUID id) {
         executionDetailsComponentController.addFlowExecutionDetails(id.toString());
-        //executionDetailsComponentController.updateFinalDetails(id);
-        //executionDetailsComponentController.addExecutedSteps(id);
-        //executionDetailsComponentController.addContinuations(id.toString());
     }
 
     public void addExecutionToTable(){
@@ -52,8 +48,7 @@ public class ExecutionHistoryController {
 
     @FXML
     void executeAgainActionListener(ActionEvent event) {
-        mainAppController.prepareToReExecution(oldExecutionsTableComponentController.getSelectedItemID().toString(),
-                oldExecutionsTableComponentController.getSelectedItemName());
+        mainAppController.prepareToReExecution(oldExecutionsTableComponentController.getSelectedItemID().toString());
     }
     public void clearAll(){
         executionDetailsComponentController.clearAll();

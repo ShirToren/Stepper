@@ -14,9 +14,9 @@ import javafx.scene.layout.GridPane;
 
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
-import step.api.DataNecessity;
 import utils.Constants;
-import utils.adapter.MapDeserializer;
+import utils.adapter.DataInFlowMapDeserializer;
+import utils.adapter.FreeInputsMapDeserializer;
 import utils.http.HttpClientUtil;
 
 import java.io.IOException;
@@ -81,7 +81,8 @@ public class CollectInputsController {
                 String rawBody = response.body().string();
                 if (response.isSuccessful()) {
                     GsonBuilder gsonBuilder = new GsonBuilder();
-                    gsonBuilder.registerTypeAdapter(new TypeToken<Map<DataInFlowDTO, Object>>(){}.getType(), new MapDeserializer());
+                    gsonBuilder.registerTypeAdapter(new TypeToken<Map<DataInFlowDTO, Object>>(){}.getType(), new DataInFlowMapDeserializer());
+                    gsonBuilder.registerTypeAdapter(new TypeToken<Map<String, Object>>(){}.getType(), new FreeInputsMapDeserializer());
                     Gson gson = gsonBuilder.create();
 
                     FlowExecutionDTO executionDTO = gson.fromJson(rawBody, FlowExecutionDTO.class);
@@ -99,8 +100,7 @@ public class CollectInputsController {
         clearAll();
         List<DataInFlowDTO> currentFreeInputs = executionDTO.getFlowDefinitionDTO().getFreeInputs();
         for (DataInFlowDTO input: currentFreeInputs) {
-            //addRowConstraints();
-            if(input.getDataNecessity().equals(DataNecessity.MANDATORY.name())) {
+            if(input.getDataNecessity().equals("MANDATORY")) {
                 if(!input.getFinalName().equals(input.getOriginalName())){
                     addLabel(input.getUserString() + " (" + input.getFinalName() +"):", mandatoryRowIndex, mandatoryColIndex);
                 } else {
@@ -208,7 +208,7 @@ public class CollectInputsController {
         rerunButton = new Button("Rerun flow");
         Button button = addButton("Rerun flow", 2, 1);
         button.setOnAction(event1 -> {
-            mainAppController.prepareToReExecution(id.toString(), mainAppController.getModel().getExecutionDTOByUUID(id.toString()).getFlowDefinitionDTO().getName());
+            mainAppController.prepareToReExecution(id.toString());
         });
     }
 
@@ -230,12 +230,12 @@ public class CollectInputsController {
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 String responseBody = response.body().string();
-                System.out.println("hey");
                 if(response.isSuccessful()){
                     Platform.runLater(() -> {
                         mainAppController.addExecutionToTable();
-                        executionController.addContinuations(id);
-                        executionController.enableRerun();
+                        //executionController.addContinuations(id);
+                        //mainAppController.addStatistics();
+                       //executionController.enableRerun();
                     });
                 }
             }

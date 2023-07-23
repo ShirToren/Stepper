@@ -44,7 +44,7 @@ public class LoginServlet extends HttpServlet {
                         response.getOutputStream().print(errorMessage);
                     } else {
                         //add the new user to the users list
-                        userManager.addUser(usernameFromParameter, manager.getRoles().get("All Flows"));
+                        userManager.addUser(usernameFromParameter);
                         //set the username in a session so it will be available on each request
                         //the true parameter means that if a session object does not exists yet
                         //create a new one

@@ -1,5 +1,7 @@
 import FXML.login.LoginController;
 import FXML.main.MainAppController;
+import dd.impl.list.ListData;
+import dd.impl.relation.RelationData;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

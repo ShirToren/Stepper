@@ -1,6 +1,7 @@
 package FXML.statistics;
 
 import FXML.main.AdminMainAppController;
+import impl.StatisticsDTO;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -14,9 +15,15 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import static FXML.utils.Constants.REFRESH_RATE;
 
 public class StatisticsController {
     private AdminMainAppController mainAppController;
+    private Timer timer;
+    private TimerTask statisticsRefresher;
     @FXML
     private GridPane statisticsGP;
 
@@ -98,25 +105,33 @@ public class StatisticsController {
         chart.setPrefWidth(200);
         statisticsGP.add(chart, colIndex, rowIndex);
     }
-    public void addStatisticsToTable() {
-        clearAll();
-        Map<String, Integer> flowExecutedTimes = mainAppController.getModel().getFlowExecutedTimes();
-        Map<String, Integer> stepExecutedTimes = mainAppController.getModel().getStepExecutedTimes();
-        Map<String, Long> flowExecutedTotalMillis = mainAppController.getModel().getFlowExecutedTotalMillis();
-        Map<String, Long> stepExecutedTotalMillis = mainAppController.getModel().getStepExecutedTotalMillis();
 
-        for (Map.Entry<String, Integer> times: flowExecutedTimes.entrySet()) {
-            TargetTable row = new TargetTable(times.getKey(), times.getValue(), (double) flowExecutedTotalMillis.get(times.getKey()) / times.getValue());
-            flowsData.add(row);
+    public void startStatisticsRefresher() {
+        statisticsRefresher = new StatisticsRefresher(this::updateStatistics);
+        timer = new Timer();
+        timer.schedule(statisticsRefresher, REFRESH_RATE, REFRESH_RATE);
+    }
+
+    private void updateStatistics(StatisticsDTO statisticsDTO) {
+        if (flowsData.size() != statisticsDTO.getFlowExecutedTimes().size()) {
+            clearAll();
+            for (Map.Entry<String, Integer> times : statisticsDTO.getFlowExecutedTimes().entrySet()) {
+                TargetTable row = new TargetTable(times.getKey(), times.getValue(), (double) statisticsDTO.getFlowExecutedTotalMillis().get(times.getKey()) / times.getValue());
+                flowsData.add(row);
+            }
+            for (Map.Entry<String, Integer> times : statisticsDTO.getStepExecutedTimes().entrySet()) {
+                TargetTable row = new TargetTable(times.getKey(), times.getValue(), (double) statisticsDTO.getStepExecutedTotalMillis().get(times.getKey()) / times.getValue());
+                stepsData.add(row);
+            }
+            createTimesChart("Flows executions", statisticsDTO.getFlowExecutedTimes(), 5, 0);
+            createAvgChart("Flows average time", statisticsDTO.getFlowExecutedTotalMillis(), statisticsDTO.getFlowExecutedTimes(), 5, 1);
+            createTimesChart("Steps executions", statisticsDTO.getStepExecutedTimes(), 6, 0);
+            createAvgChart("Steps average time", statisticsDTO.getStepExecutedTotalMillis(), statisticsDTO.getStepExecutedTimes(), 6, 1);
         }
-        for (Map.Entry<String, Integer> times: stepExecutedTimes.entrySet()) {
-            TargetTable row = new TargetTable(times.getKey(), times.getValue(), (double)stepExecutedTotalMillis.get(times.getKey()) / times.getValue());
-            stepsData.add(row);
-        }
-        createTimesChart("Flows executions", flowExecutedTimes, 5, 0);
-        createAvgChart("Flows average time",flowExecutedTotalMillis, flowExecutedTimes, 5, 1);
-        createTimesChart("Steps executions", stepExecutedTimes, 6, 0);
-        createAvgChart("Steps average time", stepExecutedTotalMillis, stepExecutedTimes, 6, 1);
+    }
+    public void addStatisticsToTable() {
+        //clearAll();
+        startStatisticsRefresher();
     }
 
     public class TargetTable {

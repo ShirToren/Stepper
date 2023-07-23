@@ -12,7 +12,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
-import stepper.management.StepperEngineManager;
 import utils.*;
 import utils.http.HttpClientUtil;
 
@@ -23,7 +22,6 @@ import java.util.function.Consumer;
 import static utils.Constants.REFRESH_RATE;
 
 public class MainAppController {
-    private StepperEngineManager model = new StepperEngineManager();
     private Timer timer;
     private TimerTask rolesListRefresher;
     @FXML
@@ -102,6 +100,10 @@ public class MainAppController {
         //startRolesRefresher();
     }
 
+    public void enableReRun(){
+        flowsExecutionComponentController.enableRerun();
+    }
+
     public void updateProgress(double x, double all) {
         flowsExecutionComponentController.updateProgress(x, all);
     }
@@ -177,7 +179,7 @@ public class MainAppController {
                 .build()
                 .toString();
         RequestBody requestBody = new FormBody.Builder()
-                .add("flowName", flowsDefinitionComponentController.getSelectedFlowName())
+                .add("flowName", flowName)
                 .build();
 
 
@@ -255,50 +257,71 @@ public class MainAppController {
         prepareToExecution(flowsDefinitionComponentController.getSelectedFlowName());*/
     }
 
-    public void prepareToExecution(String flowName){
-        clearFlowExecutionDetails();
-        switchToExecutionTab();
-        UUID id = model.createFlowExecution(flowName);
-        flowsExecutionComponentController.initFreeInputsComponents(id.toString());
+    private void httpCallFlowName(String id, Consumer<String> consumer) {
+        String finalUrl = HttpUrl
+                .parse(Constants.FLOW_NAME)
+                .newBuilder()
+                .addQueryParameter(Constants.EXECUTION_ID_PARAMETER, id)
+                .build()
+                .toString();
+
+
+        HttpClientUtil.runAsync(finalUrl, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                //httpStatusUpdate.updateHttpLine("Attempt to send chat line [" + chatLine + "] request ended with failure...:(");
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                String flowName = response.body().string();
+                if (response.isSuccessful()) {
+                    consumer.accept(flowName);
+                }
+            }
+        });
     }
 
-    public void prepareToReExecution(String prevID, String flowName){
+    public void prepareToReExecution(String prevID){
         clearFlowExecutionDetails();
         switchToExecutionTab();
 
-        httpCallCreateExecution(flowName, (response -> {
-            String id = null;
-            try {
-                id = response.body().string();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            if (response.isSuccessful()) {
-                String finalUrl = HttpUrl
-                        .parse(Constants.COPY_FREE_INPUTS_VALUES)
-                        .newBuilder()
-                        .addQueryParameter("sourceID", prevID)
-                        .addQueryParameter("targetID", id)
-                        .build()
-                        .toString();
+        httpCallFlowName(prevID, (flowName) -> {
+            httpCallCreateExecution(flowName, (response -> {
+                String id = null;
+                try {
+                    id = response.body().string();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if (response.isSuccessful()) {
+                    String finalUrl = HttpUrl
+                            .parse(Constants.COPY_FREE_INPUTS_VALUES)
+                            .newBuilder()
+                            .addQueryParameter("sourceID", prevID)
+                            .addQueryParameter("targetID", id)
+                            .build()
+                            .toString();
 
 
-                String finalId = id;
-                HttpClientUtil.runAsync(finalUrl, new Callback() {
-                    @Override
-                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                    }
-
-                    @Override
-                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                        String rawBody = response.body().string();
-                        if (response.isSuccessful()) {
-                            httpCallCopyFreeInputsValues(prevID.toString(), finalId);
+                    String finalId = id;
+                    HttpClientUtil.runAsync(finalUrl, new Callback() {
+                        @Override
+                        public void onFailure(@NotNull Call call, @NotNull IOException e) {
                         }
-                    }
-                });
-            }
-        }));
+
+                        @Override
+                        public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                            String rawBody = response.body().string();
+                            if (response.isSuccessful()) {
+                                httpCallCopyFreeInputsValues(prevID.toString(), finalId);
+                            }
+                        }
+                    });
+                }
+            }));
+        });
+
 
         //UUID id = model.createFlowExecution(flowName);
         //model.copyFreeInputsValues(prevID, id);
@@ -363,7 +386,6 @@ public class MainAppController {
                         }
                     }
                 });
-                //model.copyContinuationValues(prevID.toString(), id);
             }
         }));
     }
@@ -382,15 +404,15 @@ public class MainAppController {
 
 
 
-    public StepperEngineManager getModel() {
-        return model;
-    }
-
     private void showErrorDialog(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR, message, ButtonType.OK);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.showAndWait();
+    }
+
+    public void addStatistics() {
+
     }
 }
 

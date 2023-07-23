@@ -25,7 +25,7 @@ import okhttp3.HttpUrl;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 import utils.Constants;
-import utils.adapter.MapDeserializer;
+import utils.adapter.DataInFlowMapDeserializer;
 import utils.http.HttpClientUtil;
 
 import java.io.IOException;
@@ -135,7 +135,7 @@ public class OldExecutionsTableController {
         data.clear();
 
         String finalUrl = HttpUrl
-                .parse(Constants.FLOW_EXECUTIONS_LIST)
+                .parse(Constants.HISTORY)
                 .newBuilder()
                 .build()
                 .toString();
@@ -150,7 +150,7 @@ public class OldExecutionsTableController {
                 String rawBody = response.body().string();
                 if (response.isSuccessful()) {
                     GsonBuilder gsonBuilder = new GsonBuilder();
-                    gsonBuilder.registerTypeAdapter(new TypeToken<Map<DataInFlowDTO, Object>>(){}.getType(), new MapDeserializer());
+                    gsonBuilder.registerTypeAdapter(new TypeToken<Map<DataInFlowDTO, Object>>(){}.getType(), new DataInFlowMapDeserializer());
                     Gson gson = gsonBuilder.create();
                     FlowExecutionDTO[] flowExecutionDTOS = gson.fromJson(rawBody, FlowExecutionDTO[].class);
                     List<FlowExecutionDTO> executionsList = Arrays.asList(flowExecutionDTOS);

@@ -1,13 +1,9 @@
 package FXML.flow.execution.details;
 
-import FXML.inputs.CollectInputsController;
 import FXML.main.MainAppController;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import dd.impl.list.FileList;
-import dd.impl.list.ListData;
-import dd.impl.list.StringList;
 import dd.impl.relation.RelationData;
 import impl.DataInFlowDTO;
 import impl.FlowExecutionDTO;
@@ -23,13 +19,10 @@ import okhttp3.Callback;
 import okhttp3.HttpUrl;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
-import step.api.DataNecessity;
 import utils.Constants;
-import utils.adapter.MapDeserializer;
+import utils.adapter.DataInFlowMapDeserializer;
+import utils.adapter.FreeInputsMapDeserializer;
 import utils.http.HttpClientUtil;
-
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 
 
 import java.io.File;
@@ -90,7 +83,8 @@ public class FlowExecutionDetailsController {
                 String rawBody = response.body().string();
                 if (response.isSuccessful()) {
                     GsonBuilder gsonBuilder = new GsonBuilder();
-                    gsonBuilder.registerTypeAdapter(new TypeToken<Map<DataInFlowDTO, Object>>(){}.getType(), new MapDeserializer());
+                    gsonBuilder.registerTypeAdapter(new TypeToken<Map<DataInFlowDTO, Object>>(){}.getType(), new DataInFlowMapDeserializer());
+                    gsonBuilder.registerTypeAdapter(new TypeToken<Map<String, Object>>(){}.getType(), new FreeInputsMapDeserializer());
                     Gson gson = gsonBuilder.create();
 
                     FlowExecutionDTO executionDTO = gson.fromJson(rawBody, FlowExecutionDTO.class);
@@ -98,7 +92,7 @@ public class FlowExecutionDetailsController {
                         flowNameLabel.setText(executionDTO.getFlowDefinitionDTO().getName());
                         flowIDLabel.setText(executionDTO.getUuid().toString());
                         showFreeInputsDetails(executionDTO);
-                        showAllFlowOutputsDetails(executionDTO);
+                       // showAllFlowOutputsDetails(executionDTO);
                     });
                 }
             }
@@ -127,36 +121,9 @@ public class FlowExecutionDetailsController {
              if(entry.getKey().getDataDefinition().getType().equals(Integer.class.getName())||
                     entry.getKey().getDataDefinition().getType().equals(Double.class.getName())) {
                 addLabel(entry.getValue().toString(), rowIndex, 2);
-            } else if (entry.getKey().getDataDefinition().getType().equals(ListData.class.getName())) {
-
+            } else if (entry.getKey().getDataDefinition().getType().equals("dd.impl.list.ListData")) {
                  addListView((List<Object>) entry.getValue(), rowIndex, 2);
-
-       /*          Type type = entry.getValue().getClass().getGenericSuperclass();
-                 if (type instanceof ParameterizedType) {
-                     ParameterizedType parameterizedType = (ParameterizedType) type;
-                     Type[] typeArguments = parameterizedType.getActualTypeArguments();
-
-                     if (typeArguments.length > 0) {
-                         Type typeArgument = typeArguments[0];
-
-                         if (typeArgument instanceof Class) {
-                             Class<?> typeClass = (Class<?>) typeArgument;
-                             if(typeClass.equals(File.class)) {
-                                 addFilesListView( ((List<File>)entry.getValue()), rowIndex, 2);
-                             } else {
-                                 addStringListView(((List<String>)entry.getValue()), rowIndex, 2);
-                             }
-                         }
-                     }
-                 }*/
-
-
-            /*    if (entry.getValue().getClass().isAssignableFrom(FileList.class)) {
-                    addFilesListView((FileList) entry.getValue(), rowIndex, 2);
-                } else if (entry.getValue().getClass().isAssignableFrom(StringList.class)){
-                    addStringListView((StringList) entry.getValue(), rowIndex, 2);
-                }*/
-            }  else if(entry.getKey().getDataDefinition().getType().equals(RelationData.class.getName())) {
+            }  else if(entry.getKey().getDataDefinition().getType().equals("dd.impl.relation.RelationData")) {
                 addTableView((RelationData)entry.getValue(), rowIndex, 2);
             } else {
                  //if(entry.getKey().getDataDefinition().getType().equals(String.class)){
@@ -164,9 +131,6 @@ public class FlowExecutionDetailsController {
                  //}
              }
         }
-        /*} else if(entry.getKey().getDataDefinition().getType().equals(StringList.class)){
-            addStringListView((StringList)entry.getValue(), rowIndex, 2);
-        }*/
         rowIndex++;
     }
     public void addInput(String inputName) { freeInputsLVItems.add(inputName); }
@@ -186,7 +150,7 @@ public class FlowExecutionDetailsController {
         freeInputsList = flowExecutionDTO.getFlowDefinitionDTO().getFreeInputs();
         //freeInputsList = mainAppController.getModel().getExecutionDTOByUUID(id.toString()).getFlowDefinitionDTO().getFreeInputs();
         for (DataInFlowDTO freeInput : freeInputsList) {
-            if (freeInput.getDataNecessity().equals(DataNecessity.MANDATORY.name()) &&
+            if (freeInput.getDataNecessity().equals("MANDATORY") &&
                     actualFreeInputs.containsKey(freeInput.getFinalName())) {
                 freeInputsLVItems.add(freeInput.getFinalName());
             } else if (actualFreeInputs.containsKey(freeInput.getFinalName())) {

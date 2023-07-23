@@ -1,9 +1,9 @@
 package FXML.flow.definition.details;
 
 import FXML.main.MainAppController;
-import dto.DataInFlowDTO;
-import dto.FlowDefinitionDTO;
-import dto.StepUsageDeclarationDTO;
+import impl.DataInFlowDTO;
+import impl.FlowDefinitionDTO;
+import impl.StepUsageDeclarationDTO;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.collections.FXCollections;
@@ -23,7 +23,6 @@ import utils.http.HttpClientUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static utils.Constants.GSON_INSTANCE;
@@ -167,7 +166,7 @@ public class FlowDefinitionDetailsController {
         TreeItem<String> child1 = new TreeItem<>(input.getFinalName());
         inputsList.add(child1);
         rootItem.getChildren().addAll(inputsList);
-        TreeItem<String> child2 = new TreeItem<>(input.getDataNecessity().name().toLowerCase());
+        TreeItem<String> child2 = new TreeItem<>(input.getDataNecessity().toLowerCase());
         TreeItem<String> child3;
         if(input.getSourceSteps().size() > 0) {
             child3 = new TreeItem<>("Source output: " + input.getSourceSteps().get(0).getName());
@@ -244,7 +243,7 @@ public class FlowDefinitionDetailsController {
                             TreeItem<String> child1 = new TreeItem<>(output.getFinalName());
                             outputsList.add(child1);
                             rootItem.getChildren().addAll(outputsList);
-                            TreeItem<String> child2 = new TreeItem<>(output.getDataDefinitionDTO().getName());
+                            TreeItem<String> child2 = new TreeItem<>(output.getDataDefinition().getName());
                             TreeItem<String> child3 = new TreeItem<>("From Step: " + output.getOwnerStep().getName());
                             child1.getChildren().addAll(child2,child3);
 
@@ -258,8 +257,8 @@ public class FlowDefinitionDetailsController {
                             TreeItem<String> child1 = new TreeItem<>(input.getFinalName());
                             freeInputsList.add(child1);
                             rootItem.getChildren().addAll(freeInputsList);
-                            TreeItem<String> child2 = new TreeItem<>(input.getDataDefinitionDTO().getName());
-                            TreeItem<String> child3 = new TreeItem<>(input.getDataNecessity().name().toLowerCase());
+                            TreeItem<String> child2 = new TreeItem<>(input.getDataDefinition().getName());
+                            TreeItem<String> child3 = new TreeItem<>(input.getDataNecessity().toLowerCase());
                             TreeItem<String> child4 = new TreeItem<>("Related Steps");
                             child1.getChildren().addAll(child2,child3,child4);
                             for (String step: flowDefinitionDTO.getFreeInputsStepTarget().get(input.getFinalName())) {

@@ -102,7 +102,7 @@ public class AdminMainAppController {
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         //File selectedFile = fileChooser.showOpenDialog(stage);
         List<File> files = fileChooser.showOpenMultipleDialog(stage);
-        if (files.size() != 0) {
+        if (files != null && files.size() != 0) {
             try {
                 String response = uploadFile(files);
                 String filePath = files.get(files.size() - 1).getAbsolutePath();

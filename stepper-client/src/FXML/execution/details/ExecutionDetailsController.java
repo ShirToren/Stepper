@@ -28,9 +28,9 @@ import okhttp3.Callback;
 import okhttp3.HttpUrl;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
-import step.api.DataNecessity;
 import utils.Constants;
-import utils.adapter.MapDeserializer;
+import utils.adapter.DataInFlowMapDeserializer;
+import utils.adapter.FreeInputsMapDeserializer;
 import utils.http.HttpClientUtil;
 
 import java.io.IOException;
@@ -122,6 +122,8 @@ public class ExecutionDetailsController {
                 uiAdapter.addNewOutput(entry);
             }
             mainAppController.updateProgress(1, 1);
+            enableReRun();
+            addContinuations(flowExecutionDTO.getUuid().toString());
         } else {
             if (flowExecutionDTO.getStartExecutionTime() != null) {
                 uiAdapter.updateFlowStartTime(flowExecutionDTO.getStartExecutionTime());
@@ -155,7 +157,7 @@ public class ExecutionDetailsController {
         List<DataInFlowDTO> optionalInput = new ArrayList<>();
         List<DataInFlowDTO> freeInputs = flowExecutionDTO.getFlowDefinitionDTO().getFreeInputs();
         for (DataInFlowDTO freeInput : freeInputs) {
-            if (freeInput.getDataNecessity().equals(DataNecessity.MANDATORY.name()) &&
+            if (freeInput.getDataNecessity().equals("MANDATORY") &&
                     actualFreeInputs.containsKey(freeInput.getFinalName())) {
                 uiAdapter.addNewInput(freeInput.getFinalName());
             } else if (actualFreeInputs.containsKey(freeInput.getFinalName())) {
@@ -192,7 +194,8 @@ public class ExecutionDetailsController {
                 String rawBody = response.body().string();
                 if (response.isSuccessful()) {
                     GsonBuilder gsonBuilder = new GsonBuilder();
-                    gsonBuilder.registerTypeAdapter(new TypeToken<Map<DataInFlowDTO, Object>>(){}.getType(), new MapDeserializer());
+                    gsonBuilder.registerTypeAdapter(new TypeToken<Map<DataInFlowDTO, Object>>(){}.getType(), new DataInFlowMapDeserializer());
+                    gsonBuilder.registerTypeAdapter(new TypeToken<Map<String, Object>>(){}.getType(), new FreeInputsMapDeserializer());
                     Gson gson = gsonBuilder.create();
 
                     FlowExecutionDTO executionDTO = gson.fromJson(rawBody, FlowExecutionDTO.class);
@@ -229,60 +232,12 @@ public class ExecutionDetailsController {
             });
             updateFinalDetails(id);
             addExecutedSteps(id);
-            addContinuations(id);
         }));
-
-
-/*
-        String finalUrl = HttpUrl
-                .parse(Constants.FLOW_EXECUTION)
-                .newBuilder()
-                .addQueryParameter(Constants.EXECUTION_ID_PARAMETER, id)
-                .build()
-                .toString();
-
-
-        HttpClientUtil.runAsync(finalUrl, new Callback() {
-            @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                //httpStatusUpdate.updateHttpLine("Attempt to send chat line [" + chatLine + "] request ended with failure...:(");
-            }
-
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                String rawBody = response.body().string();
-                if (response.isSuccessful()) {
-                    GsonBuilder gsonBuilder = new GsonBuilder();
-                    gsonBuilder.registerTypeAdapter(new TypeToken<Map<DataInFlowDTO, Object>>(){}.getType(), new MapDeserializer());
-                    Gson gson = gsonBuilder.create();
-
-                    FlowExecutionDTO executionDTO = gson.fromJson(rawBody, FlowExecutionDTO.class);
-                    Platform.runLater(() -> {
-                        TreeItem<String> rootItem = new TreeItem<>(executionDTO.getFlowDefinitionDTO().getName());
-                        executedFlowAndStepsTV.setRoot(rootItem);
-
-                        executedFlowAndStepsTV.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-                            if (newValue != null) {
-                                if(executionDTO.isFlowName(newValue.getValue())){
-                                    executionDetailsComponent.getChildren().clear();
-                                    executionDetailsComponent.getChildren().add(flowExecutionDetailsComponent);
-                                } else {
-                                    executionDetailsComponent.getChildren().clear();
-                                    executionDetailsComponent.getChildren().add(stepExecutionDetailsComponent);
-                                    for (StepUsageDeclarationDTO step : executionDTO.getFlowDefinitionDTO().getSteps()) {
-                                        if (step.getName().equals(newValue.getValue())) {
-                                            stepExecutionDetailsComponentController.addStepDetails(executionDTO, step);
-                                        }
-                                    }
-                                }
-                            }
-                        });
-                    });
-                }
-            }
-        });*/
     }
 
+    private void enableReRun() {
+        mainAppController.enableReRun();
+    }
 
     private void updateFlowRootItem(String flowName){
         if(executedFlowAndStepsTV.getRoot() != null){
@@ -354,28 +309,22 @@ public class ExecutionDetailsController {
                 String rawBody = response.body().string();
                 if (response.isSuccessful()) {
                     GsonBuilder gsonBuilder = new GsonBuilder();
-                    gsonBuilder.registerTypeAdapter(new TypeToken<Map<DataInFlowDTO, Object>>(){}.getType(), new MapDeserializer());
+                    gsonBuilder.registerTypeAdapter(new TypeToken<Map<DataInFlowDTO, Object>>(){}.getType(), new DataInFlowMapDeserializer());
+                    gsonBuilder.registerTypeAdapter(new TypeToken<Map<String, Object>>(){}.getType(), new FreeInputsMapDeserializer());
                     Gson gson = gsonBuilder.create();
                     FlowExecutionDTO flowExecutionDTO = gson.fromJson(rawBody, FlowExecutionDTO.class);
-                    ContinuationsDTO continuations = flowExecutionDTO.getFlowDefinitionDTO().getContinuations();
-                    Platform.runLater(() -> {
-                        if(continuations != null){
-                            for (ContinuationDTO continuation: continuations.getContinuations()) {
-                                continuationsData.add(continuation.getTargetFlow());
+                        ContinuationsDTO continuations = flowExecutionDTO.getFlowDefinitionDTO().getContinuations();
+                        Platform.runLater(() -> {
+                            if(continuations != null){
+                                for (ContinuationDTO continuation: continuations.getContinuations()) {
+                                    continuationsData.add(continuation.getTargetFlow());
+                                }
                             }
-                        }
-                    });
+                        });
+
                 }
             }
         });
-
-        //FlowExecutionDTO executionDTOByUUID = mainAppController.getModel().getExecutionDTOByUUID(id.toString());
-       // ContinuationsDTO continuations = executionDTOByUUID.getFlowDefinitionDTO().getContinuations();
-/*        if(continuations != null){
-            for (ContinuationDTO continuation: continuations.getContinuations()) {
-                continuationsData.add(continuation.getTargetFlow());
-            }
-        }*/
     }
 
     public UIAdapter createUIAdapter() {

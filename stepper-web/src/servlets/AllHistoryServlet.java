@@ -19,20 +19,16 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
-@WebServlet("/executions-list")
-public class ExecutionsListServlet extends HttpServlet {
+@WebServlet("/all-history")
+public class AllHistoryServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json");
         StepperEngineManager manager = ServletUtils.getManager(getServletContext());
-        String username = SessionUtils.getUsername(req);
-        if (username == null) {
-            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        }
 
-        List<FlowExecutionDTO> flowExecutionsDTOByUserName;
+        List<FlowExecutionDTO> flowExecutionsDTOList;
         synchronized (getServletContext()) {
-            flowExecutionsDTOByUserName = manager.getFlowExecutionsDTOByUserName(username);
+            flowExecutionsDTOList = manager.getAllFlowExecutionsDTO();
         }
 
         GsonBuilder gsonBuilder = new GsonBuilder().enableComplexMapKeySerialization();
@@ -40,7 +36,7 @@ public class ExecutionsListServlet extends HttpServlet {
         gsonBuilder.registerTypeAdapter(ListData.class, new StringListSerializer());
         Gson gson = gsonBuilder.create();
 
-        String jsonResponse = gson.toJson(flowExecutionsDTOByUserName);
+        String jsonResponse = gson.toJson(flowExecutionsDTOList);
 
         try (PrintWriter out = resp.getWriter()) {
             out.print(jsonResponse);

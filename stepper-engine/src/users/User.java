@@ -8,15 +8,24 @@ import java.util.List;
 public class User {
     private final String name;
     private final List<RoleDefinition> roles;
+    private int numOfExecutions;
+    private boolean isManager;
 
     public User(String name) {
         this.name = name;
         this.roles = new ArrayList<>();
     }
 
-/*    public List<RoleDefinition> getRoles() {
+    public String getName() {
+        return name;
+    }
+
+    public synchronized List<RoleDefinition> getRolesDefinitions() {
         return roles;
-    }*/
+    }
+    public synchronized int getNumOfExecutions() {
+        return numOfExecutions;
+    }
 
     public synchronized List<String> getRoles() {
         List<String> list = new ArrayList<>();
@@ -25,8 +34,20 @@ public class User {
         }
         return list;
     }
+    public synchronized void addExecution() { numOfExecutions++; }
 
     public void addRole(RoleDefinition role){
         roles.add(role);
+    }
+    public void removeRole(RoleDefinition role){
+        roles.remove(role);
+    }
+
+    public void setManager(boolean manager) {
+        isManager = manager;
+    }
+
+    public boolean isManager() {
+        return isManager;
     }
 }

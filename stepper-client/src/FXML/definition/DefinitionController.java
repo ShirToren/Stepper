@@ -17,11 +17,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.control.TableColumn;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.stream.Collectors;
 
 import static utils.Constants.REFRESH_RATE;
 
@@ -107,22 +105,6 @@ public class DefinitionController {
     public void setMainAppController(MainAppController mainAppController) {
         this.mainAppController = mainAppController;
         flowDetailsComponentController.setMainAppController(mainAppController);
-    }
-    public void show() {
-        addFlowsToTable();
-    }
-    public void addFlowsToTable() {
-        data.clear();
-        List<FlowDefinitionDTO> flowDefinitions = mainAppController.getModel().getAllFlowDefinitionsInStepper();
-        for (FlowDefinitionDTO flow : flowDefinitions) {
-            TargetTable row = new TargetTable(flow.getName(),
-                    flow.getDescription(),
-                    flow.getSteps().size(),
-                    flow.getFreeInputs().size(),
-                    flow.getNumberOfContinuations());
-            data.add(row);
-        }
-        //flowsTable.setItems(data);
     }
 
     public void startDefinitionRefresher() {

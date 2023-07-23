@@ -23,13 +23,15 @@ public class Constants {
     public final static String LOGIN_PAGE = FULL_SERVER_PATH + "/loginShortResponse";
     public final static String USERS_LIST = FULL_SERVER_PATH + "/userslist";
     public final static String FLOW_DEFINITIONS_LIST = FULL_SERVER_PATH + "/definitions-list";
-    public final static String FLOW_EXECUTIONS_LIST = FULL_SERVER_PATH + "/executions-list";
+    public final static String HISTORY = FULL_SERVER_PATH + "/history";
     public final static String FLOW_DEFINITION = FULL_SERVER_PATH + "/flow-definition";
     public final static String LOGOUT = FULL_SERVER_PATH + "/chat/logout";
-    public final static String ROLES = FULL_SERVER_PATH + "/roles";
+    public final static String USER_ROLES = FULL_SERVER_PATH + "/user-roles";
     public final static String FLOW_EXECUTION = FULL_SERVER_PATH + "/flow-execution";
     public final static String COPY_CONTINUATION_VALUES = FULL_SERVER_PATH + "/copy-continuation-values";
     public final static String COPY_FREE_INPUTS_VALUES = FULL_SERVER_PATH + "/copy-free-inputs-values";
+    public final static String FLOW_NAME = FULL_SERVER_PATH + "/flow-name";
+    public final static String SHUT_DOWN = FULL_SERVER_PATH + "/shut-down";
     public final static String LAST_EXECUTION = FULL_SERVER_PATH + "/last-execution";
     public final static String EXECUTE_FLOW = FULL_SERVER_PATH + "/execute-flow";
 

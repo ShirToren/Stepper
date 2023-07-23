@@ -62,37 +62,5 @@ public class AddFreeInputsServlet extends HttpServlet {
         // Send the response
         resp.setStatus(HttpServletResponse.SC_OK);
     }
-
-
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.setContentType("application/json");
-        StepperEngineManager manager = ServletUtils.getManager(getServletContext());
-        String username = SessionUtils.getUsername(req);
-        if (username == null) {
-            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        }
-
-        String id = req.getParameter("id");
-        String inputName = req.getParameter("inputName");
-        String stringValue = req.getParameter("value");
-        Object value;
-        try {
-            value = Integer.parseInt(stringValue);
-        } catch (NumberFormatException ex){
-            try{
-                value = Double.parseDouble(stringValue);
-            } catch (NumberFormatException e) {
-                value = Constants.GSON_INSTANCE.fromJson(stringValue, String.class);
-            }
-        }
-
-        //Object value = gson.fromJson(stringValue, Object.class);
-        //synchronized (getServletContext()) {
-            manager.addFreeInputToFlowExecution(id, inputName, value);
-        //}
-        resp.setStatus(HttpServletResponse.SC_OK);
-    }
-
 }
 

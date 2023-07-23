@@ -28,7 +28,7 @@ public class RolesListRefresher extends TimerTask {
     @Override
     public void run() {
         String finalUrl = HttpUrl
-                .parse(Constants.ROLES)
+                .parse(Constants.USER_ROLES)
                 .newBuilder()
                 .addQueryParameter("userName", userName)
                 .build()

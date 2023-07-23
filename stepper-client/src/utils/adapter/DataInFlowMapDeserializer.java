@@ -1,6 +1,7 @@
 package utils.adapter;
 
 import com.google.gson.*;
+import dd.impl.relation.RelationData;
 import impl.DataInFlowDTO;
 import utils.Constants;
 
@@ -11,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MapDeserializer implements JsonDeserializer<Map<DataInFlowDTO, Object>> {
+public class DataInFlowMapDeserializer implements JsonDeserializer<Map<DataInFlowDTO, Object>> {
 
     @Override
     public Map<DataInFlowDTO, Object> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
@@ -23,7 +24,7 @@ public class MapDeserializer implements JsonDeserializer<Map<DataInFlowDTO, Obje
                 JsonArray asJsonArray = jsonArray.get(i).getAsJsonArray();
                 DataInFlowDTO dataInFlowDTO = context.deserialize(asJsonArray.get(0), DataInFlowDTO.class);
                 JsonElement valueJson = asJsonArray.get(1);
-                Object value;
+                Object value = new Object();
                 Class<?> type = null;
                 try {
                     type = Class.forName(dataInFlowDTO.getDataDefinition().getType());
@@ -33,6 +34,10 @@ public class MapDeserializer implements JsonDeserializer<Map<DataInFlowDTO, Obje
                 if (valueJson.isJsonObject()) {
                     //value = Constants.GSON_INSTANCE.fromJson(valueJson, type);
                     if(!type.isInterface()) {
+                        if(type.equals(RelationData.class)) {
+                            System.out.println("hey");
+                        }
+                       // value = context.deserialize(valueJson, type);
                         value = Constants.GSON_INSTANCE.fromJson(valueJson, type);
                     } else {
                         JsonElement jsonElement = valueJson.getAsJsonObject().get("theList");
@@ -42,12 +47,22 @@ public class MapDeserializer implements JsonDeserializer<Map<DataInFlowDTO, Obje
                 } else if (valueJson.isJsonArray()) {
                     value = deserializeArray(valueJson.getAsJsonArray(), type, context);
                 } else {
-                    value = context.deserialize(valueJson, Object.class);
+                    JsonPrimitive primitive = valueJson.getAsJsonPrimitive();
+                    if (primitive.isNumber()) {
+                        if (primitive.getAsDouble() == primitive.getAsInt()) {
+                            value = primitive.getAsInt();
+                        } else {
+                            value = primitive.getAsDouble();
+                        }
+                    } else if (primitive.isString()) {
+                        value = primitive.getAsString();
+                    } else if (primitive.isBoolean()) {
+                        value = primitive.getAsBoolean();
+                    }
                 }
                 map.put(dataInFlowDTO, value);
             }
         }
-
         return map;
     }
 
