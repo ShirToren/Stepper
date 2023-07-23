@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<GridPane hgap="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="500.0" minWidth="700.0" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.171" fx:controller="FXML.users.UsersManagementController">
+  <columnConstraints>
+      <ColumnConstraints hgrow="SOMETIMES" maxWidth="295.3333740234375" minWidth="10.0" prefWidth="198.66665649414062" />
+      <ColumnConstraints hgrow="SOMETIMES" maxWidth="295.3333740234375" minWidth="10.0" prefWidth="136.33334350585938" />
+    <ColumnConstraints hgrow="SOMETIMES" maxWidth="355.33331298828125" minWidth="10.0" prefWidth="237.66668701171875" />
+      <ColumnConstraints hgrow="SOMETIMES" maxWidth="325.66668701171875" minWidth="10.0" prefWidth="50.33331298828125" />
+  </columnConstraints>
+  <rowConstraints>
+      <RowConstraints maxHeight="10.0" minHeight="10.0" prefHeight="10.0" vgrow="NEVER" />
+      <RowConstraints maxHeight="98.66665649414062" minHeight="0.0" prefHeight="38.666656494140625" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="238.0" minHeight="10.0" prefHeight="90.33334350585938" vgrow="SOMETIMES" />
+    <RowConstraints maxHeight="232.33331298828125" minHeight="10.0" prefHeight="39.66668701171875" vgrow="SOMETIMES" />
+    <RowConstraints maxHeight="220.66665649414062" minHeight="10.0" prefHeight="37.33331298828125" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="269.0" minHeight="10.0" prefHeight="143.66665649414062" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="215.33334350585938" minHeight="10.0" prefHeight="31.333343505859375" vgrow="SOMETIMES" />
+    <RowConstraints maxHeight="10.0" minHeight="10.0" prefHeight="10.0" vgrow="NEVER" />
+  </rowConstraints>
+   <children>
+      <ListView fx:id="usersLV" onMouseClicked="#userClickedActionListener" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="1" GridPane.rowSpan="6">
+         <GridPane.margin>
+            <Insets left="7.0" />
+         </GridPane.margin>
+      </ListView>
+      <Label text="User name:" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+      <Label fx:id="userNameLabel" prefHeight="17.0" prefWidth="231.0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+      <Label text="Assigned roles:" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+      <ListView fx:id="assignedRolesLV" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+      <Label text="Available flows:" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+      <Label text="User's executions:" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+      <Label fx:id="availableFlowsLabel" prefHeight="17.0" prefWidth="228.0" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+      <Label fx:id="usersExecutionsLabel" prefHeight="17.0" prefWidth="230.0" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+      <Label text="Assign roles:" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+      <ListView fx:id="addRolesLV" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="5" />
+      <CheckBox fx:id="setManagerCB" mnemonicParsing="false" text="Set if manager" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+      <Button fx:id="saveButton" mnemonicParsing="false" onAction="#saveButtonActionListener" text="Save!" GridPane.columnIndex="3" GridPane.rowIndex="6" />
+   </children>
+</GridPane>
