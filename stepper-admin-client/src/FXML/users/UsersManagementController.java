@@ -84,8 +84,8 @@ public class UsersManagementController {
             rolesToAdd.add(currentRoles.get("All Flows"));
         }
 
-        httpCallToAddOrRemoveRoles(rolesToAdd, Constants.ADD_ROLES);
-        httpCallToAddOrRemoveRoles(rolesToRemove, Constants.REMOVE_ROLES);
+        httpCallToAddOrRemoveRoles(rolesToAdd, Constants.ADD_ROLES_TO_USER);
+        httpCallToAddOrRemoveRoles(rolesToRemove, Constants.REMOVE_ROLES_FROM_USER);
     }
 
     private void httpCallToAddOrRemoveRoles(List<RoleDefinitionDTO> rolesList, String endpoint) {

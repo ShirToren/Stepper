@@ -1,7 +1,6 @@
 package utils.adapter;
 
 import com.google.gson.*;
-import impl.DataInFlowDTO;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;

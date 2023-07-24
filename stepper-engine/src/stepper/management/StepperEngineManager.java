@@ -87,7 +87,8 @@ public class StepperEngineManager {
     }
 
     private void initRoles(){
-        this.roles.put("Read Only Flows", new RoleDefinitionImpl("Read Only Flows", "This role describes all flows that are read-only",
+        this.roles.put("Read Only Flows", new
+                RoleDefinitionImpl("Read Only Flows", "This role describes all flows that are read-only",
                 new ArrayList<>()));
         this.roles.put("All Flows", new RoleDefinitionImpl("All Flows", "This role describes all flows in the system",
                 new ArrayList<>()));

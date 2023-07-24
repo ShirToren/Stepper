@@ -6,7 +6,6 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import role.RoleDefinitionImpl;
 import stepper.management.StepperEngineManager;
 import users.UserManager;
 import utils.ServletUtils;
@@ -20,8 +19,8 @@ import java.util.List;
 
 import static constants.Constants.GSON_INSTANCE;
 
-@WebServlet("/add-roles")
-public class AddRolesServlet extends HttpServlet {
+@WebServlet("/add-roles-to-user")
+public class AddRolesToUserServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json");
@@ -42,8 +41,9 @@ public class AddRolesServlet extends HttpServlet {
         List<RoleDefinitionDTO> list = Arrays.asList(GSON_INSTANCE.fromJson(requestBody.toString(), RoleDefinitionDTO[].class));
 
         // Process the list as needed
-        for (RoleDefinitionDTO roleDefinitionDTO : list) {
+
             synchronized (getServletContext()) {
+                for (RoleDefinitionDTO roleDefinitionDTO : list) {
                 userManager.getUsers().get(userName).addRole(
                         manager.getRoles().get(roleDefinitionDTO.getName()));
 /*                        new RoleDefinitionImpl(roleDefinitionDTO.getName(),

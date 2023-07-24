@@ -20,7 +20,7 @@ import static utils.Constants.GSON_INSTANCE;
 public class DefinitionRefresher extends TimerTask {
     private final Consumer<List<FlowDefinitionDTO>> flowsListConsumer;
     private final List<String> roles;
-    private final String paramValue;
+    //private final String paramValue;
     private final IntegerProperty definitionVersion;
     private static final Object listLock = new Object();
 
@@ -29,7 +29,7 @@ public class DefinitionRefresher extends TimerTask {
         this.definitionVersion = definitionVersion;
         //synchronized (listLock){
             this.roles = roles;
-            this.paramValue = String.join(",", roles);
+            //this.paramValue = String.join(",", roles);
        // }
     }
 

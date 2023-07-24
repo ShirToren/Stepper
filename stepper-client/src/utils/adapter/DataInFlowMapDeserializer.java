@@ -1,7 +1,6 @@
 package utils.adapter;
 
 import com.google.gson.*;
-import dd.impl.relation.RelationData;
 import impl.DataInFlowDTO;
 import utils.Constants;
 
@@ -34,9 +33,6 @@ public class DataInFlowMapDeserializer implements JsonDeserializer<Map<DataInFlo
                 if (valueJson.isJsonObject()) {
                     //value = Constants.GSON_INSTANCE.fromJson(valueJson, type);
                     if(!type.isInterface()) {
-                        if(type.equals(RelationData.class)) {
-                            System.out.println("hey");
-                        }
                        // value = context.deserialize(valueJson, type);
                         value = Constants.GSON_INSTANCE.fromJson(valueJson, type);
                     } else {

@@ -27,4 +27,9 @@ public class RoleDefinitionImpl implements RoleDefinition{
     public List<String> getFlows() {
         return flows;
     }
+
+    @Override
+    public void addFlow(String flow) {
+        flows.add(flow);
+    }
 }

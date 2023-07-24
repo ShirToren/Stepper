@@ -1,20 +1,23 @@
 package FXML.roles;
 
-import FXML.users.UsersRefresher;
+import FXML.utils.Constants;
+import FXML.utils.http.HttpClientUtil;
+import impl.FlowDefinitionDTO;
 import impl.RoleDefinitionDTO;
-import impl.UserDTO;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.io.IOException;
+import java.util.*;
 
+import static FXML.utils.Constants.GSON_INSTANCE;
 import static FXML.utils.Constants.REFRESH_RATE;
 
 public class RolesManagementController {
@@ -51,6 +54,8 @@ public class RolesManagementController {
     private final ObservableList<String> assignedUsersData = FXCollections.observableArrayList();
     private Map<String, RoleDefinitionDTO> currentRoles;
     private String selectedRole = null;
+    private List<FlowDefinitionDTO> currentFlows;
+    private boolean newRoleMode;
 
     @FXML public void initialize() {
         rolesLV.setItems(rolesData);
@@ -64,12 +69,135 @@ public class RolesManagementController {
 
     @FXML
     void newButtonActionListener(ActionEvent event) {
-
+        newRoleMode = true;
+        selectedRole = null;
+        rolesLV.getSelectionModel().clearSelection();
+        rolesLV.disableProperty().set(true);
+        roleNameTextField.setEditable(true);
+        roleNameTextField.textProperty().set("");
+        descriptionTextArea.setEditable(true);
+        descriptionTextArea.textProperty().set("");
+        assignedFlowsData.clear();
+        assignedUsersData.clear();
+        for (CheckBox checkBox: assignFlowsData) {
+            checkBox.selectedProperty().set(false);
+        }
+        showAllFlows();
     }
 
     @FXML
     void saveButtonActionListener(ActionEvent event) {
+        if (newRoleMode) {
+            if(roleNameTextField.getText().isEmpty() || descriptionTextArea.getText().isEmpty()) {
+                showErrorDialog("Error", "Please enter role name and description");
+            } else if(rolesData.contains(roleNameTextField.getText())) {
+                showErrorDialog("Error", "This role name is already exist");
+            }else {
+                List<String> flowsList = new ArrayList<>();
+                for (CheckBox flow: assignFlowsData) {
+                    if(flow.isSelected()) {
+                        flowsList.add(flow.getText());
+                    }
+                }
+                httpCallToCreateRole(roleNameTextField.getText(),
+                        descriptionTextArea.getText(), flowsList);
+                roleNameTextField.setEditable(false);
+                descriptionTextArea.setEditable(false);
+                roleNameTextField.setText("");
+                descriptionTextArea.setText("");
+                rolesLV.disableProperty().set(false);
+                assignFlowsData.clear();
+                assignedFlowsData.clear();
+                assignedUsersData.clear();
+                newRoleMode = false;
+            }
+        } else {
+            if (selectedRole != null) {
+                List<String> flowsToAdd = new ArrayList<>();
+                List<String> flowsToRemove = new ArrayList<>();
 
+                for (CheckBox checkBox : assignFlowsData) {
+                    if (checkBox.isSelected()) {
+                        if (!currentRoles.get(selectedRole).getFlows().contains(checkBox.getText())) {
+                            flowsToAdd.add(checkBox.getText());
+                        }
+                    } else {
+                        if (currentRoles.get(selectedRole).getFlows().contains(checkBox.getText())) {
+                            flowsToRemove.add(checkBox.getText());
+                        }
+                    }
+                }
+
+                httpCallToAddOrRemoveFlows(flowsToAdd, Constants.ADD_FLOWS_TO_ROLE);
+                httpCallToAddOrRemoveFlows(flowsToRemove, Constants.REMOVE_FLOWS_FROM_ROLE);
+            }
+        }
+    }
+
+    private void showErrorDialog(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR, message, ButtonType.OK);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.showAndWait();
+    }
+
+    private void httpCallToCreateRole(String roleName, String description, List<String> flowsList) {
+        String jsonBody = GSON_INSTANCE.toJson(flowsList);
+
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), jsonBody);
+
+        String finalUrl = HttpUrl
+                .parse(Constants.CREATE_ROLE)
+                .newBuilder()
+                .addQueryParameter("roleName", roleName)
+                .addQueryParameter("description", description)
+                .build()
+                .toString();
+
+
+        HttpClientUtil.runPostAsync(finalUrl, requestBody, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                // Process the response as needed
+                String responseBody = response.body().string();
+                if(response.isSuccessful()) {
+                }
+            }
+        });
+    }
+
+    private void httpCallToAddOrRemoveFlows(List<String> flowsList, String endpoint) {
+        // Serialize the list to JSON
+        String jsonBody = GSON_INSTANCE.toJson(flowsList);
+
+        // Set the JSON as the request body
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), jsonBody);
+
+        String finalUrl = HttpUrl
+                .parse(endpoint)
+                .newBuilder()
+                .addQueryParameter("roleName", selectedRole)
+                .build()
+                .toString();
+
+
+        HttpClientUtil.runPostAsync(finalUrl, requestBody, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                // Process the response as needed
+                String responseBody = response.body().string();
+                if(response.isSuccessful()) {
+                }
+            }
+        });
     }
 
     public void startRolesRefresher() {
@@ -98,6 +226,77 @@ public class RolesManagementController {
                 assignedFlowsData.clear();
                 assignedFlowsData.addAll(flows);
             }
+            showAllFlows();
+            showAssignedUsers();
+        }
+    }
+
+    private void showAllFlows() {
+            String finalUrl = HttpUrl
+                    .parse(Constants.ALL_FLOWS)
+                    .newBuilder()
+                    .build()
+                    .toString();
+
+            HttpClientUtil.runAsync(finalUrl, new Callback() {
+                @Override
+                public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                }
+
+                @Override
+                public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                    String jsonResponse = response.body().string();
+                    if (response.isSuccessful()) {
+                        FlowDefinitionDTO[] flowDefinitionDTOS = GSON_INSTANCE.fromJson(jsonResponse, FlowDefinitionDTO[].class);
+                        List<FlowDefinitionDTO> list = Arrays.asList(flowDefinitionDTOS);
+                        Platform.runLater(() -> {
+                            currentFlows = list;
+                            if (assignFlowsData.size() != list.size()) {
+                                assignFlowsData.clear();
+                                for (FlowDefinitionDTO flowDefinitionDTO: list) {
+                                    CheckBox checkBox = new CheckBox(flowDefinitionDTO.getName());
+                                        if (selectedRole != null && currentRoles.get(selectedRole).getFlows().contains(flowDefinitionDTO.getName())) {
+                                            checkBox.selectedProperty().set(true);
+                                        }
+                                    assignFlowsData.add(checkBox);
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+
+    }
+
+    private void showAssignedUsers(){
+        if (selectedRole != null) {
+            String finalUrl = HttpUrl
+                    .parse(Constants.ASSIGNED_USERS_BY_ROLE)
+                    .newBuilder()
+                    .addQueryParameter("roleName", selectedRole)
+                    .build()
+                    .toString();
+
+            HttpClientUtil.runAsync(finalUrl, new Callback() {
+                @Override
+                public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                }
+
+                @Override
+                public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                    String jsonResponse = response.body().string();
+                    if (response.isSuccessful()) {
+                        String[] users = GSON_INSTANCE.fromJson(jsonResponse, String[].class);
+                        List<String> usersList = Arrays.asList(users);
+                        Platform.runLater(() -> {
+                            if (assignedUsersData.size() != usersList.size()) {
+                                assignedUsersData.clear();
+                                assignedUsersData.addAll(usersList);
+                            }
+                        });
+                    }
+                }
+            });
         }
     }
 
@@ -108,15 +307,12 @@ public class RolesManagementController {
 
             if (selectedIndex >= 0 && selectedIndex < rolesData.size()) {
                 selectedRole = rolesLV.getSelectionModel().getSelectedItem();
+                assignedFlowsData.clear();
+                assignFlowsData.clear();
                 showRoleDetails();
 /*                assignedRolesData.clear();
                 addRolesData.clear();
-                showUserDetails();
-                if(currentUsers.get(selectedUser).isManager()){
-                    setManagerCB.selectedProperty().set(true);
-                } else {
-                    setManagerCB.selectedProperty().set(false);
-                }*/
+                showUserDetails();*/
             }
         }
     }

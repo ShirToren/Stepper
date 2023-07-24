@@ -13,8 +13,13 @@ public class Constants {
     public final static String ALL_HISTORY = FULL_SERVER_PATH + "/all-history";
     public final static String USERS_LIST = FULL_SERVER_PATH + "/users-list";
     public final static String ROLES_LIST = FULL_SERVER_PATH + "/roles-list";
-    public final static String ADD_ROLES = FULL_SERVER_PATH + "/add-roles";
-    public final static String REMOVE_ROLES = FULL_SERVER_PATH + "/remove-roles";
+    public final static String ADD_ROLES_TO_USER = FULL_SERVER_PATH + "/add-roles-to-user";
+    public final static String REMOVE_ROLES_FROM_USER = FULL_SERVER_PATH + "/remove-roles-from-user";
+    public final static String REMOVE_FLOWS_FROM_ROLE = FULL_SERVER_PATH + "/remove-flows-from-role";
+    public final static String ADD_FLOWS_TO_ROLE = FULL_SERVER_PATH + "/add-flows-to-role";
+    public final static String ASSIGNED_USERS_BY_ROLE = FULL_SERVER_PATH + "/assigned-users-by-role";
+    public final static String ALL_FLOWS = FULL_SERVER_PATH + "/all-flows";
+    public final static String CREATE_ROLE = FULL_SERVER_PATH + "/create-role";
     public final static String FLOW_EXECUTION = FULL_SERVER_PATH + "/flow-execution";
     public static final String EXECUTION_ID_PARAMETER = "executionID";
 
