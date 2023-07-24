@@ -20,7 +20,10 @@ public enum StepDefinitionRegistry implements StepDefinition
     CSV_EXPORTER(new CSVExporterStep()),
     PROPERTIES_EXPORTER(new PropertiesExporterStep()),
     ZIPPER(new ZipperStep()),
-    COMMAND_LINE(new CommandLineStep())
+    COMMAND_LINE(new CommandLineStep()),
+    HTTP_CALL(new HttpCallStep()),
+    TO_JSON(new ToJsonStep()),
+    JSON_DATA_EXTRACTOR(new JsonDataExtractorStep())
     ;
 
     private final StepDefinition stepDefinition;

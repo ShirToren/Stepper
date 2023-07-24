@@ -12,6 +12,13 @@
         <element id="directory" name="lib">
           <element id="library" level="project" name="gson-2.8.8" />
           <element id="artifact" artifact-name="stepper-engine:jar" />
+          <element id="file-copy" path="$USER_HOME$/Downloads/okHttp/okHttp/okio-2.8.0.jar" />
+          <element id="file-copy" path="$USER_HOME$/Downloads/okHttp/okHttp/kotlin-stdlib-1.4.10.jar" />
+          <element id="file-copy" path="$USER_HOME$/Downloads/okHttp/okHttp/okhttp-4.9.1.jar" />
+          <element id="file-copy" path="$USER_HOME$/Downloads/jayson path/slf4j-api-2.0.6.jar" />
+          <element id="file-copy" path="$USER_HOME$/Downloads/jayson path/json-smart-2.4.8.jar" />
+          <element id="file-copy" path="$USER_HOME$/Downloads/jayson path/json-path-2.7.0.jar" />
+          <element id="file-copy" path="$USER_HOME$/Downloads/jayson path/accessors-smart-2.4.8.jar" />
         </element>
       </element>
     </root>

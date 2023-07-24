@@ -1,8 +1,9 @@
 package dd.impl;
 
 import dd.api.DataDefinition;
-import dd.impl.enumeration.EnumerationDataDefinition;
+import dd.impl.enumeration.EnumeratorDataDefinition;
 import dd.impl.file.FileDataDefinition;
+import dd.impl.json.JsonDataDefinition;
 import dd.impl.list.ListDataDefinition;
 import dd.impl.mapping.MappingDataDefinition;
 import dd.impl.number.DoubleDataDefinition;
@@ -18,7 +19,8 @@ public enum DataDefinitionRegistry implements DataDefinition {
     FILE(new FileDataDefinition()),
     LIST(new ListDataDefinition()),
     MAPPING(new MappingDataDefinition()),
-    ENUMERATION(new EnumerationDataDefinition())
+    ENUMERATION(new EnumeratorDataDefinition()),
+    JSON(new JsonDataDefinition())
     ;
 
     DataDefinitionRegistry(DataDefinition dataDefinition) {

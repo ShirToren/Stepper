@@ -185,6 +185,7 @@ public class FlowDefinitionImpl implements FlowDefinition {
         for (StepUsageDeclaration step : steps) {
             if(!step.getStepDefinition().isReadonly()){
                 this.isReadOnly = false;
+                return;
             }
         }
         this.isReadOnly = true;
