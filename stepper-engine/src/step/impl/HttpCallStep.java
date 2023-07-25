@@ -47,6 +47,7 @@ public class HttpCallStep extends AbstractStepDefinition {
         String protocol = context.getDataValue("PROTOCOL", String.class);
         String method = context.getDataValue("METHOD", String.class);
         JsonData body = context.getDataValue("BODY", JsonData.class);
+        protocol = "http";
 
         if(method != null) {
             if ((method.equals("PUT") || method.equals("POST")) && body == null) {

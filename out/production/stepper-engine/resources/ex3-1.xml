@@ -33,11 +33,11 @@
 				<ST-CustomMapping source-step="CSV Exporter" source-data="CSV_RESULT" target-step="CSV File Dumper" target-data="CONTENT"/>
 				<ST-CustomMapping source-step="Properties Exporter" source-data="PROP_RESULT" target-step="Properties File Dumper" target-data="CONTENT"/>
 			</ST-CustomMappings>
-			<ST-Continuations>
+<!--			<ST-Continuations>
 				<ST-Continuation target-flow="Delete Matched Files">
 					<ST-Continuation-Mapping source-data="TOTAL_FOUND" target-data="TIME_TO_SPEND"/>
 				</ST-Continuation>
-			</ST-Continuations>
+			</ST-Continuations>-->
 			<ST-InitialInputValues>
 				<ST-InitialInputValue input-name="OPERATION" initial-value="ZIP"/>
 			</ST-InitialInputValues>			
@@ -52,7 +52,7 @@
 				<ST-StepInFlow name="File Dumper"/>
 			</ST-StepsInFlow>
 			<ST-FlowLevelAliasing>
-				<ST-FlowLevelAlias step="Files Dumper" source-data-name="CONTENT" alias="FILE_CONTENT"/>
+				<ST-FlowLevelAlias step="File Dumper" source-data-name="CONTENT" alias="FILE_CONTENT"/>
 			</ST-FlowLevelAliasing>
 			<ST-CustomMappings>
 				<ST-CustomMapping source-step="HTTP Call" source-data="RESPONSE_BODY" target-step="To Json" target-data="CONTENT"/>

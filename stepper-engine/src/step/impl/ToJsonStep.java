@@ -34,9 +34,11 @@ public class ToJsonStep extends AbstractStepDefinition {
         context.storeStartTime(startTime);
         StepResult result = StepResult.SUCCESS;
 
+
         String content = context.getDataValue("CONTENT", String.class);
 
         Gson gson = new Gson();
+        //String json = gson.toJson("hello world");
         try {
             Object o = gson.fromJson(content, Object.class);
             context.addLogLine(new LogLine("Content is JSON string. Converting it to json…", LocalTime.now()));
