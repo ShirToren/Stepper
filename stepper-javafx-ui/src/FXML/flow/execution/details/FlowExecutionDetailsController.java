@@ -1,10 +1,10 @@
 package FXML.flow.execution.details;
 
 import FXML.main.MainAppController;
-import dd.impl.list.FileList;
-import dd.impl.list.ListData;
-import dd.impl.list.StringList;
-import dd.impl.relation.RelationData;
+import dd.FileList;
+import dd.ListData;
+import dd.RelationData;
+import dd.StringList;
 import impl.DataInFlowDTO;
 import impl.FlowExecutionDTO;
 import javafx.beans.property.SimpleStringProperty;

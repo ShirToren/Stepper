@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static FXML.utils.Constants.REFRESH_RATE;
+import static utils.Constants.REFRESH_RATE;
 
 public class StatisticsController {
     private AdminMainAppController mainAppController;

@@ -1,10 +1,7 @@
 package FXML.step.execution.details;
 
 import FXML.main.MainAppController;
-import dd.impl.list.FileList;
-import dd.impl.list.ListData;
-import dd.impl.list.StringList;
-import dd.impl.relation.RelationData;
+import dd.*;
 import impl.DataInFlowDTO;
 import impl.FlowExecutionDTO;
 import impl.LogLineDTO;

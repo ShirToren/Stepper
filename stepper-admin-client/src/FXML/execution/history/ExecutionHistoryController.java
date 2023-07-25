@@ -50,6 +50,7 @@ public class ExecutionHistoryController {
         /*mainAppController.prepareToReExecution(oldExecutionsTableComponentController.getSelectedItemID(),
                 oldExecutionsTableComponentController.getSelectedItemName());*/
     }
+
     public void clearAll(){
         executionDetailsComponentController.clearAll();
         oldExecutionsTableComponentController.clearAll();

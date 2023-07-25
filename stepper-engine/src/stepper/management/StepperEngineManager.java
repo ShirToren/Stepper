@@ -63,7 +63,7 @@ public class StepperEngineManager {
         this.allFlowExecutionsMap = new ConcurrentHashMap<>();
         this.stringToIDMap = new ConcurrentHashMap<>();
         this.allFlowExecutionsList = Collections.synchronizedList(new ArrayList<>());
-        this.executor = Executors.newFixedThreadPool(5);
+        //this.executor = Executors.newFixedThreadPool(5);
         this.roles = new HashMap<>();
         initRoles();
     }
@@ -184,7 +184,6 @@ public class StepperEngineManager {
         Map<String, String> summeryLines = new HashMap<>();
         Map<String, String> stepsStartTimes = new HashMap<>();
         Map<String, String> stepsEndTimes = new HashMap<>();
-        List<LogLineDTO> logLineDTOS = new ArrayList<>();
         String executionResult = flowExecution.getFlowExecutionResult() != null? flowExecution.getFlowExecutionResult().name() : null;
         long totalTime = flowExecution.getTotalTime() != null? flowExecution.getTotalTime().toMillis() : 0;
         String startExecutionTime = flowExecution.getStartExecutionTime() != null? flowExecution.getStartExecutionTime().toString() : null;
@@ -217,11 +216,11 @@ public class StepperEngineManager {
         }
 
         for (Map.Entry<StepUsageDeclaration, List<LogLine>> entry : flowExecution.getLogLines().entrySet()) {
+            List<LogLineDTO> logLineDTOS = new ArrayList<>();
             for (LogLine logLine: entry.getValue()) {
                 logLineDTOS.add(createLogLineDTO(logLine));
             }
             logLines.put(entry.getKey().getFinalStepName(), logLineDTOS);
-            logLineDTOS.clear();
         }
         for (Map.Entry<StepUsageDeclaration,String> entry : flowExecution.getSummeryLines().entrySet()) {
             summeryLines.put(entry.getKey().getFinalStepName(), entry.getValue());
@@ -570,8 +569,10 @@ public class StepperEngineManager {
 
     private void updateRoles(Stepper stepper){
         for (FlowDefinition flow: stepper.getFlows()) {
-            roles.get("All Flows").getFlows().add(flow.getName());
-            if(flow.isReadOnly()) {
+            if(!roles.get("All Flows").getFlows().contains(flow.getName())) {
+                roles.get("All Flows").getFlows().add(flow.getName());
+            }
+            if(flow.isReadOnly() && !roles.get("Read Only Flows").getFlows().contains(flow.getName())) {
                 roles.get("Read Only Flows").getFlows().add(flow.getName());
             }
         }

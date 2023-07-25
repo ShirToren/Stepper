@@ -1,8 +1,22 @@
 package dd.impl.enumeration;
 
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 public class EnumeratorData {
-/*    private final Set<String> possibleValues;
-    private final String value;*/
+    private List<String> possibleValues = new ArrayList<>();
+    private final String value;
+
+    public EnumeratorData(String value) {
+        this.value = value;
+    }
+
+    public List<String> getPossibleValues() {
+        return possibleValues;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
 }

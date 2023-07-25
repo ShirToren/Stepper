@@ -4,10 +4,13 @@ import FXML.execution.ExecutionController;
 import FXML.main.MainAppController;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
+import dd.impl.enumeration.EnumeratorData;
 import impl.DataInFlowDTO;
 import impl.FlowExecutionDTO;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
@@ -38,6 +41,7 @@ public class CollectInputsController {
     
     private final Map<DataInFlowDTO, TextField> freeInputsTextFieldComponents;
     private final Map<DataInFlowDTO, Spinner<Integer>> freeInputsSpinnerComponents;
+    private final Map<DataInFlowDTO, ChoiceBox<String>> freeInputsChoiceBoxComponents;
     private int waitForInputs = 0;
     private final static Object counterLock = new Object();;
 
@@ -45,12 +49,14 @@ public class CollectInputsController {
         this.mandatoryTextFields = new ArrayList<>();
         this.freeInputsTextFieldComponents = new HashMap<>();
         this.freeInputsSpinnerComponents = new HashMap<>();
+        this.freeInputsChoiceBoxComponents = new HashMap<>();
         this.isMandatoryField = new SimpleBooleanProperty(false);
     }
 
     public void clearAll(){
         freeInputsTextFieldComponents.clear();
         freeInputsSpinnerComponents.clear();
+        freeInputsChoiceBoxComponents.clear();
         mandatoryTextFields.clear();
         collectInputsGP.getChildren().removeIf(node -> GridPane.getRowIndex(node) >= 2);
     }
@@ -112,7 +118,9 @@ public class CollectInputsController {
                         integerSpinner.getValueFactory().setValue((Integer) executionDTO.getFreeInputs().get(input.getFinalName()));
                     }
                     freeInputsSpinnerComponents.put(input, integerSpinner);
-                } else {
+                }/* else if(input.getDataDefinition().getType().equals(EnumeratorData.class.getName())) {
+                    ChoiceBox<String> choiceBox = addChoiceBox(mandatoryRowIndex, mandatoryColIndex + 1, )
+                }*/else {
                     TextField textField = addMandatoryTextField(mandatoryRowIndex, mandatoryColIndex + 1);
                     if(executionDTO.getFreeInputs().containsKey(input.getFinalName())){
                         textField.setText(executionDTO.getFreeInputs().get(input.getFinalName()).toString());
@@ -352,6 +360,16 @@ public class CollectInputsController {
         spinner.setValueFactory(valueFactory);
         collectInputsGP.add(spinner, colIndex, rowIndex);
         return spinner;
+    }
+
+    private ChoiceBox<String> addChoiceBox(int rowIndex, int colIndex, List<String> values) {
+        ChoiceBox<String> choiceBox = new ChoiceBox<>();
+        collectInputsGP.add(choiceBox, colIndex, rowIndex);
+        ObservableList<String> enumeratorData = FXCollections.observableArrayList();
+        enumeratorData.addAll(values);
+        choiceBox.setItems(enumeratorData);
+        GridPane.setColumnSpan(choiceBox, 2);
+        return choiceBox;
     }
 }
 

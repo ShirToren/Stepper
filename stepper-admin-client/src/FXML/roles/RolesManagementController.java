@@ -1,7 +1,7 @@
 package FXML.roles;
 
-import FXML.utils.Constants;
-import FXML.utils.http.HttpClientUtil;
+import utils.Constants;
+import utils.http.HttpClientUtil;
 import impl.FlowDefinitionDTO;
 import impl.RoleDefinitionDTO;
 import javafx.application.Platform;
@@ -17,8 +17,8 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.util.*;
 
-import static FXML.utils.Constants.GSON_INSTANCE;
-import static FXML.utils.Constants.REFRESH_RATE;
+import static utils.Constants.GSON_INSTANCE;
+import static utils.Constants.REFRESH_RATE;
 
 public class RolesManagementController {
     private Timer timer;
@@ -222,7 +222,7 @@ public class RolesManagementController {
             roleNameTextField.setText(selectedRole);
             descriptionTextArea.setText(currentRoles.get(selectedRole).getDescription());
             List<String> flows = currentRoles.get(selectedRole).getFlows();
-            if(assignedFlowsData.size() != flows.size()) {
+            if(assignedFlowsData.size() != flows.size() || !flows.containsAll(assignedFlowsData)) {
                 assignedFlowsData.clear();
                 assignedFlowsData.addAll(flows);
             }

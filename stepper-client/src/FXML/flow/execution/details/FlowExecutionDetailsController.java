@@ -4,7 +4,8 @@ import FXML.main.MainAppController;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import dd.impl.relation.RelationData;
+import dd.RelationData;
+import dd.ListData;
 import impl.DataInFlowDTO;
 import impl.FlowExecutionDTO;
 import javafx.application.Platform;
@@ -92,7 +93,9 @@ public class FlowExecutionDetailsController {
                         flowNameLabel.setText(executionDTO.getFlowDefinitionDTO().getName());
                         flowIDLabel.setText(executionDTO.getUuid().toString());
                         showFreeInputsDetails(executionDTO);
-                       // showAllFlowOutputsDetails(executionDTO);
+                        if(executionDTO.isFinished()){
+                            showAllFlowOutputsDetails(executionDTO);
+                        }
                     });
                 }
             }
@@ -121,9 +124,9 @@ public class FlowExecutionDetailsController {
              if(entry.getKey().getDataDefinition().getType().equals(Integer.class.getName())||
                     entry.getKey().getDataDefinition().getType().equals(Double.class.getName())) {
                 addLabel(entry.getValue().toString(), rowIndex, 2);
-            } else if (entry.getKey().getDataDefinition().getType().equals("dd.impl.list.ListData")) {
+            } else if (entry.getKey().getDataDefinition().getType().equals(ListData.class.getName())) {
                  addListView((List<Object>) entry.getValue(), rowIndex, 2);
-            }  else if(entry.getKey().getDataDefinition().getType().equals("dd.impl.relation.RelationData")) {
+            }  else if(entry.getKey().getDataDefinition().getType().equals(RelationData.class.getName())) {
                 addTableView((RelationData)entry.getValue(), rowIndex, 2);
             } else {
                  //if(entry.getKey().getDataDefinition().getType().equals(String.class)){

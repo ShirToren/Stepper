@@ -40,13 +40,12 @@ public class JsonDataExtractorStep extends AbstractStepDefinition {
         String jsonPath = context.getDataValue("JSON_PATH", String.class);
         String[] jsonPaths = jsonPath.split("\\|");
 
-
-
         StringBuilder stringBuilder = new StringBuilder();
         for (String path: jsonPaths) {
             String string = JsonPath.read(json.getJsonElement().getAsString(), path);
             if(string != null) {
                 stringBuilder.append(string);
+                stringBuilder.append(",");
             }
         }
         if(stringBuilder.toString().isEmpty()) {

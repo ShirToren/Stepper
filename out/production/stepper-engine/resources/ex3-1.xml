@@ -59,7 +59,7 @@
 				<ST-CustomMapping source-step="Json Data Extractor" source-data="VALUE" target-step="File Dumper" target-data="FILE_CONTENT"/>
 			</ST-CustomMappings>		
 			<ST-InitialInputValues>
-				<ST-InitialInputValue input-name="PROTOCOL" initial-value="https"/>
+				<ST-InitialInputValue input-name="PROTOCOL" initial-value="http"/>
 			</ST-InitialInputValues>			
 		</ST-Flow>
 	</ST-Flows>

@@ -2,9 +2,7 @@ package FXML.old.executions.table;
 
 import FXML.execution.history.ExecutionHistoryController;
 import FXML.main.AdminMainAppController;
-import FXML.statistics.StatisticsRefresher;
 import impl.FlowExecutionDTO;
-import flow.execution.FlowExecutionResult;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -21,10 +19,9 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import static FXML.utils.Constants.REFRESH_RATE;
+import static utils.Constants.REFRESH_RATE;
 
 public class OldExecutionsTableController {
     private AdminMainAppController mainAppController;

@@ -1,10 +1,7 @@
 package FXML.step.execution.details;
 
 import FXML.main.AdminMainAppController;
-import dd.impl.list.FileList;
-import dd.impl.list.ListData;
-import dd.impl.list.StringList;
-import dd.impl.relation.RelationData;
+import dd.*;
 import impl.DataInFlowDTO;
 import impl.FlowExecutionDTO;
 import impl.LogLineDTO;
@@ -80,41 +77,58 @@ public class StepExecutionDetailsController {
     }
 
     private void addDataDetails(StepUsageDeclarationDTO step, List<DataInFlowDTO> allData,
-                                Map<DataInFlowDTO, Object> allExecutionData){
-        for (DataInFlowDTO data: allData) {
-            if(data.getOwnerStep().getName().equals(step.getName())){
+                                Map<DataInFlowDTO, Object> allExecutionData) {
+        for (DataInFlowDTO data : allData) {
+            if (data.getOwnerStep().getName().equals(step.getName())) {
                 ////if input is exist
                 for (Map.Entry<DataInFlowDTO, Object> entry : allExecutionData.entrySet()) {
-                    if(entry.getKey().getFinalName().equals(data.getFinalName())) {
-                        addLabel(data.getFinalName(), rowIndex, 1);
-                        if (allExecutionData.get(entry.getKey()).equals("Not created due to failure in flow")) {
-                            addTextArea(allExecutionData.get(entry.getKey()).toString(), rowIndex, 2);
-                        } else {
-                            if (data.getDataDefinition().getType().equals(Integer.class.getName()) ||
-                                    data.getDataDefinition().getType().equals(Double.class.getName())) {
-                                addLabel(allExecutionData.get(entry.getKey()).toString(), rowIndex, 2);
-                            } else if (data.getDataDefinition().getType().equals(ListData.class.getName())) {
-                                if (allExecutionData.get(entry.getKey()).getClass().isAssignableFrom(FileList.class)) {
-                                    addFilesListView((FileList) allExecutionData.get(entry.getKey()), rowIndex, 2);
-                                } else if (allExecutionData.get(entry.getKey()).getClass().isAssignableFrom(StringList.class)) {
-                                    addStringListView((StringList) allExecutionData.get(entry.getKey()), rowIndex, 2);
-                                }
-                            } else if (data.getDataDefinition().getType().equals(RelationData.class.getName())) {
-                                addTableView((RelationData) allExecutionData.get(entry.getKey()), rowIndex, 2);
-                            } else {
-                                // if (data.getDataDefinition().getType().equals(String.class)) {
+                    if (entry.getKey().getOwnerStep().getName().equals(step.getName())) {
+                        if (entry.getKey().getFinalName().equals(data.getFinalName())) {
+                            addLabel(data.getFinalName(), rowIndex, 1);
+                            if (allExecutionData.get(entry.getKey()).equals("Not created due to failure in flow")) {
                                 addTextArea(allExecutionData.get(entry.getKey()).toString(), rowIndex, 2);
-                                //}
+                            } else {
+                                if (data.getDataDefinition().getType().equals(Integer.class.getName()) ||
+                                        data.getDataDefinition().getType().equals(Double.class.getName())) {
+                                    addLabel(allExecutionData.get(entry.getKey()).toString(), rowIndex, 2);
+                                } else if (data.getDataDefinition().getType().equals(ListData.class.getName())) {
+                                    addListView((List<Object>) allExecutionData.get(entry.getKey()), rowIndex, 2);
+                                } else if (data.getDataDefinition().getType().equals(RelationData.class.getName())) {
+                                    addTableView((RelationData) allExecutionData.get(entry.getKey()), rowIndex, 2);
+                                } else {
+                                    // if (data.getDataDefinition().getType().equals(String.class)) {
+                                    addTextArea(allExecutionData.get(entry.getKey()).toString(), rowIndex, 2);
+                                    //}
+                                }
                             }
+                            rowIndex++;
                         }
-                        rowIndex++;
                     }
                 }
-/*                if(allExecutionData.containsKey(data)) {
-
-                }*/
             }
         }
+
+    }
+
+    private void addListView(List<Object> values, int rowIndex, int colIndex) {
+        ObservableList<String> items = FXCollections.observableArrayList();
+        ListView<String> listView = new ListView<>();
+        listView.setItems(items);
+        listView.setPrefHeight(100);
+        listView.setPrefWidth(200);
+        if(values.size() != 0 ) {
+            Object obj = values.get(0);
+            if(obj instanceof File){
+                for (Object file: values) {
+                    items.add(((File)file).getAbsolutePath());
+                }
+            } else {
+                for (Object string: values) {
+                    items.add((String)string);
+                }
+            }
+        }
+        stepDetailsGP.add(listView, colIndex,rowIndex);
     }
 
 

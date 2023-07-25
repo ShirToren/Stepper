@@ -1,7 +1,7 @@
 package FXML.statistics;
 
-import FXML.utils.Constants;
-import FXML.utils.http.HttpClientUtil;
+import utils.Constants;
+import utils.http.HttpClientUtil;
 import impl.StatisticsDTO;
 import javafx.application.Platform;
 import okhttp3.Call;
@@ -11,11 +11,10 @@ import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.TimerTask;
 import java.util.function.Consumer;
 
-import static FXML.utils.Constants.GSON_INSTANCE;
+import static utils.Constants.GSON_INSTANCE;
 
 public class StatisticsRefresher extends TimerTask {
     private final Consumer<StatisticsDTO> consumer;

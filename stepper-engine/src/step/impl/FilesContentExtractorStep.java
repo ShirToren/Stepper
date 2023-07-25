@@ -1,9 +1,9 @@
 package step.impl;
 
+import dd.RelationData;
 import dd.api.AbstractDataDefinition;
 import dd.impl.DataDefinitionRegistry;
 import dd.impl.list.ListData;
-import dd.impl.relation.RelationData;
 import flow.execution.context.StepExecutionContext;
 import logs.LogLine;
 import step.api.AbstractStepDefinition;

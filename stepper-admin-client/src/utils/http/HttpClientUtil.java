@@ -1,8 +1,6 @@
-package FXML.utils.http;
+package utils.http;
 
 import okhttp3.*;
-
-import java.util.function.Consumer;
 
 public class HttpClientUtil {
     private final static OkHttpClient HTTP_CLIENT =

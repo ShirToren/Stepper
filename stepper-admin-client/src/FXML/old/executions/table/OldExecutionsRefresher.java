@@ -1,8 +1,8 @@
 package FXML.old.executions.table;
 
-import FXML.utils.Constants;
-import FXML.utils.adapter.DataInFlowMapDeserializer;
-import FXML.utils.http.HttpClientUtil;
+import utils.Constants;
+import utils.adapter.DataInFlowMapDeserializer;
+import utils.http.HttpClientUtil;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;

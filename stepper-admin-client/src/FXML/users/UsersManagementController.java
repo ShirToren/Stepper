@@ -1,8 +1,8 @@
 package FXML.users;
 
-import FXML.utils.Constants;
-import FXML.utils.adapter.RolesMapDeserializer;
-import FXML.utils.http.HttpClientUtil;
+import utils.Constants;
+import utils.adapter.RolesMapDeserializer;
+import utils.http.HttpClientUtil;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -24,8 +24,8 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.util.*;
 
-import static FXML.utils.Constants.GSON_INSTANCE;
-import static FXML.utils.Constants.REFRESH_RATE;
+import static utils.Constants.GSON_INSTANCE;
+import static utils.Constants.REFRESH_RATE;
 
 public class UsersManagementController {
 
@@ -150,7 +150,11 @@ public class UsersManagementController {
             userNameLabel.setText(selectedUser);
             usersExecutionsLabel.setText(Integer.toString(currentUsers.get(selectedUser).getNumOfExecutions()));
             List<RoleDefinitionDTO> userRoles = currentUsers.get(selectedUser).getRoles();
-            updateRoles = userRoles.size() != assignedRolesData.size();
+            List<String> userRolesName = new ArrayList<>();
+            for (RoleDefinitionDTO role: userRoles) {
+                userRolesName.add(role.getName());
+            }
+            updateRoles = userRoles.size() != assignedRolesData.size() || !userRolesName.containsAll(assignedRolesData);
             if(updateRoles) {
                 assignedRolesData.clear();
             }

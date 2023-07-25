@@ -1,4 +1,4 @@
-package FXML.utils;
+package utils;
 
 import com.google.gson.Gson;
 

@@ -1,16 +1,13 @@
 package FXML.roles;
 
-import FXML.utils.Constants;
-import FXML.utils.adapter.RolesMapDeserializer;
-import FXML.utils.adapter.UsersMapDeserializer;
-import FXML.utils.http.HttpClientUtil;
+import utils.Constants;
+import utils.adapter.RolesMapDeserializer;
+import utils.http.HttpClientUtil;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import impl.RoleDefinitionDTO;
-import impl.UserDTO;
 import javafx.application.Platform;
-import javafx.scene.control.CheckBox;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.HttpUrl;

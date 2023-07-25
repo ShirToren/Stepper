@@ -1,6 +1,7 @@
 package step.impl;
 
 import dd.impl.DataDefinitionRegistry;
+import dd.impl.enumeration.EnumeratorData;
 import dd.impl.json.JsonData;
 import flow.execution.context.StepExecutionContext;
 import logs.LogLine;
@@ -14,6 +15,8 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.List;
 
 public class HttpCallStep extends AbstractStepDefinition {
     public HttpCallStep() {
@@ -44,80 +47,74 @@ public class HttpCallStep extends AbstractStepDefinition {
 
         String resource = context.getDataValue("RESOURCE", String.class);
         String address = context.getDataValue("ADDRESS", String.class);
-        String protocol = context.getDataValue("PROTOCOL", String.class);
-        String method = context.getDataValue("METHOD", String.class);
+        EnumeratorData protocolEnumeratorData = new EnumeratorData(context.getDataValue("PROTOCOL", String.class));
+        List<String> protocolValues = Arrays.asList("http", "https");
+        protocolEnumeratorData.getPossibleValues().addAll(protocolValues);
+        String protocol = protocolEnumeratorData.getValue();
+        EnumeratorData methodEnumeratorData = new EnumeratorData(context.getDataValue("METHOD", String.class));
+        List<String> methodValues = Arrays.asList("GET", "PUT", "POST", "DELETE");
+        methodEnumeratorData.getPossibleValues().addAll(methodValues);
+        String method = methodEnumeratorData.getValue();
         JsonData body = context.getDataValue("BODY", JsonData.class);
-        protocol = "http";
 
-        if(method != null) {
-            if ((method.equals("PUT") || method.equals("POST")) && body == null) {
-                result = StepResult.FAILURE;
-                context.addSummeryLine("Can't send this request without body");
-                context.addLogLine(new LogLine("Can't send this request without body", LocalTime.now()));
-                context.storeResult(result);
-                Instant end = Instant.now();
-                LocalTime endTime = LocalTime.now();
-                Duration duration = Duration.between(start, end);
-                context.storeDuration(duration);
-                context.storeEndTime(endTime);
-                return result;
-            }
+        if(!protocolValues.contains(protocol) || (method != null && !methodValues.contains(method))) {
+            result = StepResult.FAILURE;
+            context.addSummeryLine("Failure. Got invalid input/s");
+            context.addLogLine(new LogLine("Failure. Got invalid input/s", LocalTime.now()));
+            context.storeResult(result);
+            Instant end = Instant.now();
+            LocalTime endTime = LocalTime.now();
+            Duration duration = Duration.between(start, end);
+            context.storeDuration(duration);
+            context.storeEndTime(endTime);
+            return result;
+
         }
 
         Request request = null;
 
         String finalUrl = HttpUrl
-                .parse(protocol + "://" + address+ "/" + resource)
+                .parse(protocol + "://" + address + resource)
                 .newBuilder()
                 .build()
                 .toString();
+        RequestBody requestBody;
         Request.Builder url = new Request.Builder().url(finalUrl);
-        if(method != null) {
-            if(method.equals("GET")){
-                request = url.build();
-            } else if(method.equals("POST")) {
-                RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), body.getJsonElement().getAsString());
-                request = url.post(requestBody).build();
-            } else if(method.equals("PUT")){
-                RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), body.getJsonElement().getAsString());
-                request = url.put(requestBody).build();
-            } else if(method.equals("DELETE")){
-                if(body != null) {
-                    RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), body.getJsonElement().getAsString());
-                    request = url.delete(requestBody).build();
-                } else {
-                    request = url.delete().build();
-                }
-            }
+        if(body != null) {
+            requestBody = RequestBody.create(MediaType.parse("application/json"), body.getJsonElement().getAsString());
         } else {
-            request = url.build();
+            requestBody = null;
         }
-
+        request = url.method(method != null ? method : "GET", requestBody).build();
         OkHttpClient okHttpClient = new OkHttpClient();
         context.addLogLine(new LogLine("About to invoke http request <request details: \n" + protocol + " | " + (method != null? method : "GET") + " | " + address + " | " + resource + ">\n",
                 LocalTime.now()));
         Call call = okHttpClient.newCall(request);
 
-        call.enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                context.addSummeryLine("Success");
-                context.addLogLine(new LogLine("Received Response. Status code: <" + response.code() + ">", LocalTime.now()));
-                String responseBody = response.body().string();
-                context.storeDataValue("CODE", response.code());
-                context.storeDataValue("RESPONSE_BODY", responseBody);
-                context.storeResult(StepResult.SUCCESS);
-                Instant end = Instant.now();
-                LocalTime endTime = LocalTime.now();
-                Duration duration = Duration.between(start, end);
-                context.storeDuration(duration);
-                context.storeEndTime(endTime);
-            }
-        });
+        try {
+            Response response = call.execute();
+            context.addSummeryLine("Success");
+            context.addLogLine(new LogLine("Received Response. Status code: <" + response.code() + ">", LocalTime.now()));
+            String responseBody = response.body().string();
+            context.storeDataValue("CODE", response.code());
+            context.storeDataValue("RESPONSE_BODY", responseBody);
+            context.storeResult(StepResult.SUCCESS);
+            Instant end = Instant.now();
+            LocalTime endTime = LocalTime.now();
+            Duration duration = Duration.between(start, end);
+            context.storeDuration(duration);
+            context.storeEndTime(endTime);
+        } catch (IOException e) {
+            result = StepResult.FAILURE;
+            context.addSummeryLine("Can't send this request");
+            context.addLogLine(new LogLine("Can't send this request", LocalTime.now()));
+            context.storeResult(result);
+            Instant end = Instant.now();
+            LocalTime endTime = LocalTime.now();
+            Duration duration = Duration.between(start, end);
+            context.storeDuration(duration);
+            context.storeEndTime(endTime);
+        }
         return result;
     }
 }

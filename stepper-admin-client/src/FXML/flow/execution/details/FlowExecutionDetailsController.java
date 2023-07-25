@@ -1,17 +1,15 @@
 package FXML.flow.execution.details;
 
 import FXML.main.AdminMainAppController;
-import FXML.utils.Constants;
-import FXML.utils.adapter.DataInFlowMapDeserializer;
-import FXML.utils.adapter.FreeInputsMapDeserializer;
-import FXML.utils.http.HttpClientUtil;
+import utils.Constants;
+import utils.adapter.DataInFlowMapDeserializer;
+import utils.adapter.FreeInputsMapDeserializer;
+import utils.http.HttpClientUtil;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import dd.impl.list.FileList;
-import dd.impl.list.ListData;
-import dd.impl.list.StringList;
-import dd.impl.relation.RelationData;
+import dd.ListData;
+import dd.RelationData;
 import impl.DataInFlowDTO;
 import impl.FlowExecutionDTO;
 import javafx.application.Platform;
@@ -26,7 +24,7 @@ import okhttp3.Callback;
 import okhttp3.HttpUrl;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
-import step.api.DataNecessity;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -94,11 +92,18 @@ public class FlowExecutionDetailsController {
                         flowNameLabel.setText(executionDTO.getFlowDefinitionDTO().getName());
                         flowIDLabel.setText(executionDTO.getUuid().toString());
                         showFreeInputsDetails(executionDTO);
-                        // showAllFlowOutputsDetails(executionDTO);
+                        showAllFlowOutputsDetails(executionDTO);
                     });
                 }
             }
         });
+    }
+    private void showAllFlowOutputsDetails(FlowExecutionDTO executionDTO) {
+        clearAllOutputs();
+        //outputsLVItems.clear();
+        for (Map.Entry<DataInFlowDTO , Object> entry : executionDTO.getAllExecutionOutputs().entrySet()) {
+            addOutput(entry);
+        }
     }
     public void updateEndTime(String endTime) { endTimeLabel.setText(endTime); }
     public void updateName(String name) { flowNameLabel.setText(name); }
@@ -116,9 +121,9 @@ public class FlowExecutionDetailsController {
             if(entry.getKey().getDataDefinition().getType().equals(Integer.class.getName())||
                     entry.getKey().getDataDefinition().getType().equals(Double.class.getName())) {
                 addLabel(entry.getValue().toString(), rowIndex, 2);
-            } else if (entry.getKey().getDataDefinition().getType().equals("dd.impl.list.ListData")) {
+            } else if (entry.getKey().getDataDefinition().getType().equals(ListData.class.getName())) {
                 addListView((List<Object>) entry.getValue(), rowIndex, 2);
-            }  else if(entry.getKey().getDataDefinition().getType().equals("dd.impl.relation.RelationData")) {
+            }  else if(entry.getKey().getDataDefinition().getType().equals(RelationData.class.getName())) {
                 addTableView((RelationData)entry.getValue(), rowIndex, 2);
             } else {
                 //if(entry.getKey().getDataDefinition().getType().equals(String.class)){
@@ -184,26 +189,6 @@ public class FlowExecutionDetailsController {
         flowExecutionDetailsGP.add(textArea, colIndex,rowIndex);
     }
 
-    private void addFilesListView(FileList values, int rowIndex, int colIndex) {
-        ObservableList<String> items = FXCollections.observableArrayList();
-        ListView<String> listView = new ListView<>();
-        listView.setItems(items);
-        listView.setPrefHeight(50);
-        listView.setPrefWidth(200);
-        for (File file: values.getList()) {
-            items.add(file.getAbsolutePath());
-        }
-        flowExecutionDetailsGP.add(listView, colIndex,rowIndex);
-    }
-    private void addStringListView(StringList values, int rowIndex, int colIndex) {
-        ObservableList<String> items = FXCollections.observableArrayList();
-        ListView<String> listView = new ListView<>();
-        listView.setItems(items);
-        listView.setPrefHeight(100);
-        listView.setPrefWidth(200);
-        items.addAll(values.getList());
-        flowExecutionDetailsGP.add(listView, colIndex,rowIndex);
-    }
     private void addListView(List<Object> values, int rowIndex, int colIndex) {
         ObservableList<String> items = FXCollections.observableArrayList();
         ListView<String> listView = new ListView<>();

@@ -1,6 +1,7 @@
 package step.impl;
 
 import dd.impl.DataDefinitionRegistry;
+import dd.impl.enumeration.EnumeratorData;
 import flow.execution.context.StepExecutionContext;
 import logs.LogLine;
 import step.api.AbstractStepDefinition;
@@ -37,10 +38,25 @@ public class ZipperStep extends AbstractStepDefinition {
         Instant start = Instant.now();
         LocalTime startTime = LocalTime.now();
         context.storeStartTime(startTime);
-        String operation = context.getDataValue("OPERATION", String.class);
+        EnumeratorData enumeratorData = new EnumeratorData(context.getDataValue("OPERATION", String.class));
+        String operation = enumeratorData.getValue();
         String source = context.getDataValue("SOURCE", String.class);
         StepResult result = StepResult.SUCCESS;
         String zipFilePath = "";
+
+        if(!operation.equals("ZIP") && !operation.equals("UNZIP")) {
+            result = StepResult.FAILURE;
+            context.storeDataValue("RESULT", "Failure. unknown operation");
+            context.addSummeryLine("Step is failure. unknown operation.");
+            context.addLogLine(new LogLine("Failure. unknown operation", LocalTime.now()));
+            context.storeResult(result);
+            Instant end = Instant.now();
+            LocalTime endTime = LocalTime.now();
+            context.storeEndTime(endTime);
+            Duration duration = Duration.between(start, end);
+            context.storeDuration(duration);
+            return result;
+        }
 
         if(operation.equals("ZIP")) {
             try {

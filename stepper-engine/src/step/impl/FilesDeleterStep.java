@@ -1,9 +1,9 @@
 package step.impl;
 
+import dd.ListData;
+import dd.StringList;
 import dd.impl.DataDefinitionRegistry;
 import dd.impl.list.FileList;
-import dd.impl.list.ListData;
-import dd.impl.list.StringList;
 import dd.impl.mapping.Mapping;
 import dd.impl.mapping.NumberMapping;
 import flow.execution.context.StepExecutionContext;

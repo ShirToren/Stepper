@@ -1,7 +1,7 @@
 package step.impl;
 
+import dd.RelationData;
 import dd.impl.DataDefinitionRegistry;
-import dd.impl.relation.RelationData;
 import flow.execution.context.StepExecutionContext;
 import logs.LogLine;
 import step.api.AbstractStepDefinition;

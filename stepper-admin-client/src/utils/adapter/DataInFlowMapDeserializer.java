@@ -1,8 +1,8 @@
-package FXML.utils.adapter;
+package utils.adapter;
 
-import FXML.utils.Constants;
 import com.google.gson.*;
 import impl.DataInFlowDTO;
+import utils.Constants;
 
 import java.io.File;
 import java.lang.reflect.Type;
@@ -23,7 +23,7 @@ public class DataInFlowMapDeserializer implements JsonDeserializer<Map<DataInFlo
                 JsonArray asJsonArray = jsonArray.get(i).getAsJsonArray();
                 DataInFlowDTO dataInFlowDTO = context.deserialize(asJsonArray.get(0), DataInFlowDTO.class);
                 JsonElement valueJson = asJsonArray.get(1);
-                Object value;
+                Object value = new Object();
                 Class<?> type = null;
                 try {
                     type = Class.forName(dataInFlowDTO.getDataDefinition().getType());
@@ -33,6 +33,7 @@ public class DataInFlowMapDeserializer implements JsonDeserializer<Map<DataInFlo
                 if (valueJson.isJsonObject()) {
                     //value = Constants.GSON_INSTANCE.fromJson(valueJson, type);
                     if(!type.isInterface()) {
+                        // value = context.deserialize(valueJson, type);
                         value = Constants.GSON_INSTANCE.fromJson(valueJson, type);
                     } else {
                         JsonElement jsonElement = valueJson.getAsJsonObject().get("theList");
@@ -42,12 +43,22 @@ public class DataInFlowMapDeserializer implements JsonDeserializer<Map<DataInFlo
                 } else if (valueJson.isJsonArray()) {
                     value = deserializeArray(valueJson.getAsJsonArray(), type, context);
                 } else {
-                    value = context.deserialize(valueJson, Object.class);
+                    JsonPrimitive primitive = valueJson.getAsJsonPrimitive();
+                    if (primitive.isNumber()) {
+                        if (primitive.getAsDouble() == primitive.getAsInt()) {
+                            value = primitive.getAsInt();
+                        } else {
+                            value = primitive.getAsDouble();
+                        }
+                    } else if (primitive.isString()) {
+                        value = primitive.getAsString();
+                    } else if (primitive.isBoolean()) {
+                        value = primitive.getAsBoolean();
+                    }
                 }
                 map.put(dataInFlowDTO, value);
             }
         }
-
         return map;
     }
 

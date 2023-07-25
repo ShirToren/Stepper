@@ -1,8 +1,8 @@
 package FXML.users;
 
-import FXML.utils.Constants;
-import FXML.utils.adapter.UsersMapDeserializer;
-import FXML.utils.http.HttpClientUtil;
+import utils.Constants;
+import utils.adapter.UsersMapDeserializer;
+import utils.http.HttpClientUtil;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import impl.UserDTO;
@@ -14,7 +14,6 @@ import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.*;
 import java.util.function.Consumer;
 
