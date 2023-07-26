@@ -26,13 +26,18 @@ public class HistoryByNameServlet extends HttpServlet {
         resp.setContentType("application/json");
         StepperEngineManager manager = ServletUtils.getManager(getServletContext());
         String username = SessionUtils.getUsername(req);
+        //String isManagerParam = req.getParameter("isManager");
+        //boolean isManager = Boolean.parseBoolean(isManagerParam);
         if (username == null) {
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         }
-
         List<FlowExecutionDTO> flowExecutionsDTOList;
         synchronized (getServletContext()) {
-            flowExecutionsDTOList = manager.getFlowExecutionsDTOByUserName(username);
+            //if(!isManager){
+                flowExecutionsDTOList = manager.getFlowExecutionsDTOByUserName(username);
+/*            } else {
+                flowExecutionsDTOList = manager.getAllFlowExecutionsDTO();
+            }*/
         }
 
         GsonBuilder gsonBuilder = new GsonBuilder().enableComplexMapKeySerialization();

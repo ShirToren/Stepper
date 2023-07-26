@@ -17,7 +17,9 @@ public class ShutdownExecutorServlet extends HttpServlet {
         resp.setContentType("text/plain");
         StepperEngineManager manager = ServletUtils.getManager(getServletContext());
         synchronized (getServletContext()) {
-            manager.getExecutor().shutdown();
+            if(manager.getExecutor() != null) {
+                manager.getExecutor().shutdown();
+            }
         }
         resp.getWriter().println("Success");
         resp.setStatus(HttpServletResponse.SC_OK);

@@ -59,6 +59,9 @@ public class ExecutionController {
     public void enableRerun(){
         rerunButton.setDisable(false);
     }
+    public void disAbleRerun(){
+        rerunButton.setDisable(true);
+    }
 
     public void clearAll(){
         executionDetailsComponentController.clearAll();
@@ -67,7 +70,7 @@ public class ExecutionController {
     }
 
     public void updateProgress(double x, double all){
-        executionProgressBar.setProgress((100*x)/all);
+        executionProgressBar.setProgress(x/all);
     }
 
     public void addRerunButton(UUID id) {
@@ -77,4 +80,7 @@ public class ExecutionController {
         collectInputsComponentController.clearRerunButton();
     }
 
+    public void closeTimer(){
+        executionDetailsComponentController.closeTimer();
+    }
 }

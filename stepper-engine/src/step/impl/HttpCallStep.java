@@ -1,8 +1,8 @@
 package step.impl;
 
+import dd.JsonData;
 import dd.impl.DataDefinitionRegistry;
 import dd.impl.enumeration.EnumeratorData;
-import dd.impl.json.JsonData;
 import flow.execution.context.StepExecutionContext;
 import logs.LogLine;
 import okhttp3.*;

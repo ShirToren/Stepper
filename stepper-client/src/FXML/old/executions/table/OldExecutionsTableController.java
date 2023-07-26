@@ -2,12 +2,7 @@ package FXML.old.executions.table;
 
 import FXML.execution.history.ExecutionHistoryController;
 import FXML.main.MainAppController;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
-import impl.DataInFlowDTO;
 import impl.FlowExecutionDTO;
-import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -19,24 +14,16 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.HttpUrl;
-import okhttp3.Response;
-import org.jetbrains.annotations.NotNull;
-import utils.Constants;
-import utils.adapter.DataInFlowMapDeserializer;
-import utils.http.HttpClientUtil;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Predicate;
+
+import static utils.Constants.REFRESH_RATE;
 
 public class OldExecutionsTableController {
     private MainAppController mainAppController;
+    private Timer timer;
+    private TimerTask executionHistoryRefresher;
     private ExecutionHistoryController executionHistoryController;
 
     @FXML
@@ -50,6 +37,10 @@ public class OldExecutionsTableController {
 
     @FXML
     private TableColumn<TargetTable, String> resultTableColumn;
+    @FXML
+    private TableColumn<TargetTable, String> userTableColumn;
+    @FXML
+    private TableColumn<TargetTable, String> roleTableColumn;
     @FXML
     private CheckBox successCB;
 
@@ -68,6 +59,8 @@ public class OldExecutionsTableController {
         flowNameTableColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         executionTimeTableColumn.setCellValueFactory(new PropertyValueFactory<>("time"));
         resultTableColumn.setCellValueFactory(new PropertyValueFactory<>("result"));
+        userTableColumn.setCellValueFactory(new PropertyValueFactory<>("user"));
+        roleTableColumn.setCellValueFactory(new PropertyValueFactory<>("role"));
         oldExecutionsTableView.setItems(data);
         oldExecutionsTableView.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue.intValue() == -1) {
@@ -127,46 +120,50 @@ public class OldExecutionsTableController {
         };
     }
     public void show() {
-        data.clear();
+        //data.clear();
         addExecutionsToTable();
     }
 
     public void addExecutionsToTable() {
-        data.clear();
+        startExecutionHistoryRefresher();
+/*        if(!mainAppController.isManager()){
+            data.clear();
 
-        String finalUrl = HttpUrl
-                .parse(Constants.HISTORY)
-                .newBuilder()
-                .build()
-                .toString();
+            String finalUrl = HttpUrl
+                    .parse(Constants.HISTORY)
+                    .newBuilder()
+                    .build()
+                    .toString();
 
-        HttpClientUtil.runAsync(finalUrl, new Callback() {
-            @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e) {
-            }
-
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                String rawBody = response.body().string();
-                if (response.isSuccessful()) {
-                    GsonBuilder gsonBuilder = new GsonBuilder();
-                    gsonBuilder.registerTypeAdapter(new TypeToken<Map<DataInFlowDTO, Object>>(){}.getType(), new DataInFlowMapDeserializer());
-                    Gson gson = gsonBuilder.create();
-                    FlowExecutionDTO[] flowExecutionDTOS = gson.fromJson(rawBody, FlowExecutionDTO[].class);
-                    List<FlowExecutionDTO> executionsList = Arrays.asList(flowExecutionDTOS);
-                    Platform.runLater(() -> {
-                        for (FlowExecutionDTO dto: executionsList) {
-                            if(dto.isFinished()) {
-                                TargetTable row = new TargetTable(dto.getFlowDefinitionDTO().getName(),
-                                        dto.getStartExecutionTime(),
-                                        dto.getExecutionResult(), dto.getUuid());
-                                data.add(row);
-                            }
-                        }
-                    });
+            HttpClientUtil.runAsync(finalUrl, new Callback() {
+                @Override
+                public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 }
-            }
-        });
+
+                @Override
+                public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                    String rawBody = response.body().string();
+                    if (response.isSuccessful()) {
+                        GsonBuilder gsonBuilder = new GsonBuilder();
+                        gsonBuilder.registerTypeAdapter(new TypeToken<Map<DataInFlowDTO, Object>>(){}.getType(), new DataInFlowMapDeserializer());
+                        Gson gson = gsonBuilder.create();
+                        FlowExecutionDTO[] flowExecutionDTOS = gson.fromJson(rawBody, FlowExecutionDTO[].class);
+                        List<FlowExecutionDTO> executionsList = Arrays.asList(flowExecutionDTOS);
+                        Platform.runLater(() -> {
+                            for (FlowExecutionDTO dto: executionsList) {
+                                if(dto.isFinished()) {
+                                    TargetTable row = new TargetTable(dto.getFlowDefinitionDTO().getName(),
+                                            dto.getStartExecutionTime(),
+                                            dto.getExecutionResult(), dto.getUuid(), dto.getUserName());
+                                    data.add(row);
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        }*/
+
     }
 
     public void setMainAppController(MainAppController mainAppController) {
@@ -207,8 +204,45 @@ public class OldExecutionsTableController {
                 selectedItemID = item.id;
 
                 executionHistoryController.addFlowExecutionDetails(item.id);
+                mainAppController.executionHistoryClicked(selectedItemName);
             }
         }
+    }
+
+
+    public void startExecutionHistoryRefresher() {
+        executionHistoryRefresher = new OldExecutionsRefresher(this::updateExecutionHistory, mainAppController.isManager());
+        timer = new Timer();
+        timer.schedule(executionHistoryRefresher, REFRESH_RATE, REFRESH_RATE);
+    }
+
+    private void updateExecutionHistory(List<FlowExecutionDTO> flowExecutionDTOList) {
+        mainAppController.isManager().addListener((observable, oldValue, newValue) -> {
+            data.clear();
+            mainAppController.executionHistoryClicked(selectedItemName);
+        });
+        if(flowExecutionDTOList.size() != data.size()){
+            data.clear();
+            for (FlowExecutionDTO dto: flowExecutionDTOList) {
+                if(dto.isFinished()) {
+                    TargetTable row = new TargetTable(dto.getFlowDefinitionDTO().getName(),
+                            dto.getStartExecutionTime(),
+                            dto.getExecutionResult(), dto.getUuid(), dto.getUserName(),
+                            dto.isManager()? "manager" : "not manager");
+                    data.add(row);
+                }
+            }
+        }
+    }
+
+    public void closeTimer() {
+        if (timer != null) {
+            timer.cancel();
+        }
+        if(executionHistoryRefresher != null) {
+            executionHistoryRefresher.cancel();
+        }
+       // data.clear();
     }
 
     public class TargetTable {
@@ -216,12 +250,16 @@ public class OldExecutionsTableController {
         private final String time;
         private final String result;
         private final UUID id;
+        private final String user;
+        private final String role;
 
-        public TargetTable(String name, String time, String result, UUID id) {
+        public TargetTable(String name, String time, String result, UUID id, String user, String role) {
             this.name = name;
             this.time = time;
             this.result = result;
             this.id = id;
+            this.user = user;
+            this.role = role;
         }
 
         public String getName() { return name; }
@@ -230,6 +268,12 @@ public class OldExecutionsTableController {
 
         public UUID getID() { return id; }
 
+        public String getUser() {
+            return user;
+        }
 
+        public String getRole() {
+            return role;
+        }
     }
 }

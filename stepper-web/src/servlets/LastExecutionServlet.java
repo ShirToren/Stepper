@@ -2,7 +2,6 @@ package servlets;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import constants.Constants;
 import flow.execution.FlowExecution;
 import impl.FlowExecutionDTO;
 import jakarta.servlet.ServletException;
@@ -16,6 +15,7 @@ import utils.SessionUtils;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 
 @WebServlet("/last-execution")
 public class LastExecutionServlet extends HttpServlet {
@@ -31,11 +31,13 @@ public class LastExecutionServlet extends HttpServlet {
         GsonBuilder gsonBuilder = new GsonBuilder().enableComplexMapKeySerialization();
         Gson gson = gsonBuilder.create();
 
-        FlowExecutionDTO executionDTO;
+        FlowExecutionDTO executionDTO = null;
 
             synchronized (getServletContext()) {
-                FlowExecution flowExecution = manager.getAllFlowExecutionsList().get(0);
-                executionDTO = manager.getExecutionDTOByUUID(flowExecution.getUuid().toString());
+                List<FlowExecution> usersExecutions = manager.getUsersExecutionsMap().get(username);
+                if(usersExecutions != null && usersExecutions.size() != 0) {
+                    executionDTO = manager.getExecutionDTOByUUID(usersExecutions.get(0).getUuid().toString());
+                }
             }
             String jsonResponse = gson.toJson(executionDTO);
             try (PrintWriter out = resp.getWriter()) {

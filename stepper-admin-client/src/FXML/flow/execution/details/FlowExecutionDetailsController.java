@@ -1,6 +1,7 @@
 package FXML.flow.execution.details;
 
 import FXML.main.AdminMainAppController;
+import dd.JsonData;
 import utils.Constants;
 import utils.adapter.DataInFlowMapDeserializer;
 import utils.adapter.FreeInputsMapDeserializer;
@@ -100,7 +101,6 @@ public class FlowExecutionDetailsController {
     }
     private void showAllFlowOutputsDetails(FlowExecutionDTO executionDTO) {
         clearAllOutputs();
-        //outputsLVItems.clear();
         for (Map.Entry<DataInFlowDTO , Object> entry : executionDTO.getAllExecutionOutputs().entrySet()) {
             addOutput(entry);
         }
@@ -125,17 +125,16 @@ public class FlowExecutionDetailsController {
                 addListView((List<Object>) entry.getValue(), rowIndex, 2);
             }  else if(entry.getKey().getDataDefinition().getType().equals(RelationData.class.getName())) {
                 addTableView((RelationData)entry.getValue(), rowIndex, 2);
+            } else if (entry.getKey().getDataDefinition().getType().equals(JsonData.class.getName())) {
+                addJsonData((JsonData)entry.getValue(), rowIndex, 2 );
             } else {
-                //if(entry.getKey().getDataDefinition().getType().equals(String.class)){
                 addTextArea(entry.getValue().toString(), rowIndex, 2);
-                //}
             }
         }
         rowIndex++;
     }
     public void addInput(String inputName) { freeInputsLVItems.add(inputName); }
     public void clearAllOutputs(){
-        //outputsLVItems.clear();
         rowIndex = 11;
         flowExecutionDetailsGP.getChildren().removeIf(node -> GridPane.getRowIndex(node) >= rowIndex);
     }
@@ -144,11 +143,9 @@ public class FlowExecutionDetailsController {
     }
     private void showFreeInputsDetails(FlowExecutionDTO flowExecutionDTO) {
         freeInputsLVItems.clear();
-        //Map<String, Object> actualFreeInputs = mainAppController.getModel().getActualFreeInputsList(id);
         Map<String, Object> actualFreeInputs = flowExecutionDTO.getFreeInputs();
         List<DataInFlowDTO> optionalInput = new ArrayList<>();
         freeInputsList = flowExecutionDTO.getFlowDefinitionDTO().getFreeInputs();
-        //freeInputsList = mainAppController.getModel().getExecutionDTOByUUID(id.toString()).getFlowDefinitionDTO().getFreeInputs();
         for (DataInFlowDTO freeInput : freeInputsList) {
             if (freeInput.getDataNecessity().equals("MANDATORY") &&
                     actualFreeInputs.containsKey(freeInput.getFinalName())) {
@@ -183,6 +180,15 @@ public class FlowExecutionDetailsController {
     }
 
     private void addTextArea(String text, int rowIndex, int colIndex) {
+        TextArea textArea = new TextArea(text);
+        textArea.setPrefWidth(200);
+        textArea.setPrefHeight(50);
+        flowExecutionDetailsGP.add(textArea, colIndex,rowIndex);
+    }
+
+    private void addJsonData(JsonData jsonData, int rowIndex, int colIndex) {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        String text = gson.toJson(jsonData.getJsonElement());
         TextArea textArea = new TextArea(text);
         textArea.setPrefWidth(200);
         textArea.setPrefHeight(50);

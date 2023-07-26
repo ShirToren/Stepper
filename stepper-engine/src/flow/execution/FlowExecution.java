@@ -33,14 +33,16 @@ public class FlowExecution {
     private LocalTime endExecutionTime;
     private boolean isFinished;
     private final String userName;
+    private final boolean isManager;
 
     ///all outputs?
 
 
-    public FlowExecution(UUID uuid, FlowDefinition flowDefinition, String userName) {
+    public FlowExecution(UUID uuid, FlowDefinition flowDefinition, String userName, boolean isManager) {
         this.uuid = uuid;
         this.flowDefinition = flowDefinition;
         this.userName = userName;
+        this.isManager = isManager;
         this.freeInputs = new HashMap<>();
         this.executionFormalOutputs = new HashMap<>();
         this.stepsTotalTimes = new HashMap<>();
@@ -184,5 +186,9 @@ public class FlowExecution {
 
 
         return null;
+    }
+
+    public boolean isManager() {
+        return isManager;
     }
 }

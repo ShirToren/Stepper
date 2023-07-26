@@ -43,6 +43,7 @@ public class StepperEngineManager {
     private FlowExecution currentFlowExecution;
     private final List<FlowExecution> allFlowExecutionsList;
     private final Map<UUID, FlowExecution> allFlowExecutionsMap;
+    private final Map<String, List<FlowExecution>> usersExecutionsMap;
     private final Map<String, UUID> stringToIDMap;
     private final List<dto.FlowExecutionDTO> allExecutionsDTO;
     private final Map<String, Integer> flowExecutedTimes;
@@ -50,6 +51,7 @@ public class StepperEngineManager {
     private final Map<String, Integer> stepExecutedTimes;
     private final  Map<String, Long> stepExecutedTotalMillis;
     private ExecutorService executor;
+    private boolean isAdminConnected;
 
 
     public StepperEngineManager() {
@@ -60,10 +62,11 @@ public class StepperEngineManager {
         this.stepExecutedTimes = new HashMap<>();
         this.flowExecutedTotalMillis = new HashMap<>();
         this.stepExecutedTotalMillis = new HashMap<>();
+        this.usersExecutionsMap = new ConcurrentHashMap<>();
+        this.usersExecutionsMap.put("admin", new ArrayList<>());
         this.allFlowExecutionsMap = new ConcurrentHashMap<>();
         this.stringToIDMap = new ConcurrentHashMap<>();
         this.allFlowExecutionsList = Collections.synchronizedList(new ArrayList<>());
-        //this.executor = Executors.newFixedThreadPool(5);
         this.roles = new HashMap<>();
         initRoles();
     }
@@ -79,6 +82,14 @@ public class StepperEngineManager {
                     createRoleDefinitionDTO(entry.getValue()));
         }
         return result;
+    }
+
+    public boolean isAdminConnected() {
+        return isAdminConnected;
+    }
+
+    public void setAdminConnected(boolean adminConnected) {
+        isAdminConnected = adminConnected;
     }
 
     public FlowDefinitionDTO showFlowDefinition(String flowName) {
@@ -238,7 +249,9 @@ public class StepperEngineManager {
                 totalTime, startExecutionTime, endExecutionTime,
                 stepsTotalTimes, executedSteps, stepsResults, logLines, summeryLines,
                 flowExecution.isFinished(), flowExecution.getFreeInputs(),
-                stepsStartTimes, stepsEndTimes, flowExecution.getUserName());
+                stepsStartTimes, stepsEndTimes, flowExecution.getUserName(), flowExecution.isManager(),
+                usersExecutionsMap.get(flowExecution.getUserName()).get(0).getUuid()
+                        .equals(flowExecution.getUuid()));
     }
     private ContinuationsDTO createContinuationsDTO(Continuations continuations){
         List<ContinuationDTO> continuationDTOS = new ArrayList<>();
@@ -431,20 +444,27 @@ public class StepperEngineManager {
         return flowExecution.getFlowDefinition().getName();
     }
 
-    public UUID createFlowExecution(String flowName, String userName) {
+    public UUID createFlowExecution(String flowName, String userName, boolean isManager) {
         UUID id = UUID.randomUUID();
         FlowExecution flowExecution = new FlowExecution(id,
-                stepper.findFlowDefinitionByName(flowName), userName);
+                stepper.findFlowDefinitionByName(flowName), userName, isManager);
             this.allFlowExecutionsList.add(0, flowExecution);
             this.allFlowExecutionsMap.put(id, flowExecution);
             this.stringToIDMap.put(id.toString(), id);
+            if(usersExecutionsMap.containsKey(userName)) {
+                usersExecutionsMap.get(userName).add(0, flowExecution);
+            }else{
+                usersExecutionsMap.put(userName, new ArrayList<>());
+                usersExecutionsMap.get(userName).add(0, flowExecution);
+            }
+        usersExecutionsMap.get("admin").add(0, flowExecution);
         return id;
     }
 
     public UUID createFlowExecution(String flowName) {
         UUID id = UUID.randomUUID();
         FlowExecution flowExecution = new FlowExecution(id,
-                stepper.findFlowDefinitionByName(flowName), "");
+                stepper.findFlowDefinitionByName(flowName), "", true);
         this.allFlowExecutionsList.add(0, flowExecution);
         this.allFlowExecutionsMap.put(id, flowExecution);
         this.stringToIDMap.put(id.toString(), id);
@@ -472,10 +492,9 @@ public class StepperEngineManager {
 
     public List<FlowExecutionDTO> getFlowExecutionsDTOByUserName(String userName) {
         List<FlowExecutionDTO> result = new ArrayList<>();
-        for (FlowExecution execution: allFlowExecutionsList) {
-            if(execution.getUserName().equals(userName)) {
-                result.add(createFlowExecutionDTO(execution));
-            }
+        List<FlowExecution> usersExecutions = usersExecutionsMap.get(userName);
+        for (FlowExecution execution: usersExecutions) {
+            result.add(createFlowExecutionDTO(execution));
         }
         return result;
     }
@@ -690,5 +709,9 @@ public class StepperEngineManager {
 
     public Map<String, Long> getStepExecutedTotalMillis() {
         return stepExecutedTotalMillis;
+    }
+
+    public Map<String, List<FlowExecution>> getUsersExecutionsMap() {
+        return usersExecutionsMap;
     }
 }

@@ -43,7 +43,6 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module" module-name="stepper-engine" />
     <orderEntry type="library" name="gson-2.8.8" level="project" />
     <orderEntry type="module" module-name="stepper-dto" />
   </component>

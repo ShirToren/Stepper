@@ -16,16 +16,11 @@ import impl.DataInFlowDTO;
 import impl.FlowExecutionDTO;
 import impl.StepUsageDeclarationDTO;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import okhttp3.Call;
@@ -40,13 +35,7 @@ import java.util.*;
 import java.util.function.Consumer;
 
 public class ExecutionDetailsController {
-    private AdminMainAppController mainAppController;
-    @FXML
-    private Button continueButton;
-    @FXML
-    private ListView<String> continuationsLV;
-    private final ObservableList<String> continuationsData = FXCollections.observableArrayList();
-    private String selectedContinuation;
+
     @FXML
     private TreeView<String> executedFlowAndStepsTV;
     @FXML
@@ -69,8 +58,6 @@ public class ExecutionDetailsController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        continuationsLV.setItems(continuationsData);
-        continueButton.disableProperty().bind(continuationsLV.getSelectionModel().selectedItemProperty().isNull());
     }
 
     private void clearFlowExecutionDetails() {
@@ -91,11 +78,9 @@ public class ExecutionDetailsController {
         clearStepExecutionDetails();
         executionDetailsComponent.getChildren().clear();
         executionDetailsComponent.getChildren().add(flowExecutionDetailsComponent);
-        continuationsData.clear();
     }
 
     public void setMainAppController(AdminMainAppController mainAppController) {
-        this.mainAppController = mainAppController;
         flowExecutionDetailsComponentController.setMainAppController(mainAppController);
         stepExecutionDetailsComponentController.setMainAppController(mainAppController);
     }
@@ -196,17 +181,6 @@ public class ExecutionDetailsController {
                 }));
     }
 
-    @FXML
-    void rowClickedActionListener(MouseEvent event) {
-        if(event.getClickCount() == 1) {
-            int selectedIndex = continuationsLV.getSelectionModel().getSelectedIndex();
-
-            if (selectedIndex >= 0 && selectedIndex < continuationsData.size()) {
-                selectedContinuation = continuationsLV.getSelectionModel().getSelectedItem();
-            }
-        }
-    }
-
     public UIAdapter createUIAdapter() {
         return new UIAdapter(
                 name -> {
@@ -244,9 +218,5 @@ public class ExecutionDetailsController {
                     flowExecutionDetailsComponentController.clearAllInputs();
         });
     }
-    public String getSelectedContinuation() {
-        return selectedContinuation;
-    }
-
 }
 

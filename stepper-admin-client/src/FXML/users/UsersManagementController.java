@@ -82,6 +82,8 @@ public class UsersManagementController {
         }
         if(setManagerCB.isSelected() && !isManager && !currentUsers.get(selectedUser).getRolesName().contains("All Flows")) {
             rolesToAdd.add(currentRoles.get("All Flows"));
+        } else if (!setManagerCB.isSelected() && isManager && currentUsers.get(selectedUser).getRolesName().contains("All Flows")){
+            rolesToRemove.add(currentRoles.get("All Flows"));
         }
 
         httpCallToAddOrRemoveRoles(rolesToAdd, Constants.ADD_ROLES_TO_USER);
@@ -185,6 +187,7 @@ public class UsersManagementController {
                 usersData.clear();
                 for (Map.Entry<String, UserDTO> entry : users.entrySet()) {
                     usersData.add(entry.getKey());
+
                 }
         }
         showUserDetails();
@@ -229,6 +232,14 @@ public class UsersManagementController {
                     }
                 }
             });
+        }
+    }
+    public void closeTimer(){
+        if(timer != null){
+            timer.cancel();
+        }
+        if(usersRefresher != null){
+            usersRefresher.cancel();
         }
     }
 }

@@ -2,10 +2,9 @@ package step.impl;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
+import dd.JsonData;
 import dd.impl.DataDefinitionRegistry;
-import dd.impl.json.JsonData;
 import flow.execution.context.StepExecutionContext;
 import logs.LogLine;
 import step.api.AbstractStepDefinition;

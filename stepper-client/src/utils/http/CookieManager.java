@@ -11,10 +11,10 @@ import java.util.function.Consumer;
 public class CookieManager implements CookieJar {
     private final static String CACHE_MANAGER_PREFIX = "    [Cookie Manager] ---> ";
     Map<String, Map<String, Cookie>> cookies = new HashMap<>();
-    private Consumer<String> logData = System.out::println;
+    //private Consumer<String> logData = System.out::println;
 
     public void setLogData(Consumer<String> logData) {
-        this.logData = logData;
+       // this.logData = logData;
     }
 
     @NotNull
@@ -43,7 +43,7 @@ public class CookieManager implements CookieJar {
                     .stream()
                     .filter(cookie -> !cookiesMap.containsKey(cookie.name()))
                     .forEach(cookie -> {
-                        logData.accept(CACHE_MANAGER_PREFIX + "Storing cookie [" + cookie.name() + "] --> [" + cookie.value() + "]");
+                        //logData.accept(CACHE_MANAGER_PREFIX + "Storing cookie [" + cookie.name() + "] --> [" + cookie.value() + "]");
                         cookiesMap.put(cookie.name(), cookie);
                     });
         }

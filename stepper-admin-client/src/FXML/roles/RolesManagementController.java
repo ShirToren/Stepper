@@ -317,5 +317,14 @@ public class RolesManagementController {
         }
     }
 
+    public void closeTimer(){
+        if(timer != null) {
+            timer.cancel();
+        }
+        if(rolesRefresher != null) {
+            rolesRefresher.cancel();
+        }
+    }
+
 }
 

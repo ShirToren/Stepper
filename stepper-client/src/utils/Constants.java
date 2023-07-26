@@ -31,11 +31,11 @@ public class Constants {
     public final static String COPY_CONTINUATION_VALUES = FULL_SERVER_PATH + "/copy-continuation-values";
     public final static String COPY_FREE_INPUTS_VALUES = FULL_SERVER_PATH + "/copy-free-inputs-values";
     public final static String FLOW_NAME = FULL_SERVER_PATH + "/flow-name";
-    public final static String SHUT_DOWN = FULL_SERVER_PATH + "/shut-down";
     public final static String LAST_EXECUTION = FULL_SERVER_PATH + "/last-execution";
     public final static String EXECUTE_FLOW = FULL_SERVER_PATH + "/execute-flow";
 
     public final static String ADD_INPUTS = FULL_SERVER_PATH + "/add-inputs";
+    public final static String ALL_HISTORY = FULL_SERVER_PATH + "/all-history";
     public final static String CHAT_LINES_LIST = FULL_SERVER_PATH + "/chat";
     public static final String EXECUTION_ID_PARAMETER = "executionID";
 

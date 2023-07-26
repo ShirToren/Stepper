@@ -108,36 +108,14 @@ public class LoginController {
 
     private void switchToMainApp(ActionEvent event) throws IOException {
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-/*        stage.setOnCloseRequest(event1 -> {
-            httpCallShutdownExecutor();
-        });*/
+        stage.setOnCloseRequest(event1 -> {
+            mainAppController.onClose();
+        });
         mainAppController.setActive();
         Scene scene = new Scene(root, 1000, 600);
         stage.setScene(scene);
         stage.setTitle("Stepper - Client");
         stage.show();
-    }
-
-    private void httpCallShutdownExecutor() {
-        String finalUrl = HttpUrl
-                .parse(Constants.SHUT_DOWN)
-                .newBuilder()
-                .build()
-                .toString();
-
-
-        HttpClientUtil.runAsync(finalUrl, new Callback() {
-
-            @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e) {
-
-            }
-
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                String jsonResponse = response.body().string();
-            }
-        });
     }
 
     private void showErrorDialog(String title, String message) {

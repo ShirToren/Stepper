@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="stepper-dto:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/stepper_dto_jar</output-path>
+    <root id="archive" name="stepper-dto.jar">
+      <element id="module-output" name="stepper-dto" />
+      <element id="extracted-dir" path="$USER_HOME$/Downloads/gson-2.8.8.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

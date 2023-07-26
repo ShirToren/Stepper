@@ -51,10 +51,14 @@ public class MainAppController {
     private Tab executionHistoryTab;
 
     private final SimpleBooleanProperty isFlowSelected;
+    private List<String> currentRoles;
+    private final SimpleBooleanProperty isManager;
 
 
     public MainAppController() {
         this.isFlowSelected = new SimpleBooleanProperty(false);
+        this.isManager = new SimpleBooleanProperty(false);
+        //isManagerLabel.textProperty().bind(isManager.asString());
     }
 
     @FXML
@@ -80,7 +84,7 @@ public class MainAppController {
                     flowsExecutionComponentController.clearAll();
                 }
                 if(oldTab.equals(executionHistoryTab)) {
-                    executionHistoryComponentController.clearAll();
+                    //executionHistoryComponentController.clearAll();
                 }
             }
         });
@@ -103,6 +107,17 @@ public class MainAppController {
     public void enableReRun(){
         flowsExecutionComponentController.enableRerun();
     }
+    public void disAbleReRun(){
+        flowsExecutionComponentController.disAbleRerun();
+    }
+
+    public void executionHistoryClicked(String flowName) {
+        if(getAvailableFlows().contains(flowName)){
+            executionHistoryComponentController.enAbleReRun();
+        } else {
+            executionHistoryComponentController.disAbleReRun();
+        }
+    }
 
     public void updateProgress(double x, double all) {
         flowsExecutionComponentController.updateProgress(x, all);
@@ -123,16 +138,37 @@ public class MainAppController {
     }
 
     private void updateRolesList(List<String> roles) {
+        this.currentRoles = roles;
         Platform.runLater(() -> {
             rolesLVItems.clear();
             rolesLVItems.addAll(roles);
+            isManager.set(currentRoles.contains("All Flows"));
+            if(isManager.get()){
+                isManagerLabel.setText("Yes");
+            } else {
+                isManagerLabel.setText("No");
+            }
+/*            if(currentRoles.contains("All Flows")){
+                isManagerLabel.setText("Yes");
+                //executionHistoryComponentController.startRefresher();
+            } else {
+                isManagerLabel.setText("No");
+                //executionHistoryComponentController.closeTimer();
+            }*/
         });
         flowsDefinitionComponentController.startDefinitionRefresher();
+    }
+    public List<String> getAvailableFlows() {
+        return flowsDefinitionComponentController.getAvailableFlows();
     }
 
     public void updateUserName(String userName) {
         nameLabel.setText(userName);
         isManagerLabel.setText("No");
+    }
+
+    public SimpleBooleanProperty isManager(){
+        return isManager;
     }
 
     public void addRerunButton(UUID id){
@@ -410,9 +446,20 @@ public class MainAppController {
         alert.setHeaderText(null);
         alert.showAndWait();
     }
-
-    public void addStatistics() {
-
+    private void closeTimer() {
+        if(timer != null) {
+            timer.cancel();
+        }
+        if(rolesListRefresher != null) {
+            rolesListRefresher.cancel();
+        }
+    }
+    public void onClose(){
+        closeTimer();
+        flowsDefinitionComponentController.closeTimer();
+        flowsExecutionComponentController.closeTimer();
+        executionHistoryComponentController.closeTimer();
+        HttpClientUtil.shutdown();
     }
 }
 

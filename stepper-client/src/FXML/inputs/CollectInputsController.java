@@ -4,7 +4,6 @@ import FXML.execution.ExecutionController;
 import FXML.main.MainAppController;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
-import dd.impl.enumeration.EnumeratorData;
 import impl.DataInFlowDTO;
 import impl.FlowExecutionDTO;
 import javafx.application.Platform;

@@ -4,6 +4,6 @@ import dd.api.AbstractDataDefinition;
 
 public class MappingDataDefinition extends AbstractDataDefinition {
     public MappingDataDefinition() {
-        super("Mapping", false, Mapping.class);
+        super("Mapping", false, dd.Mapping.class);
     }
 }

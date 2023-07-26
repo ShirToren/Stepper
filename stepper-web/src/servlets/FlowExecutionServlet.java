@@ -9,6 +9,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import stepper.management.StepperEngineManager;
+import users.User;
+import users.UserManager;
 import utils.ServletUtils;
 import utils.SessionUtils;
 import constants.*;
@@ -27,16 +29,18 @@ public class FlowExecutionServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("text/plain");
         StepperEngineManager manager = ServletUtils.getManager(getServletContext());
+        UserManager userManager = ServletUtils.getUserManager(getServletContext());
         String username = SessionUtils.getUsername(req);
         if (username == null) {
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         }
 
+        User user = userManager.getUsers().get(username);
         String flowName = req.getParameter("flowName");
         UUID id;
         if (flowName != null && !flowName.isEmpty()) {
             synchronized (getServletContext()) {
-                id = manager.createFlowExecution(flowName, username);
+                id = manager.createFlowExecution(flowName, username, user.isManager());
             }
             String response = id.toString();
             try (PrintWriter out = resp.getWriter()) {

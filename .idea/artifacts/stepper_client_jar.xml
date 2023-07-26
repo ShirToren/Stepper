@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="stepper-client:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/stepper_client_jar</output-path>
+    <root id="archive" name="stepper-client.jar">
+      <element id="module-output" name="stepper-client" />
+      <element id="module-output" name="stepper-dto" />
+      <element id="extracted-dir" path="$USER_HOME$/Downloads/okHttp/okHttp/annotations-13.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/Downloads/okHttp/okHttp/okhttp-4.9.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/Downloads/okHttp/okHttp/kotlin-stdlib-1.4.10.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/Downloads/okHttp/okHttp/okio-2.8.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/Downloads/gson-2.8.8.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

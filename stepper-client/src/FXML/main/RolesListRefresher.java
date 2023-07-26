@@ -44,8 +44,6 @@ public class RolesListRefresher extends TimerTask {
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 String jsonArrayOfRoles = response.body().string();
                 if (response.isSuccessful()) {
-                    //String jsonArrayOfRoles = response.body().string();
-                    //httpRequestLoggerConsumer.accept("Users Request # " + finalRequestNumber + " | Response: " + jsonArrayOfUsersNames);
                     String[] roles = GSON_INSTANCE.fromJson(jsonArrayOfRoles, String[].class);
                     rolesListConsumer.accept(Arrays.asList(roles));
                 }

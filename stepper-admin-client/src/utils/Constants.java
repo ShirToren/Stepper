@@ -21,7 +21,12 @@ public class Constants {
     public final static String ALL_FLOWS = FULL_SERVER_PATH + "/all-flows";
     public final static String CREATE_ROLE = FULL_SERVER_PATH + "/create-role";
     public final static String FLOW_EXECUTION = FULL_SERVER_PATH + "/flow-execution";
+    public final static String LOGIN_PAGE = FULL_SERVER_PATH + "/loginShortResponse";
+    public final static String CONNECT_ADMIN = FULL_SERVER_PATH + "/connect-admin";
+
     public static final String EXECUTION_ID_PARAMETER = "executionID";
+    public final static String SHUT_DOWN = FULL_SERVER_PATH + "/shut-down";
+
 
     public final static Gson GSON_INSTANCE = new Gson();
 }

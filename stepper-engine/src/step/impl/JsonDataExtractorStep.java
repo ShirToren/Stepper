@@ -1,8 +1,8 @@
 package step.impl;
 
 import com.jayway.jsonpath.JsonPath;
+import dd.JsonData;
 import dd.impl.DataDefinitionRegistry;
-import dd.impl.json.JsonData;
 import flow.execution.context.StepExecutionContext;
 import logs.LogLine;
 import net.minidev.json.JSONObject;

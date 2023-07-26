@@ -31,8 +31,10 @@ public class FlowExecutionDTO implements DTO {
     private final Map<String, String> stepsStartTimes;
     private final Map<String, String> stepsEndTimes;
     private final String userName;
+    private final boolean isManager;
+    private final boolean isUsersLastExecution;
 
-    public FlowExecutionDTO(UUID uuid, FlowDefinitionDTO flowDefinitionDTO, String executionResult, Map<DataInFlowDTO, Object> executionFormalOutputs, Map<DataInFlowDTO, Object> allExecutionOutputs, Map<DataInFlowDTO, Object> allExecutionInputs, long totalTime, String startExecutionTime, String endExecutionTime, Map<String, Long> stepsTotalTimes, List<StepUsageDeclarationDTO> executedSteps, Map<String, String> stepsResults, Map<String, List<LogLineDTO>> logLines, Map<String, String> summeryLines, boolean isFinished, Map<String, Object> freeInputs, Map<String, String> stepsStartTimes, Map<String, String> stepsEndTimes, String userName) {
+    public FlowExecutionDTO(UUID uuid, FlowDefinitionDTO flowDefinitionDTO, String executionResult, Map<DataInFlowDTO, Object> executionFormalOutputs, Map<DataInFlowDTO, Object> allExecutionOutputs, Map<DataInFlowDTO, Object> allExecutionInputs, long totalTime, String startExecutionTime, String endExecutionTime, Map<String, Long> stepsTotalTimes, List<StepUsageDeclarationDTO> executedSteps, Map<String, String> stepsResults, Map<String, List<LogLineDTO>> logLines, Map<String, String> summeryLines, boolean isFinished, Map<String, Object> freeInputs, Map<String, String> stepsStartTimes, Map<String, String> stepsEndTimes, String userName, boolean isManager, boolean isUsersLastExecution) {
         this.uuid = uuid;
         this.flowDefinitionDTO = flowDefinitionDTO;
         this.executionResult = executionResult;
@@ -52,6 +54,8 @@ public class FlowExecutionDTO implements DTO {
         this.stepsStartTimes = stepsStartTimes;
         this.stepsEndTimes = stepsEndTimes;
         this.userName = userName;
+        this.isManager = isManager;
+        this.isUsersLastExecution = isUsersLastExecution;
     }
 
     public UUID getUuid() {
@@ -146,5 +150,13 @@ public class FlowExecutionDTO implements DTO {
             }
         }
         return  executedSteps;
+    }
+
+    public boolean isManager() {
+        return isManager;
+    }
+
+    public boolean isUsersLastExecution() {
+        return isUsersLastExecution;
     }
 }

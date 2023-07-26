@@ -113,7 +113,8 @@ public class StatisticsController {
     }
 
     private void updateStatistics(StatisticsDTO statisticsDTO) {
-        if (flowsData.size() != statisticsDTO.getFlowExecutedTimes().size()) {
+        if (flowsData.size() != statisticsDTO.getFlowExecutedTimes().size()
+        ) {
             clearAll();
             for (Map.Entry<String, Integer> times : statisticsDTO.getFlowExecutedTimes().entrySet()) {
                 TargetTable row = new TargetTable(times.getKey(), times.getValue(), (double) statisticsDTO.getFlowExecutedTotalMillis().get(times.getKey()) / times.getValue());
@@ -132,6 +133,15 @@ public class StatisticsController {
     public void addStatisticsToTable() {
         //clearAll();
         startStatisticsRefresher();
+    }
+
+    public void closeTimer() {
+        if(timer != null) {
+            timer.cancel();
+        }
+        if(statisticsRefresher != null) {
+            statisticsRefresher.cancel();
+        }
     }
 
     public class TargetTable {

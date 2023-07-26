@@ -1,11 +1,10 @@
 package step.impl;
 
 import dd.ListData;
+import dd.Mapping;
+import dd.NumberMapping;
 import dd.StringList;
 import dd.impl.DataDefinitionRegistry;
-import dd.impl.list.FileList;
-import dd.impl.mapping.Mapping;
-import dd.impl.mapping.NumberMapping;
 import flow.execution.context.StepExecutionContext;
 import logs.LogLine;
 import step.api.AbstractStepDefinition;
@@ -17,7 +16,6 @@ import java.io.File;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalTime;
-import java.util.List;
 
 public class FilesDeleterStep extends AbstractStepDefinition {
     public FilesDeleterStep() {

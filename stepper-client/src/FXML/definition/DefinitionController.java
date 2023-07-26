@@ -146,6 +146,9 @@ public class DefinitionController {
                     }
                 }
                 data.removeAll(flowsToDelete);
+                if(flowsToDelete.size() != 0) {
+                    flowDetailsComponentController.clearPrevDetails();
+                }
             });
         //}
 /*        Platform.runLater(() -> {
@@ -162,6 +165,9 @@ public class DefinitionController {
         });*/
     }
 
+    public List<String> getAvailableFlows() {
+        return availableFlows;
+    }
 
     public class TargetTable {
         private final String name;
@@ -196,6 +202,14 @@ public class DefinitionController {
 
         public int getNumOfContinuations() {
             return numOfContinuations;
+        }
+    }
+    public void closeTimer() {
+        if(timer != null) {
+            timer.cancel();
+        }
+        if(listRefresher != null) {
+            listRefresher.cancel();
         }
     }
 

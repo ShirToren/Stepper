@@ -105,9 +105,17 @@ public class ExecutionDetailsController {
         timer.schedule(executionDetailsRefresher, REFRESH_RATE, REFRESH_RATE);
         //////and update details again
     }
+    public void closeTimer() {
+        if(timer != null) {
+            timer.cancel();
+        }
+        if(executionDetailsRefresher != null) {
+            executionDetailsRefresher.cancel();
+        }
+    }
 
     private void updateExecutionDetails(FlowExecutionDTO flowExecutionDTO) {
-        if (flowExecutionDTO.isFinished()) {
+        if (flowExecutionDTO.isFinished() || !flowExecutionDTO.isUsersLastExecution()) {
             timer.cancel();
             uiAdapter.updateFlowStartTime(flowExecutionDTO.getStartExecutionTime());
             uiAdapter.clearStepsItems();
@@ -121,8 +129,13 @@ public class ExecutionDetailsController {
             for (Map.Entry<DataInFlowDTO, Object> entry : flowExecutionDTO.getAllExecutionOutputs().entrySet()) {
                 uiAdapter.addNewOutput(entry);
             }
-            mainAppController.updateProgress(1, 1);
-            enableReRun();
+            if(flowExecutionDTO.isFinished()){
+                mainAppController.updateProgress(1, 1);
+            } else {
+                mainAppController.updateProgress(0, 0);
+            }
+
+            enableReRun(flowExecutionDTO);
             addContinuations(flowExecutionDTO.getUuid().toString());
         } else {
             if (flowExecutionDTO.getStartExecutionTime() != null) {
@@ -235,8 +248,12 @@ public class ExecutionDetailsController {
         }));
     }
 
-    private void enableReRun() {
-        mainAppController.enableReRun();
+    private void enableReRun(FlowExecutionDTO flowExecutionDTO) {
+        if(mainAppController.getAvailableFlows().contains(flowExecutionDTO.getFlowDefinitionDTO().getName())){
+            mainAppController.enableReRun();
+        } else {
+            mainAppController.disAbleReRun();
+        }
     }
 
     private void updateFlowRootItem(String flowName){
@@ -288,7 +305,7 @@ public class ExecutionDetailsController {
         }
     }
     public void addContinuations(String id){
-        continuationsData.clear();
+        Platform.runLater(continuationsData::clear);
 
         String finalUrl = HttpUrl
                 .parse(Constants.FLOW_EXECUTION)
@@ -317,7 +334,11 @@ public class ExecutionDetailsController {
                         Platform.runLater(() -> {
                             if(continuations != null){
                                 for (ContinuationDTO continuation: continuations.getContinuations()) {
-                                    continuationsData.add(continuation.getTargetFlow());
+                                    if(mainAppController.getAvailableFlows().contains(continuation.getTargetFlow())){
+                                        continuationsData.add(continuation.getTargetFlow());
+                                    }else{
+                                        continuationsData.remove(continuation.getTargetFlow());
+                                    }
                                 }
                             }
                         });

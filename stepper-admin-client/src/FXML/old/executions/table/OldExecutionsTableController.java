@@ -41,6 +41,10 @@ public class OldExecutionsTableController {
     @FXML
     private TableColumn<TargetTable, String> resultTableColumn;
     @FXML
+    private TableColumn<TargetTable, String> userTableColumn;
+    @FXML
+    private TableColumn<TargetTable, String> roleTableColumn;
+    @FXML
     private CheckBox successCB;
 
     @FXML
@@ -58,6 +62,8 @@ public class OldExecutionsTableController {
         flowNameTableColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         executionTimeTableColumn.setCellValueFactory(new PropertyValueFactory<>("time"));
         resultTableColumn.setCellValueFactory(new PropertyValueFactory<>("result"));
+        userTableColumn.setCellValueFactory(new PropertyValueFactory<>("user"));
+        roleTableColumn.setCellValueFactory(new PropertyValueFactory<>("role"));
         oldExecutionsTableView.setItems(data);
         oldExecutionsTableView.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue.intValue() == -1) {
@@ -69,9 +75,7 @@ public class OldExecutionsTableController {
         successCB.selectedProperty().set(false);
         failureCB.selectedProperty().set(false);
         warningCB.selectedProperty().set(false);
-        // 1. Wrap the ObservableList in a FilteredList (initially display all data).
 
-        //FilteredList<TargetTable> filteredData = new FilteredList<>(data, p -> true);
         successCB.selectedProperty().addListener((observable, oldValue, newValue) ->
                 filteredData.setPredicate(createSuccessFilterPredicate(newValue)));
         failureCB.selectedProperty().addListener((observable, oldValue, newValue) ->
@@ -79,16 +83,12 @@ public class OldExecutionsTableController {
         warningCB.selectedProperty().addListener((observable, oldValue, newValue) ->
                 filteredData.setPredicate(createWarningFilterPredicate(newValue)));
 
-
-        // 3. Wrap the FilteredList in a SortedList.
         SortedList<TargetTable> sortedData = new SortedList<>(filteredData);
 
-        // 4. Bind the SortedList comparator to the TableView comparator.
         sortedData.comparatorProperty().bind(oldExecutionsTableView.comparatorProperty());
         oldExecutionsTableView.setItems(sortedData);
     }
 
-    // Create a Predicate to filter the TableView data based on the selected state of the checkBox
     private Predicate<TargetTable> createSuccessFilterPredicate(boolean selected) {
         return person -> {
             if (!selected) {
@@ -117,22 +117,11 @@ public class OldExecutionsTableController {
         };
     }
     public void show() {
-        //data.clear();
         addExecutionsToTable();
     }
 
     public void addExecutionsToTable() {
         startExecutionHistoryRefresher();
-/*        data.clear();
-        List<FlowExecutionDTO> allFlowExecutionsDTO = mainAppController.getModel().getAllFlowExecutionsDTO();
-        for (FlowExecutionDTO dto: allFlowExecutionsDTO) {
-            if(dto.isFinished()) {
-                TargetTable row = new TargetTable(dto.getFlowDefinitionDTO().getName(),
-                        dto.getStartExecutionTime(),
-                        dto.getExecutionResult(), dto.getUuid());
-                data.add(row);
-            }
-        }*/
     }
 
     public void startExecutionHistoryRefresher() {
@@ -148,7 +137,8 @@ public class OldExecutionsTableController {
                 if(dto.isFinished()) {
                     TargetTable row = new TargetTable(dto.getFlowDefinitionDTO().getName(),
                             dto.getStartExecutionTime(),
-                            dto.getExecutionResult(), dto.getUuid());
+                            dto.getExecutionResult(), dto.getUuid(), dto.getUserName(),
+                            dto.isManager()? "manager" : "not manager");
                     data.add(row);
                 }
             }
@@ -157,18 +147,6 @@ public class OldExecutionsTableController {
 
     public void setMainAppController(AdminMainAppController mainAppController) {
         this.mainAppController = mainAppController;
-    }
-
-    public String getSelectedItemName() {
-        return selectedItemName;
-    }
-
-    public UUID getSelectedItemID() {
-        return selectedItemID;
-    }
-
-    public SimpleBooleanProperty isExecutionSelected() {
-        return isExecutionSelected;
     }
 
     public void setExecutionHistoryController(ExecutionHistoryController executionHistoryController) {
@@ -195,6 +173,15 @@ public class OldExecutionsTableController {
                 executionHistoryController.addFlowExecutionDetails(item.id);
             }
         }
+
+    }
+    public void closeTimer(){
+        if(timer != null) {
+            this.timer.cancel();
+        }
+        if(executionHistoryRefresher != null){
+            executionHistoryRefresher.cancel();
+        }
     }
 
     public class TargetTable {
@@ -202,12 +189,16 @@ public class OldExecutionsTableController {
         private final String time;
         private final String result;
         private final UUID id;
+        private final String user;
+        private final String role;
 
-        public TargetTable(String name, String time, String result, UUID id) {
+        public TargetTable(String name, String time, String result, UUID id, String user, String role) {
             this.name = name;
             this.time = time;
             this.result = result;
             this.id = id;
+            this.user = user;
+            this.role = role;
         }
 
         public String getName() { return name; }
@@ -216,6 +207,12 @@ public class OldExecutionsTableController {
 
         public UUID getID() { return id; }
 
+        public String getUser() {
+            return user;
+        }
 
+        public String getRole() {
+            return role;
+        }
     }
 }
