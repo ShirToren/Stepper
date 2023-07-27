@@ -83,4 +83,11 @@ public class ExecutionController {
     public void closeTimer(){
         executionDetailsComponentController.closeTimer();
     }
+
+    public void addContinuations(String id) {
+        executionDetailsComponentController.addContinuations(id);
+    }
+    public void clearContinuations() {
+        executionDetailsComponentController.clearContinuations();
+    }
 }

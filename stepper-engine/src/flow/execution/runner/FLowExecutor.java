@@ -72,11 +72,11 @@ public class FLowExecutor {
             }
 
 
-            try {
+/*            try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
-            }
+            }*/
 
             if(stepResult.equals(StepResult.FAILURE)) {
                 flowExecution.setFlowExecutionResult(FlowExecutionResult.FAILURE);

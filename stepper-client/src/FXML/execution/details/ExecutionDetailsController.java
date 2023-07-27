@@ -97,6 +97,11 @@ public class ExecutionDetailsController {
         executionDetailsComponent.getChildren().add(flowExecutionDetailsComponent);
         continuationsData.clear();
         mainAppController.updateProgress(0,0);
+        mainAppController.executionWantsToEnableProperty().set(false);
+    }
+
+    public void clearContinuations(){
+        continuationsData.clear();
     }
 
     public void startExecutionDetailsRefresher(String id) {
@@ -117,26 +122,40 @@ public class ExecutionDetailsController {
     private void updateExecutionDetails(FlowExecutionDTO flowExecutionDTO) {
         if (flowExecutionDTO.isFinished() || !flowExecutionDTO.isUsersLastExecution()) {
             timer.cancel();
-            uiAdapter.updateFlowStartTime(flowExecutionDTO.getStartExecutionTime());
-            uiAdapter.clearStepsItems();
-            for (StepUsageDeclarationDTO step : flowExecutionDTO.getOnlyExecutedSteps()) {
-                uiAdapter.addNewStep(step.getName());
-            }
-            uiAdapter.updateFlowDuration(Long.toString(flowExecutionDTO.getTotalTime()));
-            uiAdapter.updateFlowEndTime(flowExecutionDTO.getEndExecutionTime());
-            uiAdapter.updateFlowResult(flowExecutionDTO.getExecutionResult());
-            uiAdapter.clearOutputsItems();
-            for (Map.Entry<DataInFlowDTO, Object> entry : flowExecutionDTO.getAllExecutionOutputs().entrySet()) {
-                uiAdapter.addNewOutput(entry);
-            }
-            if(flowExecutionDTO.isFinished()){
-                mainAppController.updateProgress(1, 1);
-            } else {
-                mainAppController.updateProgress(0, 0);
-            }
+            executionDetailsRefresher.cancel();
+            if(flowExecutionDTO.isFinished()) {
+                uiAdapter.updateFlowStartTime(flowExecutionDTO.getStartExecutionTime());
+                uiAdapter.clearStepsItems();
+                for (StepUsageDeclarationDTO step : flowExecutionDTO.getOnlyExecutedSteps()) {
+                    uiAdapter.addNewStep(step.getName());
+                }
+                uiAdapter.updateFlowDuration(Long.toString(flowExecutionDTO.getTotalTime()));
+                uiAdapter.updateFlowEndTime(flowExecutionDTO.getEndExecutionTime());
+                uiAdapter.updateFlowResult(flowExecutionDTO.getExecutionResult());
+                uiAdapter.clearOutputsItems();
+                for (Map.Entry<DataInFlowDTO, Object> entry : flowExecutionDTO.getAllExecutionOutputs().entrySet()) {
+                    uiAdapter.addNewOutput(entry);
+                }
+                Platform.runLater(() -> {
+                    mainAppController.updateProgress(1, 1);
+                    updateReRun(flowExecutionDTO);
+                    addContinuations(flowExecutionDTO.getUuid().toString());
+                    if(mainAppController.getAvailableFlows().contains(flowExecutionDTO.getFlowDefinitionDTO().getName())){
+                        mainAppController.executionWantsToEnableProperty().set(true);
+                        mainAppController.setExecutedFlowName(flowExecutionDTO.getFlowDefinitionDTO().getName());
+                        mainAppController.setExecutedFlowID(flowExecutionDTO.getUuid().toString());
+                    }
 
-            enableReRun(flowExecutionDTO);
-            addContinuations(flowExecutionDTO.getUuid().toString());
+                });
+            } else {
+                Platform.runLater(() -> {
+                        executedFlowAndStepsTV.getRoot().getChildren().clear();
+                        executedFlowAndStepsTV.setRoot(null);
+                        mainAppController.updateProgress(0, 0);
+                });
+                uiAdapter.clearOutputsItems();
+                uiAdapter.clearInputsItems();
+            }
         } else {
             if (flowExecutionDTO.getStartExecutionTime() != null) {
                 uiAdapter.updateFlowStartTime(flowExecutionDTO.getStartExecutionTime());
@@ -248,12 +267,8 @@ public class ExecutionDetailsController {
         }));
     }
 
-    private void enableReRun(FlowExecutionDTO flowExecutionDTO) {
-        if(mainAppController.getAvailableFlows().contains(flowExecutionDTO.getFlowDefinitionDTO().getName())){
-            mainAppController.enableReRun();
-        } else {
-            mainAppController.disAbleReRun();
-        }
+    private void updateReRun(FlowExecutionDTO flowExecutionDTO) {
+       mainAppController.updateReRun(flowExecutionDTO.getFlowDefinitionDTO().getName());
     }
 
     private void updateFlowRootItem(String flowName){
@@ -342,7 +357,6 @@ public class ExecutionDetailsController {
                                 }
                             }
                         });
-
                 }
             }
         });

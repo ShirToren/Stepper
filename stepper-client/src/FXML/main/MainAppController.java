@@ -53,12 +53,18 @@ public class MainAppController {
     private final SimpleBooleanProperty isFlowSelected;
     private List<String> currentRoles;
     private final SimpleBooleanProperty isManager;
+    private final SimpleBooleanProperty executionWantsToEnable;
+    private final SimpleBooleanProperty historyWantsToEnable;
+    private String executedFlowName;
+    private String executedFlowID;
+
 
 
     public MainAppController() {
         this.isFlowSelected = new SimpleBooleanProperty(false);
         this.isManager = new SimpleBooleanProperty(false);
-        //isManagerLabel.textProperty().bind(isManager.asString());
+        executionWantsToEnable = new SimpleBooleanProperty(false);
+        historyWantsToEnable = new SimpleBooleanProperty(false);
     }
 
     @FXML
@@ -83,9 +89,6 @@ public class MainAppController {
                 if(oldTab.equals(flowExecutionTab) || newTab.equals((flowExecutionTab))) {
                     flowsExecutionComponentController.clearAll();
                 }
-                if(oldTab.equals(executionHistoryTab)) {
-                    //executionHistoryComponentController.clearAll();
-                }
             }
         });
 
@@ -101,14 +104,47 @@ public class MainAppController {
             String selectedValue = cssChoiceBox.getValue();
             changeCss(selectedValue);
         });
-        //startRolesRefresher();
+        isManager.addListener((observable, oldValue, newValue) -> {
+            if(executionWantsToEnable.get()) {
+                updateReRun(executedFlowName);
+                updateContinuations(executedFlowID);
+            }
+            if(!newValue) {
+
+            }
+        });
     }
 
-    public void enableReRun(){
-        flowsExecutionComponentController.enableRerun();
+    public void setExecutedFlowID(String executedFlowID) {
+        this.executedFlowID = executedFlowID;
     }
-    public void disAbleReRun(){
-        flowsExecutionComponentController.disAbleRerun();
+
+    public void setExecutedFlowName(String executedFlowName) {
+        this.executedFlowName = executedFlowName;
+    }
+
+    public SimpleBooleanProperty executionWantsToEnableProperty() {
+        return executionWantsToEnable;
+    }
+
+    public SimpleBooleanProperty historyWantsToEnableProperty() {
+        return historyWantsToEnable;
+    }
+
+    public void updateReRun(String flowName){
+        if(getAvailableFlows().contains(flowName)){
+            flowsExecutionComponentController.enableRerun();
+        } else {
+            flowsExecutionComponentController.disAbleRerun();
+        }
+    }
+
+    public void updateContinuations(String id){
+        if(getAvailableFlows().contains(executedFlowName)){
+            flowsExecutionComponentController.addContinuations(id);
+        } else {
+            flowsExecutionComponentController.clearContinuations();
+        }
     }
 
     public void executionHistoryClicked(String flowName) {

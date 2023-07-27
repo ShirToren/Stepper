@@ -126,44 +126,6 @@ public class OldExecutionsTableController {
 
     public void addExecutionsToTable() {
         startExecutionHistoryRefresher();
-/*        if(!mainAppController.isManager()){
-            data.clear();
-
-            String finalUrl = HttpUrl
-                    .parse(Constants.HISTORY)
-                    .newBuilder()
-                    .build()
-                    .toString();
-
-            HttpClientUtil.runAsync(finalUrl, new Callback() {
-                @Override
-                public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                }
-
-                @Override
-                public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                    String rawBody = response.body().string();
-                    if (response.isSuccessful()) {
-                        GsonBuilder gsonBuilder = new GsonBuilder();
-                        gsonBuilder.registerTypeAdapter(new TypeToken<Map<DataInFlowDTO, Object>>(){}.getType(), new DataInFlowMapDeserializer());
-                        Gson gson = gsonBuilder.create();
-                        FlowExecutionDTO[] flowExecutionDTOS = gson.fromJson(rawBody, FlowExecutionDTO[].class);
-                        List<FlowExecutionDTO> executionsList = Arrays.asList(flowExecutionDTOS);
-                        Platform.runLater(() -> {
-                            for (FlowExecutionDTO dto: executionsList) {
-                                if(dto.isFinished()) {
-                                    TargetTable row = new TargetTable(dto.getFlowDefinitionDTO().getName(),
-                                            dto.getStartExecutionTime(),
-                                            dto.getExecutionResult(), dto.getUuid(), dto.getUserName());
-                                    data.add(row);
-                                }
-                            }
-                        });
-                    }
-                }
-            });
-        }*/
-
     }
 
     public void setMainAppController(MainAppController mainAppController) {
@@ -209,7 +171,6 @@ public class OldExecutionsTableController {
         }
     }
 
-
     public void startExecutionHistoryRefresher() {
         executionHistoryRefresher = new OldExecutionsRefresher(this::updateExecutionHistory, mainAppController.isManager());
         timer = new Timer();
@@ -221,16 +182,21 @@ public class OldExecutionsTableController {
             data.clear();
             mainAppController.executionHistoryClicked(selectedItemName);
         });
-        if(flowExecutionDTOList.size() != data.size()){
+       // mainAppController.updateReRun(selectedItemName);
+        List<FlowExecutionDTO> finishedExecutions = new ArrayList<>();
+        for (FlowExecutionDTO flowExecutionDTO: flowExecutionDTOList) {
+            if(flowExecutionDTO.isFinished()) {
+                finishedExecutions.add(flowExecutionDTO);
+            }
+        }
+        if(finishedExecutions.size() != data.size()){
             data.clear();
-            for (FlowExecutionDTO dto: flowExecutionDTOList) {
-                if(dto.isFinished()) {
+            for (FlowExecutionDTO dto: finishedExecutions) {
                     TargetTable row = new TargetTable(dto.getFlowDefinitionDTO().getName(),
                             dto.getStartExecutionTime(),
                             dto.getExecutionResult(), dto.getUuid(), dto.getUserName(),
                             dto.isManager()? "manager" : "not manager");
                     data.add(row);
-                }
             }
         }
     }
