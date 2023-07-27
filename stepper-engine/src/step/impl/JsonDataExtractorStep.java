@@ -1,11 +1,11 @@
 package step.impl;
 
 import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.JsonPathException;
 import dd.JsonData;
 import dd.impl.DataDefinitionRegistry;
 import flow.execution.context.StepExecutionContext;
 import logs.LogLine;
-import net.minidev.json.JSONObject;
 import step.api.AbstractStepDefinition;
 import step.api.DataDefinitionDeclarationImpl;
 import step.api.DataNecessity;
@@ -42,14 +42,30 @@ public class JsonDataExtractorStep extends AbstractStepDefinition {
 
         StringBuilder stringBuilder = new StringBuilder();
         for (String path: jsonPaths) {
-            String string = JsonPath.read(json.getJsonElement().getAsString(), path);
-            if(string != null) {
-                stringBuilder.append(string);
-                stringBuilder.append(",");
+            String string = null;
+            try {
+                string = JsonPath.read(json.getJsonElement().getAsString(), path);
+            }catch (JsonPathException ex){
+                result = StepResult.FAILURE;
+                context.addSummeryLine("Error while trying to extract");
+                context.addLogLine(new LogLine("Error while trying to extract", LocalTime.now()));
+                context.storeResult(result);
+                Instant end = Instant.now();
+                LocalTime endTime = LocalTime.now();
+                context.storeEndTime(endTime);
+                Duration duration = Duration.between(start, end);
+                context.storeDuration(duration);
+                return result;
             }
-        }
-        if(stringBuilder.toString().isEmpty()) {
-            context.addLogLine(new LogLine("No value found for json path <" + jsonPath + ">", LocalTime.now()));
+            if(string != null) {
+                context.addLogLine(new LogLine("Extracting data " + path + ". Value: " + string, LocalTime.now()));
+                if(stringBuilder.length() != 0){
+                    stringBuilder.append(",");
+                }
+                stringBuilder.append(string);
+            }else{
+                context.addLogLine(new LogLine("No value found for json path <" + path + ">", LocalTime.now()));
+            }
         }
         context.storeDataValue("VALUE", stringBuilder.toString());
         context.addSummeryLine("Success");

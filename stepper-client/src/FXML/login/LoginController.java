@@ -98,18 +98,13 @@ public class LoginController {
                 }
             }
         });
-/*        if(userNameTF.getText().isEmpty()) {
-            showErrorDialog("Error", "Please enter user name");
-            ////check name doesn't exist
-        } else {
-            switchToMainApp(event);
-        }*/
     }
 
     private void switchToMainApp(ActionEvent event) throws IOException {
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         stage.setOnCloseRequest(event1 -> {
             mainAppController.onClose();
+            Platform.exit();
         });
         mainAppController.setActive();
         Scene scene = new Scene(root, 1000, 600);

@@ -563,7 +563,7 @@ public class StepperEngineManager {
         try {
             stepper = loader.loadStepperFromXMLFile(inputStream);
             if(stepper.validateStepperStructure()){
-                dto = new XMLDTO("The file is valid and fully loaded.");
+                dto = new XMLDTO("The file is valid and fully loaded.", true);
                 if(this.stepper == null) {
                     this.stepper = stepper;
                     if(stepper.getThreadPool() != 0){
@@ -574,14 +574,14 @@ public class StepperEngineManager {
                 }
                 updateRoles(stepper);
             } else {
-                dto = new XMLDTO("The file is not valid. One or more flows are not valid.");
+                dto = new XMLDTO("The file is not valid. One or more flows are not valid.", false);
             }
         } catch (JAXBException e) {
-            dto = new XMLDTO(String.format("The file is not valid. Error: %s", e.getMessage()));
+            dto = new XMLDTO(String.format("The file is not valid. Error: %s", e.getMessage()), false);
         } catch (StepNotExistException e) {
-            dto = new XMLDTO(e.getMessage());
+            dto = new XMLDTO(e.getMessage(), false);
         } catch (DoubleFlowNameException e) {
-            dto = new XMLDTO(e.getMessage());
+            dto = new XMLDTO(e.getMessage(), false);
         }
         return dto;
     }

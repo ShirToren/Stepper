@@ -4,6 +4,7 @@ import FXML.main.MainAppController;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import dd.JsonData;
 import dd.RelationData;
 import dd.ListData;
 import impl.DataInFlowDTO;
@@ -128,13 +129,25 @@ public class FlowExecutionDetailsController {
                  addListView((List<Object>) entry.getValue(), rowIndex, 2);
             }  else if(entry.getKey().getDataDefinition().getType().equals(RelationData.class.getName())) {
                 addTableView((RelationData)entry.getValue(), rowIndex, 2);
-            } else {
+            } else if (entry.getKey().getDataDefinition().getType().equals(JsonData.class.getName())) {
+                 addJsonData((JsonData)entry.getValue(), rowIndex, 2 );
+             } else {
                  //if(entry.getKey().getDataDefinition().getType().equals(String.class)){
                      addTextArea(entry.getValue().toString(), rowIndex, 2);
                  //}
              }
         }
         rowIndex++;
+    }
+
+    private void addJsonData(JsonData jsonData, int rowIndex, int colIndex) {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        String text = gson.toJson(jsonData.getJsonElement());
+        String prettyText = text.replaceAll("\\\\", "\n");
+        TextArea textArea = new TextArea(prettyText);
+        textArea.setPrefWidth(200);
+        textArea.setPrefHeight(100);
+        flowExecutionDetailsGP.add(textArea, colIndex,rowIndex);
     }
     public void addInput(String inputName) { freeInputsLVItems.add(inputName); }
     public void clearAllOutputs(){

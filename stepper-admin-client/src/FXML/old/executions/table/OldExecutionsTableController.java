@@ -15,10 +15,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Predicate;
 
 import static utils.Constants.REFRESH_RATE;
@@ -131,7 +128,13 @@ public class OldExecutionsTableController {
     }
 
     private void updateExecutionHistory(List<FlowExecutionDTO> flowExecutionDTOList) {
-        if(flowExecutionDTOList.size() != data.size()){
+        List<FlowExecutionDTO> finishedExecutions = new ArrayList<>();
+        for (FlowExecutionDTO flowExecutionDTO: flowExecutionDTOList) {
+            if(flowExecutionDTO.isFinished()) {
+                finishedExecutions.add(flowExecutionDTO);
+            }
+        }
+        if(finishedExecutions.size() != data.size()){
             data.clear();
             for (FlowExecutionDTO dto: flowExecutionDTOList) {
                 if(dto.isFinished()) {

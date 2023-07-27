@@ -268,7 +268,7 @@ public class ExecutionDetailsController {
     }
 
     private void updateReRun(FlowExecutionDTO flowExecutionDTO) {
-       mainAppController.updateReRun(flowExecutionDTO.getFlowDefinitionDTO().getName());
+       mainAppController.updateExecutionReRun(flowExecutionDTO.getFlowDefinitionDTO().getName());
     }
 
     private void updateFlowRootItem(String flowName){

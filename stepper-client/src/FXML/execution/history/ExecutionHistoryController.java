@@ -51,7 +51,21 @@ public class ExecutionHistoryController {
 
     public void addFlowExecutionDetails(UUID id) {
         executionDetailsComponentController.addFlowExecutionDetails(id.toString());
+        mainAppController.setSelectedHistoryID(id.toString());
         executionDetailsComponentController.addContinuations(id.toString());
+    }
+
+    public void clearSelection() {
+        oldExecutionsTableComponentController.unselect();
+        executionDetailsComponentController.clearAll();
+        ableToReRun.set(false);
+    }
+
+    public void addContinuations(String id){
+        executionDetailsComponentController.addContinuations(id);
+    }
+    public void clearContinuations(){
+        executionDetailsComponentController.clearContinuations();
     }
 
     public void addExecutionToTable(){

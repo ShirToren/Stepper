@@ -1,6 +1,8 @@
 package FXML.step.execution.details;
 
 import FXML.main.AdminMainAppController;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import dd.*;
 import impl.DataInFlowDTO;
 import impl.FlowExecutionDTO;
@@ -94,10 +96,10 @@ public class StepExecutionDetailsController {
                                     addListView((List<Object>) allExecutionData.get(entry.getKey()), rowIndex, 2);
                                 } else if (data.getDataDefinition().getType().equals(RelationData.class.getName())) {
                                     addTableView((RelationData) allExecutionData.get(entry.getKey()), rowIndex, 2);
+                                }else if(data.getDataDefinition().getType().equals(JsonData.class.getName())) {
+                                    addJsonData((JsonData)allExecutionData.get(entry.getKey()), rowIndex, 2 );
                                 } else {
-                                    // if (data.getDataDefinition().getType().equals(String.class)) {
                                     addTextArea(allExecutionData.get(entry.getKey()).toString(), rowIndex, 2);
-                                    //}
                                 }
                             }
                             rowIndex++;
@@ -140,6 +142,15 @@ public class StepExecutionDetailsController {
         TextArea textArea = new TextArea(text);
         textArea.setPrefWidth(200);
         textArea.setPrefHeight(50);
+        stepDetailsGP.add(textArea, colIndex,rowIndex);
+    }
+    private void addJsonData(JsonData jsonData, int rowIndex, int colIndex) {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        String text = gson.toJson(jsonData.getJsonElement());
+        String prettyText = text.replaceAll("\\\\", "\n");
+        TextArea textArea = new TextArea(prettyText);
+        textArea.setPrefWidth(200);
+        textArea.setPrefHeight(100);
         stepDetailsGP.add(textArea, colIndex,rowIndex);
     }
 

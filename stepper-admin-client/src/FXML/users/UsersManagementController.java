@@ -187,7 +187,6 @@ public class UsersManagementController {
                 usersData.clear();
                 for (Map.Entry<String, UserDTO> entry : users.entrySet()) {
                     usersData.add(entry.getKey());
-
                 }
         }
         showUserDetails();

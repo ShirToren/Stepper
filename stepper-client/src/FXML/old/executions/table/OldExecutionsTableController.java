@@ -150,6 +150,7 @@ public class OldExecutionsTableController {
 
     public void clearAll(){
         data.clear();
+        mainAppController.historyWantsToEnableProperty().set(false);
         successCB.selectedProperty().set(false);
         failureCB.selectedProperty().set(false);
         warningCB.selectedProperty().set(false);
@@ -165,8 +166,11 @@ public class OldExecutionsTableController {
                 selectedItemName = item.name;
                 selectedItemID = item.id;
 
+                mainAppController.historyWantsToEnableProperty().set(true);
                 executionHistoryController.addFlowExecutionDetails(item.id);
-                mainAppController.executionHistoryClicked(selectedItemName);
+                mainAppController.setSelectedHistoryID(selectedItemName);
+                mainAppController.setSelectedHistoryName(selectedItemName);
+                mainAppController.updateHistoryReRun(selectedItemName);
             }
         }
     }
@@ -178,10 +182,11 @@ public class OldExecutionsTableController {
     }
 
     private void updateExecutionHistory(List<FlowExecutionDTO> flowExecutionDTOList) {
-        mainAppController.isManager().addListener((observable, oldValue, newValue) -> {
-            data.clear();
-            mainAppController.executionHistoryClicked(selectedItemName);
-        });
+/*        mainAppController.isManager().addListener((observable, oldValue, newValue) -> {
+            *//*data.clear();
+            mainAppController.historyWantsToEnableProperty().set(false);*//*
+            mainAppController.updateHistoryReRun(selectedItemName);
+        });*/
        // mainAppController.updateReRun(selectedItemName);
         List<FlowExecutionDTO> finishedExecutions = new ArrayList<>();
         for (FlowExecutionDTO flowExecutionDTO: flowExecutionDTOList) {
@@ -191,6 +196,7 @@ public class OldExecutionsTableController {
         }
         if(finishedExecutions.size() != data.size()){
             data.clear();
+            mainAppController.historyWantsToEnableProperty().set(false);
             for (FlowExecutionDTO dto: finishedExecutions) {
                     TargetTable row = new TargetTable(dto.getFlowDefinitionDTO().getName(),
                             dto.getStartExecutionTime(),
@@ -199,6 +205,10 @@ public class OldExecutionsTableController {
                     data.add(row);
             }
         }
+    }
+
+    public void unselect() {
+        oldExecutionsTableView.getSelectionModel().clearSelection();
     }
 
     public void closeTimer() {

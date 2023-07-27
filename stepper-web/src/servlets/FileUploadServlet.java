@@ -29,10 +29,16 @@ public class FileUploadServlet extends HttpServlet {
 
         Collection<Part> parts = request.getParts();
 
+        response.setStatus(HttpServletResponse.SC_OK);
+
         for (Part part : parts) {
             synchronized (getServletContext()){
                 XMLDTO xmldto = ServletUtils.getManager(getServletContext()).readSystemInformationFile(part.getInputStream());
-                out.println(xmldto.getFileState());
+                if(!xmldto.isValid()){
+                    out.println("At least 1 file is invalid. Massage: " + xmldto.getFileState());
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    break;
+                }
             }
         }
     }

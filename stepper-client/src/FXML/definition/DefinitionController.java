@@ -1,6 +1,5 @@
 package FXML.definition;
 
-import FXML.definition.model.DefinitionsListWithVersion;
 import FXML.flow.definition.details.FlowDefinitionDetailsController;
 import FXML.main.MainAppController;
 import impl.FlowDefinitionDTO;
@@ -21,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static utils.Constants.REFRESH_RATE;
 
@@ -117,6 +117,7 @@ public class DefinitionController {
     }
 
     private void updateFlowsTable(List<FlowDefinitionDTO> flowDefinitionDTO) {
+        AtomicBoolean addFlow = new AtomicBoolean(false);
         List<TargetTable> flowsToDelete = new ArrayList<>();
         //if (flowDefinitionsWithVersion.getVersion() != flowDefinitionsVersion.get()) {
             Platform.runLater(() -> {
@@ -130,8 +131,14 @@ public class DefinitionController {
                                    flow.getNumberOfContinuations());
                            data.add(row);
                            availableFlows.add(flow.getName());
+                           addFlow.set(true);
+                           mainAppController.updateExecutionReRun(flow.getName());
+                           mainAppController.clearHistorySelection();
                        }
                     }
+                  if(addFlow.get()) {
+                      mainAppController.updateExecutionContinuations();
+                  }
                 for (TargetTable flowTargetTable: data) {
                     boolean isExist = false;
                     for (FlowDefinitionDTO flow : flowDefinitionDTO) {
@@ -143,11 +150,16 @@ public class DefinitionController {
                     if(!isExist) {
                         availableFlows.remove(flowTargetTable.name);
                         flowsToDelete.add(flowTargetTable);
+                        mainAppController.updateExecutionReRun(flowTargetTable.name);
+                        mainAppController.updateExecutionContinuations();
+                        mainAppController.clearHistorySelection();
                     }
                 }
                 data.removeAll(flowsToDelete);
                 if(flowsToDelete.size() != 0) {
                     flowDetailsComponentController.clearPrevDetails();
+                    mainAppController.setIsFlowSelected(false);
+                    ////////delete some flows
                 }
             });
         //}

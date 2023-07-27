@@ -41,8 +41,6 @@ public class CollectInputsController {
     private final Map<DataInFlowDTO, TextField> freeInputsTextFieldComponents;
     private final Map<DataInFlowDTO, Spinner<Integer>> freeInputsSpinnerComponents;
     private final Map<DataInFlowDTO, ChoiceBox<String>> freeInputsChoiceBoxComponents;
-    private int waitForInputs = 0;
-    private final static Object counterLock = new Object();;
 
     public CollectInputsController() {
         this.mandatoryTextFields = new ArrayList<>();
@@ -151,9 +149,7 @@ public class CollectInputsController {
                 isMandatoryField.set(isAllMandatoryField());
             });
         }
-
         initExecuteButton(executionDTO.getUuid(), Math.max(optionalRowIndex, mandatoryRowIndex));
-
     }
 
 

@@ -113,8 +113,14 @@ public class StatisticsController {
     }
 
     private void updateStatistics(StatisticsDTO statisticsDTO) {
-        if (flowsData.size() != statisticsDTO.getFlowExecutedTimes().size()
-        ) {
+        boolean needToUpdate = false;
+        for (TargetTable row : flowsData) {
+            if(row.times != statisticsDTO.getFlowExecutedTimes().get(row.name)){
+                needToUpdate = true;
+                break;
+            }
+        }
+        if (flowsData.size() != statisticsDTO.getFlowExecutedTimes().size() || needToUpdate) {
             clearAll();
             for (Map.Entry<String, Integer> times : statisticsDTO.getFlowExecutedTimes().entrySet()) {
                 TargetTable row = new TargetTable(times.getKey(), times.getValue(), (double) statisticsDTO.getFlowExecutedTotalMillis().get(times.getKey()) / times.getValue());

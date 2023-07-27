@@ -93,13 +93,19 @@ public class AdminMainAppController {
         List<File> files = fileChooser.showOpenMultipleDialog(stage);
         if (files != null && files.size() != 0) {
             try {
-                String response = uploadFile(files);
-                String filePath = files.get(files.size() - 1).getAbsolutePath();
+                Response response = uploadFile(files);
+                if(response.isSuccessful()){
+                    String filePath = files.get(files.size() - 1).getAbsolutePath();
+                    selectedFileProperty.set(filePath);
+                } else {
+                    showErrorDialog("Error", response.body().string());
+                }
+/*                String filePath = files.get(files.size() - 1).getAbsolutePath();
                 if (response.startsWith("The file is valid and fully loaded.")) {
                     selectedFileProperty.set(filePath);
                 } else {
                     showErrorDialog("Invalid file.", response);
-                }
+                }*/
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -113,7 +119,7 @@ public class AdminMainAppController {
         alert.showAndWait();
     }
 
-    private String uploadFile(List<File> files) throws IOException {
+    private Response uploadFile(List<File> files) throws IOException {
         OkHttpClient client = new OkHttpClient();
         String BASE_URL = "http://localhost:8080/stepper_web";
         String RESOURCE = "/upload-file";
@@ -134,7 +140,7 @@ public class AdminMainAppController {
 
         Response response = call.execute();
 
-        return response.body().string();
+        return response;
     }
 
     public void onClose() {

@@ -56,7 +56,9 @@ public class MainAppController {
     private final SimpleBooleanProperty executionWantsToEnable;
     private final SimpleBooleanProperty historyWantsToEnable;
     private String executedFlowName;
-    private String executedFlowID;
+    private String executedFlowID = null;
+    private String selectedHistoryName;
+    private String selectedHistoryID;
 
 
 
@@ -105,14 +107,20 @@ public class MainAppController {
             changeCss(selectedValue);
         });
         isManager.addListener((observable, oldValue, newValue) -> {
-            if(executionWantsToEnable.get()) {
-                updateReRun(executedFlowName);
-                updateContinuations(executedFlowID);
-            }
-            if(!newValue) {
-
-            }
+            executionHistoryComponentController.clearSelection();
         });
+    }
+
+    public void clearHistorySelection(){
+        executionHistoryComponentController.clearSelection();
+    }
+
+    public void setSelectedHistoryName(String selectedHistoryName) {
+        this.selectedHistoryName = selectedHistoryName;
+    }
+
+    public void setSelectedHistoryID(String selectedHistoryID) {
+        this.selectedHistoryID = selectedHistoryID;
     }
 
     public void setExecutedFlowID(String executedFlowID) {
@@ -131,7 +139,7 @@ public class MainAppController {
         return historyWantsToEnable;
     }
 
-    public void updateReRun(String flowName){
+    public void updateExecutionReRun(String flowName){
         if(getAvailableFlows().contains(flowName)){
             flowsExecutionComponentController.enableRerun();
         } else {
@@ -139,19 +147,38 @@ public class MainAppController {
         }
     }
 
-    public void updateContinuations(String id){
-        if(getAvailableFlows().contains(executedFlowName)){
-            flowsExecutionComponentController.addContinuations(id);
+    public void setIsFlowSelected(boolean isFlowSelected) {
+        this.isFlowSelected.set(isFlowSelected);
+    }
+
+    public void updateExecutionContinuations(){
+            if(executedFlowID != null) {
+                if (getAvailableFlows().contains(executedFlowName)) {
+                    flowsExecutionComponentController.addContinuations(executedFlowID);
+                } else {
+                    flowsExecutionComponentController.clearContinuations();
+                }
+            }
+    }
+    public void updateHistoryReRun(String flowName){
+        if(getAvailableFlows().contains(flowName)){
+            executionHistoryComponentController.enAbleReRun();
+
         } else {
-            flowsExecutionComponentController.clearContinuations();
+            executionHistoryComponentController.disAbleReRun();
         }
     }
 
+    public void updateHistoryContinuations(String id){
+        if(getAvailableFlows().contains(selectedHistoryName)){
+            executionHistoryComponentController.addContinuations(id);
+        } else {
+            executionHistoryComponentController.clearContinuations();
+        }
+    }
     public void executionHistoryClicked(String flowName) {
         if(getAvailableFlows().contains(flowName)){
-            executionHistoryComponentController.enAbleReRun();
-        } else {
-            executionHistoryComponentController.disAbleReRun();
+            historyWantsToEnable.set(true);
         }
     }
 
@@ -184,13 +211,6 @@ public class MainAppController {
             } else {
                 isManagerLabel.setText("No");
             }
-/*            if(currentRoles.contains("All Flows")){
-                isManagerLabel.setText("Yes");
-                //executionHistoryComponentController.startRefresher();
-            } else {
-                isManagerLabel.setText("No");
-                //executionHistoryComponentController.closeTimer();
-            }*/
         });
         flowsDefinitionComponentController.startDefinitionRefresher();
     }
@@ -367,7 +387,8 @@ public class MainAppController {
                     e.printStackTrace();
                 }
                 if (response.isSuccessful()) {
-                    String finalUrl = HttpUrl
+                    httpCallCopyFreeInputsValues(prevID, id);
+/*                    String finalUrl = HttpUrl
                             .parse(Constants.COPY_FREE_INPUTS_VALUES)
                             .newBuilder()
                             .addQueryParameter("sourceID", prevID)
@@ -389,7 +410,7 @@ public class MainAppController {
                                 httpCallCopyFreeInputsValues(prevID.toString(), finalId);
                             }
                         }
-                    });
+                    });*/
                 }
             }));
         });

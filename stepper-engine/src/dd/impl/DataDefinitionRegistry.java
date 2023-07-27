@@ -16,7 +16,6 @@ public enum DataDefinitionRegistry implements DataDefinition {
     NUMBER(new NumberDataDefinition()),
     DOUBLE(new DoubleDataDefinition()),
     RELATION(new RelationDataDefinition()),
-    FILE(new FileDataDefinition()),
     LIST(new ListDataDefinition()),
     MAPPING(new MappingDataDefinition()),
     ENUMERATION(new EnumeratorDataDefinition()),

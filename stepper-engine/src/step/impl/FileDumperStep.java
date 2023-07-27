@@ -1,6 +1,5 @@
 package step.impl;
 
-import dd.api.AbstractDataDefinition;
 import dd.impl.DataDefinitionRegistry;
 import flow.execution.context.StepExecutionContext;
 import logs.LogLine;

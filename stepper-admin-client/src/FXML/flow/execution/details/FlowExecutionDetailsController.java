@@ -189,9 +189,10 @@ public class FlowExecutionDetailsController {
     private void addJsonData(JsonData jsonData, int rowIndex, int colIndex) {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String text = gson.toJson(jsonData.getJsonElement());
-        TextArea textArea = new TextArea(text);
+        String prettyText = text.replaceAll("\\\\", "\n");
+        TextArea textArea = new TextArea(prettyText);
         textArea.setPrefWidth(200);
-        textArea.setPrefHeight(50);
+        textArea.setPrefHeight(100);
         flowExecutionDetailsGP.add(textArea, colIndex,rowIndex);
     }
 
