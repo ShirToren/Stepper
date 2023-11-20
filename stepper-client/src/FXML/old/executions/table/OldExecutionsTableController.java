@@ -3,6 +3,7 @@ package FXML.old.executions.table;
 import FXML.execution.history.ExecutionHistoryController;
 import FXML.main.MainAppController;
 import impl.FlowExecutionDTO;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -54,6 +55,8 @@ public class OldExecutionsTableController {
     private final SimpleBooleanProperty isExecutionSelected = new SimpleBooleanProperty(false);
     private String selectedItemName;
     private UUID selectedItemID;
+    private static final Object lock = new Object();
+    private List<FlowExecutionDTO> finishedExecutions;
 
     @FXML public void initialize() {
         flowNameTableColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -167,13 +170,15 @@ public class OldExecutionsTableController {
                 selectedItemID = item.id;
 
                 mainAppController.historyWantsToEnableProperty().set(true);
-                executionHistoryController.addFlowExecutionDetails(item.id);
+                executionHistoryController.addFlowExecutionDetails(item.id, finishedExecutions);
                 mainAppController.setSelectedHistoryID(selectedItemName);
                 mainAppController.setSelectedHistoryName(selectedItemName);
                 mainAppController.updateHistoryReRun(selectedItemName);
             }
         }
     }
+
+
 
     public void startExecutionHistoryRefresher() {
         executionHistoryRefresher = new OldExecutionsRefresher(this::updateExecutionHistory, mainAppController.isManager());
@@ -182,29 +187,24 @@ public class OldExecutionsTableController {
     }
 
     private void updateExecutionHistory(List<FlowExecutionDTO> flowExecutionDTOList) {
-/*        mainAppController.isManager().addListener((observable, oldValue, newValue) -> {
-            *//*data.clear();
-            mainAppController.historyWantsToEnableProperty().set(false);*//*
-            mainAppController.updateHistoryReRun(selectedItemName);
-        });*/
-       // mainAppController.updateReRun(selectedItemName);
-        List<FlowExecutionDTO> finishedExecutions = new ArrayList<>();
-        for (FlowExecutionDTO flowExecutionDTO: flowExecutionDTOList) {
-            if(flowExecutionDTO.isFinished()) {
-                finishedExecutions.add(flowExecutionDTO);
+            List<FlowExecutionDTO> finishedExecutions = new ArrayList<>();
+            for (FlowExecutionDTO flowExecutionDTO: flowExecutionDTOList) {
+                if(flowExecutionDTO.isFinished()) {
+                    finishedExecutions.add(flowExecutionDTO);
+                }
             }
-        }
-        if(finishedExecutions.size() != data.size()){
-            data.clear();
-            mainAppController.historyWantsToEnableProperty().set(false);
-            for (FlowExecutionDTO dto: finishedExecutions) {
-                    TargetTable row = new TargetTable(dto.getFlowDefinitionDTO().getName(),
-                            dto.getStartExecutionTime(),
-                            dto.getExecutionResult(), dto.getUuid(), dto.getUserName(),
-                            dto.isManager()? "manager" : "not manager");
-                    data.add(row);
+            if(finishedExecutions.size() != data.size()){
+                this.finishedExecutions = finishedExecutions;
+                    data.clear();
+                    mainAppController.historyWantsToEnableProperty().set(false);
+                    for (FlowExecutionDTO dto: finishedExecutions) {
+                        TargetTable row = new TargetTable(dto.getFlowDefinitionDTO().getName(),
+                                dto.getStartExecutionTime(),
+                                dto.getExecutionResult(), dto.getUuid(), dto.getUserName(),
+                                dto.isManager()? "manager" : "not manager");
+                        data.add(row);
+                    }
             }
-        }
     }
 
     public void unselect() {

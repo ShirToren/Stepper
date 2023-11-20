@@ -46,9 +46,6 @@ public class AddRolesToUserServlet extends HttpServlet {
                 for (RoleDefinitionDTO roleDefinitionDTO : list) {
                 userManager.getUsers().get(userName).addRole(
                         manager.getRoles().get(roleDefinitionDTO.getName()));
-/*                        new RoleDefinitionImpl(roleDefinitionDTO.getName(),
-                                roleDefinitionDTO.getDescription(),
-                                roleDefinitionDTO.getFlows()));*/
                 if(roleDefinitionDTO.getName().equals("All Flows")){
                     userManager.getUsers().get(userName).setManager(true);
                 }

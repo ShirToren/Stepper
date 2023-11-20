@@ -10,7 +10,6 @@ public class User {
     private final List<RoleDefinition> roles;
     private int numOfExecutions;
     private boolean isManager;
-
     public User(String name) {
         this.name = name;
         this.roles = new ArrayList<>();

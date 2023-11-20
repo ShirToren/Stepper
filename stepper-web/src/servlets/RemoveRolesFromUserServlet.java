@@ -45,9 +45,6 @@ public class RemoveRolesFromUserServlet extends HttpServlet {
                 for (RoleDefinitionDTO roleDefinitionDTO : list) {
                 userManager.getUsers().get(userName).removeRole(
                         manager.getRoles().get(roleDefinitionDTO.getName()));
-/*                        new RoleDefinitionImpl(roleDefinitionDTO.getName(),
-                                roleDefinitionDTO.getDescription(),
-                                roleDefinitionDTO.getFlows()));*/
                 if(roleDefinitionDTO.getName().equals("All Flows")){
                     userManager.getUsers().get(userName).setManager(false);
                 }

@@ -3,6 +3,15 @@
     <output-path>$PROJECT_DIR$/out/artifacts/stepper_engine_jar</output-path>
     <root id="archive" name="stepper-engine.jar">
       <element id="module-output" name="stepper-engine" />
+      <element id="module-output" name="stepper-dto" />
+      <element id="extracted-dir" path="$USER_HOME$/Downloads/okHttp/okHttp/okio-2.8.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/Downloads/jayson path/json-smart-2.4.8.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/Downloads/okHttp/okHttp/kotlin-stdlib-1.4.10.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/Downloads/okHttp/okHttp/okhttp-4.9.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/Downloads/jayson path/json-path-2.7.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/Downloads/jayson path/slf4j-api-2.0.6.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/Downloads/jayson path/accessors-smart-2.4.8.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/Downloads/gson-2.8.8.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

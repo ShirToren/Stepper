@@ -17,7 +17,7 @@ public class Constants {
     // Server resources locations
     public final static String BASE_DOMAIN = "localhost";
     private final static String BASE_URL = "http://" + BASE_DOMAIN + ":8080";
-    private final static String CONTEXT_PATH = "/stepper_web";
+    private final static String CONTEXT_PATH = "/stepper-web";
     private final static String FULL_SERVER_PATH = BASE_URL + CONTEXT_PATH;
 
     public final static String LOGIN_PAGE = FULL_SERVER_PATH + "/loginShortResponse";
@@ -25,7 +25,7 @@ public class Constants {
     public final static String FLOW_DEFINITIONS_LIST = FULL_SERVER_PATH + "/definitions-list";
     public final static String HISTORY = FULL_SERVER_PATH + "/history";
     public final static String FLOW_DEFINITION = FULL_SERVER_PATH + "/flow-definition";
-    public final static String LOGOUT = FULL_SERVER_PATH + "/chat/logout";
+    public final static String LOGOUT = FULL_SERVER_PATH + "/logout";
     public final static String USER_ROLES = FULL_SERVER_PATH + "/user-roles";
     public final static String FLOW_EXECUTION = FULL_SERVER_PATH + "/flow-execution";
     public final static String COPY_CONTINUATION_VALUES = FULL_SERVER_PATH + "/copy-continuation-values";

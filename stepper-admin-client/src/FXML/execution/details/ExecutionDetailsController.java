@@ -117,32 +117,36 @@ public class ExecutionDetailsController {
         });
     }
 
-    public void addExecutedFlowAndSteps(String id) {
-        httpCallGetExecution(id, (flowExecutionDTO -> {
-            TreeItem<String> rootItem = new TreeItem<>(flowExecutionDTO.getFlowDefinitionDTO().getName());
-            executedFlowAndStepsTV.setRoot(rootItem);
-
-            executedFlowAndStepsTV.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-                httpCallGetExecution(id, updatedFlowExecutionDTO -> {
-                    if (newValue != null) {
-                        if(updatedFlowExecutionDTO.isFlowName(newValue.getValue())){
-                            executionDetailsComponent.getChildren().clear();
-                            executionDetailsComponent.getChildren().add(flowExecutionDetailsComponent);
-                        } else {
-                            executionDetailsComponent.getChildren().clear();
-                            executionDetailsComponent.getChildren().add(stepExecutionDetailsComponent);
-                            for (StepUsageDeclarationDTO step : updatedFlowExecutionDTO.getFlowDefinitionDTO().getSteps()) {
-                                if (step.getName().equals(newValue.getValue())) {
-                                    stepExecutionDetailsComponentController.addStepDetails(updatedFlowExecutionDTO, step);
-                                }
-                            }
+    public void addExecutedFlowAndSteps(String id, List<FlowExecutionDTO> finishedExecutions) {
+        FlowExecutionDTO flowExecutionDTO = null;
+        for (FlowExecutionDTO dto: finishedExecutions) {
+            if(dto.getUuid().toString().equals(id)){
+                flowExecutionDTO = dto;
+            }
+        }
+        TreeItem<String> rootItem = new TreeItem<>(flowExecutionDTO.getFlowDefinitionDTO().getName());
+        executedFlowAndStepsTV.setRoot(rootItem);
+        FlowExecutionDTO finalFlowExecutionDTO = flowExecutionDTO;
+        executedFlowAndStepsTV.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            // httpCallGetExecution(mainAppController.getSelectedHistoryID(), updatedFlowExecutionDTO -> {
+            if (newValue != null) {
+                if(finalFlowExecutionDTO.isFlowName(newValue.getValue())){
+                    executionDetailsComponent.getChildren().clear();
+                    executionDetailsComponent.getChildren().add(flowExecutionDetailsComponent);
+                } else {
+                    executionDetailsComponent.getChildren().clear();
+                    executionDetailsComponent.getChildren().add(stepExecutionDetailsComponent);
+                    for (StepUsageDeclarationDTO step : finalFlowExecutionDTO.getFlowDefinitionDTO().getSteps()) {
+                        if (step.getName().equals(newValue.getValue())) {
+                            stepExecutionDetailsComponentController.addStepDetails(finalFlowExecutionDTO, step);
                         }
                     }
-                });
-            });
-            updateFinalDetails(id);
-            addExecutedSteps(id);
-        }));
+                }
+            }
+            // });
+        });
+        updateFinalDetails(id);
+        addExecutedSteps(id);
     }
 
 
@@ -161,9 +165,9 @@ public class ExecutionDetailsController {
                 }));
     }
 
-    public void addFlowExecutionDetails(String id) {
+    public void addFlowExecutionDetails(String id  ,List<FlowExecutionDTO> finishedExecutions) {
         flowExecutionDetailsComponentController.addFlowExecutionDetails(id);
-        addExecutedFlowAndSteps(id);
+        addExecutedFlowAndSteps(id, finishedExecutions);
     }
 
     public void updateFinalDetails(String id){

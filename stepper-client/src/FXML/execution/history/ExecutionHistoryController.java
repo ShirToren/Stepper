@@ -2,12 +2,15 @@ package FXML.execution.history;
 import FXML.execution.details.ExecutionDetailsController;
 import FXML.main.MainAppController;
 import FXML.old.executions.table.OldExecutionsTableController;
+import impl.FlowExecutionDTO;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.GridPane;
+
+import java.util.List;
 import java.util.UUID;
 
 public class ExecutionHistoryController {
@@ -30,6 +33,9 @@ public class ExecutionHistoryController {
 
         //executeAgainButton.disableProperty().bind(oldExecutionsTableComponentController.isExecutionSelected().not());
     }
+    public void addExecutedFlowAndSteps(String id){
+        executionDetailsComponentController.addExecutedFlowAndSteps(id);
+    }
 
     public void setMainAppController(MainAppController mainAppController) {
         this.mainAppController = mainAppController;
@@ -49,12 +55,11 @@ public class ExecutionHistoryController {
         oldExecutionsTableComponentController.show();
     }
 
-    public void addFlowExecutionDetails(UUID id) {
-        executionDetailsComponentController.addFlowExecutionDetails(id.toString());
+    public void addFlowExecutionDetails(UUID id,  List<FlowExecutionDTO> finishedExecutions) {
+        executionDetailsComponentController.addFlowExecutionDetailsToHistory(id.toString(), finishedExecutions);
         mainAppController.setSelectedHistoryID(id.toString());
         executionDetailsComponentController.addContinuations(id.toString());
     }
-
     public void clearSelection() {
         oldExecutionsTableComponentController.unselect();
         executionDetailsComponentController.clearAll();

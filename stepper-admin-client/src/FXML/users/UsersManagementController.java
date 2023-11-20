@@ -63,31 +63,33 @@ public class UsersManagementController {
 
     @FXML
     void saveButtonActionListener(ActionEvent event) {
-        List<RoleDefinitionDTO> rolesToAdd = new ArrayList<>();
-        List<RoleDefinitionDTO> rolesToRemove = new ArrayList<>();
-        boolean isManager = false;
-        for (CheckBox checkBox: addRolesData) {
-            if(checkBox.isSelected()) {
-                if(!currentUsers.get(selectedUser).getRolesName().contains(checkBox.getText())) {
-                    rolesToAdd.add(currentRoles.get(checkBox.getText()));
-                    if(checkBox.getText().equals("All Flows")){
-                        isManager = true;
+        if (selectedUser != null) {
+            List<RoleDefinitionDTO> rolesToAdd = new ArrayList<>();
+            List<RoleDefinitionDTO> rolesToRemove = new ArrayList<>();
+            boolean isManager = false;
+            for (CheckBox checkBox : addRolesData) {
+                if (checkBox.isSelected()) {
+                    if (!currentUsers.get(selectedUser).getRolesName().contains(checkBox.getText())) {
+                        rolesToAdd.add(currentRoles.get(checkBox.getText()));
+                        if (checkBox.getText().equals("All Flows")) {
+                            isManager = true;
+                        }
+                    }
+                } else {
+                    if (currentUsers.get(selectedUser).getRolesName().contains(checkBox.getText())) {
+                        rolesToRemove.add(currentRoles.get(checkBox.getText()));
                     }
                 }
-            } else {
-                if(currentUsers.get(selectedUser).getRolesName().contains(checkBox.getText())){
-                    rolesToRemove.add(currentRoles.get(checkBox.getText()));
-                }
             }
-        }
-        if(setManagerCB.isSelected() && !isManager && !currentUsers.get(selectedUser).getRolesName().contains("All Flows")) {
-            rolesToAdd.add(currentRoles.get("All Flows"));
-        } else if (!setManagerCB.isSelected() && isManager && currentUsers.get(selectedUser).getRolesName().contains("All Flows")){
-            rolesToRemove.add(currentRoles.get("All Flows"));
-        }
+            if (setManagerCB.isSelected() && !isManager && !currentUsers.get(selectedUser).getRolesName().contains("All Flows")) {
+                rolesToAdd.add(currentRoles.get("All Flows"));
+            } else if (!setManagerCB.isSelected() && isManager && currentUsers.get(selectedUser).getRolesName().contains("All Flows")) {
+                rolesToRemove.add(currentRoles.get("All Flows"));
+            }
 
-        httpCallToAddOrRemoveRoles(rolesToAdd, Constants.ADD_ROLES_TO_USER);
-        httpCallToAddOrRemoveRoles(rolesToRemove, Constants.REMOVE_ROLES_FROM_USER);
+            httpCallToAddOrRemoveRoles(rolesToAdd, Constants.ADD_ROLES_TO_USER);
+            httpCallToAddOrRemoveRoles(rolesToRemove, Constants.REMOVE_ROLES_FROM_USER);
+        }
     }
 
     private void httpCallToAddOrRemoveRoles(List<RoleDefinitionDTO> rolesList, String endpoint) {
@@ -181,9 +183,20 @@ public class UsersManagementController {
         timer.schedule(usersRefresher, REFRESH_RATE, REFRESH_RATE);
     }
 
+    private void clearUsersInfo(){
+        userNameLabel.setText("");
+        usersExecutionsLabel.setText("");
+        assignedRolesData.clear();
+        addRolesData.clear();
+        availableFlowsLabel.setText("");
+    }
+
     private void updateUsersInfo(Map<String, UserDTO> users) {
         currentUsers = users;
         if(usersData.size() != users.size()) {
+                usersLV.getSelectionModel().clearSelection();
+                selectedUser = null;
+                clearUsersInfo();
                 usersData.clear();
                 for (Map.Entry<String, UserDTO> entry : users.entrySet()) {
                     usersData.add(entry.getKey());

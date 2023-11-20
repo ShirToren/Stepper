@@ -243,9 +243,8 @@ public class ExecutionDetailsController {
         httpCallGetExecution(id, (flowExecutionDTO -> {
             TreeItem<String> rootItem = new TreeItem<>(flowExecutionDTO.getFlowDefinitionDTO().getName());
             executedFlowAndStepsTV.setRoot(rootItem);
-
             executedFlowAndStepsTV.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-                    httpCallGetExecution(id, updatedFlowExecutionDTO -> {
+                    httpCallGetExecution(mainAppController.getExecutedFlowID(), updatedFlowExecutionDTO -> {
                         if (newValue != null) {
                             if(updatedFlowExecutionDTO.isFlowName(newValue.getValue())){
                                 executionDetailsComponent.getChildren().clear();
@@ -267,6 +266,39 @@ public class ExecutionDetailsController {
         }));
     }
 
+    public void addExecutedFlowAndStepsToHistory(String id, List<FlowExecutionDTO> finishedExecutions) {
+        FlowExecutionDTO flowExecutionDTO = null;
+        for (FlowExecutionDTO dto: finishedExecutions) {
+            if(dto.getUuid().toString().equals(id)){
+                flowExecutionDTO = dto;
+            }
+        }
+            TreeItem<String> rootItem = new TreeItem<>(flowExecutionDTO.getFlowDefinitionDTO().getName());
+            executedFlowAndStepsTV.setRoot(rootItem);
+        FlowExecutionDTO finalFlowExecutionDTO = flowExecutionDTO;
+        executedFlowAndStepsTV.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+               // httpCallGetExecution(mainAppController.getSelectedHistoryID(), updatedFlowExecutionDTO -> {
+                    if (newValue != null) {
+                        if(finalFlowExecutionDTO.isFlowName(newValue.getValue())){
+                            executionDetailsComponent.getChildren().clear();
+                            executionDetailsComponent.getChildren().add(flowExecutionDetailsComponent);
+                        } else {
+                            executionDetailsComponent.getChildren().clear();
+                            executionDetailsComponent.getChildren().add(stepExecutionDetailsComponent);
+                            for (StepUsageDeclarationDTO step : finalFlowExecutionDTO.getFlowDefinitionDTO().getSteps()) {
+                                if (step.getName().equals(newValue.getValue())) {
+                                    stepExecutionDetailsComponentController.addStepDetails(finalFlowExecutionDTO, step);
+                                }
+                            }
+                        }
+                    }
+               // });
+            });
+            updateFinalDetails(id);
+            addExecutedSteps(id);
+
+    }
+
     private void updateReRun(FlowExecutionDTO flowExecutionDTO) {
        mainAppController.updateExecutionReRun(flowExecutionDTO.getFlowDefinitionDTO().getName());
     }
@@ -285,10 +317,16 @@ public class ExecutionDetailsController {
                     }
                 }));
     }
-
     public void addFlowExecutionDetails(String id) {
         flowExecutionDetailsComponentController.addFlowExecutionDetails(id);
         addExecutedFlowAndSteps(id);
+        continueButton.setOnAction(event -> {
+            mainAppController.prepareToContinuation(id, selectedContinuation);
+        });
+    }
+    public void addFlowExecutionDetailsToHistory(String id, List<FlowExecutionDTO> finishedExecutions) {
+        flowExecutionDetailsComponentController.addFlowExecutionDetails(id);
+        addExecutedFlowAndStepsToHistory(id, finishedExecutions);
         continueButton.setOnAction(event -> {
             mainAppController.prepareToContinuation(id, selectedContinuation);
         });
@@ -386,6 +424,7 @@ public class ExecutionDetailsController {
                     flowExecutionDetailsComponentController.addInput(input);
                 }, stepName -> {
                     executedFlowAndStepsTV.getRoot().getChildren().add(new TreeItem<>(stepName));
+
                 },
                 startTime -> {
                     flowExecutionDetailsComponentController.updateStartTime(startTime);
@@ -393,7 +432,7 @@ public class ExecutionDetailsController {
                 , uuid -> {
                     mainAppController.addRerunButton(uuid);
                 }, () -> {
-                    executedFlowAndStepsTV.getRoot().getChildren().clear();
+                        executedFlowAndStepsTV.getRoot().getChildren().clear();
                 },
                 () -> {
                     flowExecutionDetailsComponentController.clearAllOutputs();

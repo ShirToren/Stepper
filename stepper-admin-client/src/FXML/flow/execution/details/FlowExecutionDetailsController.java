@@ -2,6 +2,7 @@ package FXML.flow.execution.details;
 
 import FXML.main.AdminMainAppController;
 import dd.JsonData;
+import impl.StepUsageDeclarationDTO;
 import utils.Constants;
 import utils.adapter.DataInFlowMapDeserializer;
 import utils.adapter.FreeInputsMapDeserializer;
@@ -87,18 +88,19 @@ public class FlowExecutionDetailsController {
                     gsonBuilder.registerTypeAdapter(new TypeToken<Map<DataInFlowDTO, Object>>(){}.getType(), new DataInFlowMapDeserializer());
                     gsonBuilder.registerTypeAdapter(new TypeToken<Map<String, Object>>(){}.getType(), new FreeInputsMapDeserializer());
                     Gson gson = gsonBuilder.create();
-
                     FlowExecutionDTO executionDTO = gson.fromJson(rawBody, FlowExecutionDTO.class);
                     Platform.runLater(() -> {
                         flowNameLabel.setText(executionDTO.getFlowDefinitionDTO().getName());
                         flowIDLabel.setText(executionDTO.getUuid().toString());
                         showFreeInputsDetails(executionDTO);
                         showAllFlowOutputsDetails(executionDTO);
+                        //mainAppController.addExecutedFlowAndSteps(executionDTO.getUuid().toString());
                     });
                 }
             }
         });
     }
+
     private void showAllFlowOutputsDetails(FlowExecutionDTO executionDTO) {
         clearAllOutputs();
         for (Map.Entry<DataInFlowDTO , Object> entry : executionDTO.getAllExecutionOutputs().entrySet()) {

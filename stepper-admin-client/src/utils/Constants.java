@@ -6,9 +6,10 @@ public class Constants {
     public final static int REFRESH_RATE = 2000;
     public final static String BASE_DOMAIN = "localhost";
     private final static String BASE_URL = "http://" + BASE_DOMAIN + ":8080";
-    private final static String CONTEXT_PATH = "/stepper_web";
+    private final static String CONTEXT_PATH = "/stepper-web";
     private final static String FULL_SERVER_PATH = BASE_URL + CONTEXT_PATH;
     public final static String STATISTICS = FULL_SERVER_PATH + "/statistics";
+    public final static String UPLOAD_FILE = FULL_SERVER_PATH + "/upload-file";
     public final static String FLOW_EXECUTIONS_LIST = FULL_SERVER_PATH + "/executions-list";
     public final static String ALL_HISTORY = FULL_SERVER_PATH + "/all-history";
     public final static String USERS_LIST = FULL_SERVER_PATH + "/users-list";

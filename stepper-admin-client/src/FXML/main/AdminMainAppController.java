@@ -119,10 +119,9 @@ public class AdminMainAppController {
         alert.showAndWait();
     }
 
+
     private Response uploadFile(List<File> files) throws IOException {
         OkHttpClient client = new OkHttpClient();
-        String BASE_URL = "http://localhost:8080/stepper_web";
-        String RESOURCE = "/upload-file";
         MultipartBody.Builder multipartBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
         for (File xmlFile : files) {
             RequestBody fileBody = RequestBody.create(MediaType.parse("application/xml"), xmlFile);
@@ -131,7 +130,7 @@ public class AdminMainAppController {
 
         RequestBody requestBody = multipartBuilder.build();
         Request request = new Request.Builder()
-                .url(BASE_URL + RESOURCE)
+                .url(Constants.UPLOAD_FILE)
                 .post(requestBody)
                 .build();
 

@@ -7,14 +7,19 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 import utils.*;
 import utils.http.HttpClientUtil;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
@@ -30,6 +35,8 @@ public class MainAppController {
     private Label nameLabel;
     @FXML
     private Label isManagerLabel;
+    @FXML
+    private Button logoutButton;
     @FXML
     private ListView<String> rolesLV;
     private final ObservableList<String> rolesLVItems = FXCollections.observableArrayList();
@@ -127,6 +134,10 @@ public class MainAppController {
         this.executedFlowID = executedFlowID;
     }
 
+    public String getExecutedFlowID() {
+        return executedFlowID;
+    }
+
     public void setExecutedFlowName(String executedFlowName) {
         this.executedFlowName = executedFlowName;
     }
@@ -137,6 +148,10 @@ public class MainAppController {
 
     public SimpleBooleanProperty historyWantsToEnableProperty() {
         return historyWantsToEnable;
+    }
+
+    public String getSelectedHistoryID() {
+        return selectedHistoryID;
     }
 
     public void updateExecutionReRun(String flowName){
@@ -284,14 +299,30 @@ public class MainAppController {
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 consumer.accept(response);
-/*                String id = response.body().string();
-                if (response.isSuccessful()) {
-                    Platform.runLater(runnable);
-                    // httpStatusUpdate.updateHttpLine("Attempt to send chat line [" + chatLine + "] request ended with failure. Error code: " + response.code());
-                }*/
             }
         });
     }
+
+    @FXML
+    void logoutButtonActionListener(ActionEvent event) {
+        String finalUrl = HttpUrl
+                .parse(Constants.LOGOUT)
+                .newBuilder()
+                .build()
+                .toString();
+
+
+        try {
+            Response response = HttpClientUtil.runSync(finalUrl);
+            onClose();
+            showGoodByeDialog();
+            Platform.exit();
+        } catch (IOException e) {
+            showErrorDialog("Error", "Failed to logout");
+        }
+    }
+
+
 
     public void executeFlowButtonActionListener() {
         httpCallCreateExecution(flowsDefinitionComponentController.getSelectedFlowName(),
@@ -496,7 +527,15 @@ public class MainAppController {
     }
 
 
+    private void showGoodByeDialog() {
+        Alert goodbyeAlert = new Alert(Alert.AlertType.INFORMATION);
+        goodbyeAlert.setTitle("Goodbye!");
+        goodbyeAlert.setHeaderText(null);
+        goodbyeAlert.setContentText("Thank you for using our Stepper.\nGoodbye!");
 
+        // Show the dialog and wait for the user to close it
+        goodbyeAlert.showAndWait();
+    }
     private void showErrorDialog(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR, message, ButtonType.OK);
         alert.setTitle(title);

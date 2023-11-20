@@ -2,9 +2,12 @@ package FXML.execution.history;
 import FXML.execution.details.ExecutionDetailsController;
 import FXML.main.AdminMainAppController;
 import FXML.old.executions.table.OldExecutionsTableController;
+import impl.FlowExecutionDTO;
 import javafx.fxml.FXML;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.GridPane;
+
+import java.util.List;
 import java.util.UUID;
 
 public class ExecutionHistoryController {
@@ -32,8 +35,8 @@ public class ExecutionHistoryController {
         oldExecutionsTableComponentController.show();
     }
 
-    public void addFlowExecutionDetails(UUID id) {
-        executionDetailsComponentController.addFlowExecutionDetails(id.toString());
+    public void addFlowExecutionDetails(UUID id, List<FlowExecutionDTO> finishedExecutions) {
+        executionDetailsComponentController.addFlowExecutionDetails(id.toString(), finishedExecutions);
     }
 
     public void addExecutionToTable(){

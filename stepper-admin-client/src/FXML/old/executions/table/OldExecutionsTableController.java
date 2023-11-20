@@ -3,6 +3,7 @@ package FXML.old.executions.table;
 import FXML.execution.history.ExecutionHistoryController;
 import FXML.main.AdminMainAppController;
 import impl.FlowExecutionDTO;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -54,6 +55,8 @@ public class OldExecutionsTableController {
     private final SimpleBooleanProperty isExecutionSelected = new SimpleBooleanProperty(false);
     private String selectedItemName;
     private UUID selectedItemID;
+    private static final Object lock = new Object();
+    private List<FlowExecutionDTO> finishedExecutions;
 
     @FXML public void initialize() {
         flowNameTableColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -128,25 +131,28 @@ public class OldExecutionsTableController {
     }
 
     private void updateExecutionHistory(List<FlowExecutionDTO> flowExecutionDTOList) {
-        List<FlowExecutionDTO> finishedExecutions = new ArrayList<>();
-        for (FlowExecutionDTO flowExecutionDTO: flowExecutionDTOList) {
-            if(flowExecutionDTO.isFinished()) {
-                finishedExecutions.add(flowExecutionDTO);
-            }
-        }
-        if(finishedExecutions.size() != data.size()){
-            data.clear();
-            for (FlowExecutionDTO dto: flowExecutionDTOList) {
-                if(dto.isFinished()) {
-                    TargetTable row = new TargetTable(dto.getFlowDefinitionDTO().getName(),
-                            dto.getStartExecutionTime(),
-                            dto.getExecutionResult(), dto.getUuid(), dto.getUserName(),
-                            dto.isManager()? "manager" : "not manager");
-                    data.add(row);
+            List<FlowExecutionDTO> finishedExecutions = new ArrayList<>();
+            for (FlowExecutionDTO flowExecutionDTO: flowExecutionDTOList) {
+                if(flowExecutionDTO.isFinished()) {
+                    finishedExecutions.add(flowExecutionDTO);
                 }
             }
+            if(finishedExecutions.size() != data.size()){
+                this.finishedExecutions = finishedExecutions;
+                    data.clear();
+                    for (FlowExecutionDTO dto: flowExecutionDTOList) {
+                        if(dto.isFinished()) {
+                            TargetTable row = new TargetTable(dto.getFlowDefinitionDTO().getName(),
+                                    dto.getStartExecutionTime(),
+                                    dto.getExecutionResult(), dto.getUuid(), dto.getUserName(),
+                                    dto.isManager()? "manager" : "not manager");
+                            data.add(row);
+                        }
+                    }
+
+            }
         }
-    }
+
 
     public void setMainAppController(AdminMainAppController mainAppController) {
         this.mainAppController = mainAppController;
@@ -173,7 +179,7 @@ public class OldExecutionsTableController {
                 selectedItemName = item.name;
                 selectedItemID = item.id;
 
-                executionHistoryController.addFlowExecutionDetails(item.id);
+                executionHistoryController.addFlowExecutionDetails(item.id, finishedExecutions);
             }
         }
 

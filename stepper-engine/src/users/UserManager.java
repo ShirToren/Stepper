@@ -14,12 +14,6 @@ public class UserManager {
     public synchronized void addUser(String username) {
         usersMap.put(username, new User(username));
     }
-    public synchronized void addUser(String username, RoleDefinition role) {
-        User newUser = new User(username);
-        newUser.addRole(role);
-        usersMap.put(username, newUser);
-    }
-
 
     public synchronized void removeUser(String username) {
         usersMap.remove(username);
